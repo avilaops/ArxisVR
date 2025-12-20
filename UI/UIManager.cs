@@ -21,7 +21,8 @@ public class UIManager
     private bool _showVRSettings = false;
     private bool _showMeasurements = false; // NEW
     private Dictionary<string, bool> _typeVisibility = new();
-    private List<MeasurementResult> _measurementHistory = new(); // NEW
+    private List<MeasurementResult> _measurementHistory = new();
+    private Toolbar _toolbar = new(); // NEW
     
     public IfcElement? SelectedElement
     {
@@ -51,11 +52,45 @@ public class UIManager
         {
             _typeVisibility[type] = true;
         }
+        
+        // Setup toolbar events
+        SetupToolbarEvents();
+    }
+
+    private void SetupToolbarEvents()
+    {
+        _toolbar.OnOpenFile += () => OnOpenFileRequested?.Invoke("");
+        _toolbar.OnSaveScreenshot += () => { /* Will implement */ };
+        _toolbar.OnMeasureDistance += () =>
+        {
+            OnMeasurementModeChanged?.Invoke(MeasurementMode.Distance);
+            _showMeasurements = true;
+        };
+        _toolbar.OnMeasureArea += () =>
+        {
+            OnMeasurementModeChanged?.Invoke(MeasurementMode.Area);
+            _showMeasurements = true;
+        };
+        _toolbar.OnMeasureAngle += () =>
+        {
+            OnMeasurementModeChanged?.Invoke(MeasurementMode.Angle);
+            _showMeasurements = true;
+        };
+        _toolbar.OnFocusModel += () => OnFocusRequested?.Invoke();
+        _toolbar.OnResetCamera += () => OnResetCameraRequested?.Invoke();
+        _toolbar.OnToggleLighting += () => { /* Camera lighting toggle */ };
+        _toolbar.OnToggleVR += () => { /* VR toggle */ };
+        _toolbar.OnSelectMode += () => { /* Select mode */ };
+        _toolbar.OnPanMode += () => { /* Pan mode */ };
+        _toolbar.OnOrbitMode += () => { /* Orbit mode */ };
     }
 
     public void Render(Camera camera, VRManager vrManager, float fps)
     {
         RenderMainMenuBar(camera, vrManager, fps);
+        
+        // Render toolbar
+        _toolbar.Render((int)ImGui.GetIO().DisplaySize.X, (int)ImGui.GetIO().DisplaySize.Y);
         
         if (_showElementList)
             RenderElementList();
@@ -106,6 +141,14 @@ public class UIManager
 
             if (ImGui.BeginMenu("View"))
             {
+                bool toolbarVisible = _toolbar.IsVisible;
+                if (ImGui.MenuItem("Toolbar", "F6", ref toolbarVisible))
+                {
+                    _toolbar.IsVisible = toolbarVisible;
+                }
+                
+                ImGui.Separator();
+                
                 ImGui.MenuItem("Element List", "F2", ref _showElementList);
                 ImGui.MenuItem("Properties", "F3", ref _showProperties);
                 ImGui.MenuItem("Statistics", "F4", ref _showStatistics);
