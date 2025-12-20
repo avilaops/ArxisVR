@@ -113,6 +113,12 @@ public class IfcViewer : IDisposable
         
         _uiManager.OnFocusRequested += FocusOnModel;
         _uiManager.OnResetCameraRequested += ResetCamera;
+        
+        // NEW: Subscribe to file open request
+        _uiManager.OnOpenFileRequested += (filePath) =>
+        {
+            _ = LoadIfcFileAsync(filePath);
+        };
 
         // Subscribe to selection events
         _selectionManager.OnSelectionChanged += (element) =>
@@ -233,6 +239,15 @@ public class IfcViewer : IDisposable
         // Check if UI wants keyboard input
         if (ImGui.GetIO().WantCaptureKeyboard)
             return;
+
+        // Check for Ctrl+O (Open File)
+        bool ctrlPressed = keyboard.IsKeyPressed(Key.ControlLeft) || keyboard.IsKeyPressed(Key.ControlRight);
+        
+        if (ctrlPressed && key == Key.O)
+        {
+            OpenFileDialog();
+            return;
+        }
 
         switch (key)
         {
@@ -455,7 +470,25 @@ public class IfcViewer : IDisposable
         OnStatusMessage?.Invoke("L: Toggle lighting | Delete: Clear selection");
         OnStatusMessage?.Invoke("F2: Toggle VR mode | F3: Toggle AR mode");
         OnStatusMessage?.Invoke("F11: Toggle fullscreen | ESC: Exit");
+        OnStatusMessage?.Invoke("Ctrl+O: Open IFC file"); // NEW
         OnStatusMessage?.Invoke("Drag & Drop: Load IFC file");
+    }
+
+    private void OpenFileDialog()
+    {
+        OnStatusMessage?.Invoke("Opening file dialog...");
+        
+        var filePath = FileDialog.OpenFile("Open IFC File");
+        
+        if (!string.IsNullOrEmpty(filePath))
+        {
+            OnStatusMessage?.Invoke($"Selected file: {Path.GetFileName(filePath)}");
+            _ = LoadIfcFileAsync(filePath);
+        }
+        else
+        {
+            OnStatusMessage?.Invoke("File selection cancelled.");
+        }
     }
 
     private void OnClosing()

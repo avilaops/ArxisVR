@@ -34,6 +34,7 @@ public class UIManager
     public event Action<string, bool>? OnTypeVisibilityChanged;
     public event Action? OnFocusRequested;
     public event Action? OnResetCameraRequested;
+    public event Action<string>? OnOpenFileRequested; // NEW
 
     public void SetModel(IfcModel model)
     {
@@ -71,7 +72,12 @@ public class UIManager
             {
                 if (ImGui.MenuItem("Open IFC...", "Ctrl+O"))
                 {
-                    // File dialog would go here
+                    // Trigger file dialog
+                    var filePath = FileDialog.OpenFile("Open IFC File");
+                    if (!string.IsNullOrEmpty(filePath))
+                    {
+                        OnOpenFileRequested?.Invoke(filePath);
+                    }
                 }
                 
                 ImGui.Separator();

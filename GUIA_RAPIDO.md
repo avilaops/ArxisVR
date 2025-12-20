@@ -8,13 +8,16 @@ cd C:\Users\Administrador\source\repos\Vizzio
 dotnet run
 ```
 
-### 2. Carregar Arquivo IFC
-- **Opção 1**: Arraste e solte o arquivo .ifc na janela
-- **Opção 2**: Menu File > Open IFC... (Ctrl+O)
+### 2. **Carregar Arquivo IFC**
+**Opção 1: Menu File** (Recomendado) 🆕
+- Click em **File > Open IFC...**, OU
+- Pressione **Ctrl+O**
+- Selecione o arquivo .ifc no diálogo
 
-## 🎮 Controles Essenciais
+**Opção 2: Arrastar e Soltar**
+- **Arraste e solte** um arquivo `.ifc` na janela do Vizzio
 
-### Navegação 3D
+### 2. **Navegar no Modelo**
 ```
 W / S       - Mover para frente/trás
 A / D       - Mover para esquerda/direita
@@ -202,6 +205,7 @@ O Vizzio reconhece e coloriza automaticamente:
 │ F1            - Ajuda               │
 │ F2            - VR Mode             │
 │ F3            - AR Mode             │
+│ Ctrl+O        - Abrir arquivo IFC   │
 │ Delete        - Limpar seleção      │
 │ ESC           - Sair/Liberar mouse  │
 └─────────────────────────────────────┘

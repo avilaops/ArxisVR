@@ -76,11 +76,13 @@ dotnet run
 
 ### Loading IFC Files
 
-**Method 1: Drag and Drop** (Recommended)
-- Drag an IFC file from your file explorer and drop it onto the viewer window
+**Method 1: File Menu** (Recommended) 🆕
+- Click **File > Open IFC...** in the menu, OR
+- Press **Ctrl+O**
+- Select your IFC file in the dialog
 
-**Method 2: Menu**
-- Use File > Open IFC... (Ctrl+O) - Coming soon
+**Method 2: Drag and Drop**
+- Drag an IFC file from your file explorer and drop it onto the viewer window
 
 ### Controls
 
