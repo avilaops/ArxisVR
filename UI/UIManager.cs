@@ -22,7 +22,11 @@ public class UIManager
     private bool _showMeasurements = false; // NEW
     private Dictionary<string, bool> _typeVisibility = new();
     private List<MeasurementResult> _measurementHistory = new();
-    private Toolbar _toolbar = new(); // NEW
+    private Toolbar _toolbar = new();
+    private bool _showAnnotations = false; // NEW
+    private bool _showLayers = false; // NEW
+    private AnnotationSystem _annotationSystem = new(); // NEW
+    private LayerManager _layerManager = new(); // NEW
     
     public IfcElement? SelectedElement
     {
@@ -42,6 +46,11 @@ public class UIManager
     public event Action<MeasurementMode>? OnMeasurementModeChanged; // NEW
     public event Action? OnClearMeasurements; // NEW
     public event Action<string>? OnVRMessage; // NEW - for export messages
+    public event Action<Vector3, string, AnnotationType>? OnAnnotationAdded; // NEW
+    public event Action<string, bool>? OnLayerVisibilityChanged; // NEW
+
+    public AnnotationSystem AnnotationSystem => _annotationSystem; // NEW
+    public LayerManager LayerManager => _layerManager; // NEW
 
     public void SetModel(IfcModel model)
     {
@@ -55,6 +64,9 @@ public class UIManager
         
         // Setup toolbar events
         SetupToolbarEvents();
+        
+        // Organize layers
+        _layerManager.OrganizeByStorey(model);
     }
 
     private void SetupToolbarEvents()
@@ -106,6 +118,12 @@ public class UIManager
         
         if (_showMeasurements)
             RenderMeasurementsPanel();
+        
+        if (_showAnnotations)
+            RenderAnnotationsPanel();
+        
+        if (_showLayers)
+            RenderLayersPanel();
     }
 
     public void AddMeasurementResult(MeasurementResult result)
@@ -152,7 +170,9 @@ public class UIManager
                 ImGui.MenuItem("Element List", "F2", ref _showElementList);
                 ImGui.MenuItem("Properties", "F3", ref _showProperties);
                 ImGui.MenuItem("Statistics", "F4", ref _showStatistics);
-                ImGui.MenuItem("Measurements", "F5", ref _showMeasurements); // NEW
+                ImGui.MenuItem("Measurements", "F5", ref _showMeasurements);
+                ImGui.MenuItem("Annotations", "F7", ref _showAnnotations); // NEW
+                ImGui.MenuItem("Layers", "F8", ref _showLayers); // NEW
                 
                 ImGui.Separator();
                 
@@ -574,5 +594,177 @@ public class UIManager
         {
             OnVRMessage?.Invoke($"Failed to export measurements: {ex.Message}");
         }
+    }
+    
+    private void RenderAnnotationsPanel()
+    {
+        ImGui.SetNextWindowPos(new Vector2(10, 750), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowSize(new Vector2(350, 300), ImGuiCond.FirstUseEver);
+
+        if (ImGui.Begin("Annotations", ref _showAnnotations))
+        {
+            ImGui.Text("3D Annotations");
+            ImGui.Separator();
+
+            // Add annotation buttons
+            if (ImGui.Button("📝 Note"))
+            {
+                // Will trigger annotation mode
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("⚠️ Warning"))
+            {
+                // Will trigger warning annotation
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("❌ Error"))
+            {
+                // Will trigger error annotation
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("ℹ️ Info"))
+            {
+                // Will trigger info annotation
+            }
+
+            ImGui.Separator();
+
+            // Annotation list
+            ImGui.Text($"Total: {_annotationSystem.Annotations.Count}");
+            
+            if (ImGui.BeginChild("AnnotationList"))
+            {
+                foreach (var annotation in _annotationSystem.Annotations)
+                {
+                    var icon = annotation.Type switch
+                    {
+                        AnnotationType.Note => "📝",
+                        AnnotationType.Warning => "⚠️",
+                        AnnotationType.Error => "❌",
+                        AnnotationType.Info => "ℹ️",
+                        AnnotationType.Question => "❓",
+                        _ => "•"
+                    };
+
+                    if (ImGui.Selectable($"{icon} [{annotation.Id}] {annotation.Text}"))
+                    {
+                        // Could focus on annotation
+                    }
+
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.BeginTooltip();
+                        ImGui.Text($"Position: {annotation.Position}");
+                        ImGui.Text($"Author: {annotation.Author}");
+                        ImGui.Text($"Created: {annotation.CreatedAt:HH:mm:ss}");
+                        ImGui.EndTooltip();
+                    }
+                }
+                
+                ImGui.EndChild();
+            }
+
+            ImGui.Separator();
+
+            if (ImGui.Button("Clear All"))
+            {
+                _annotationSystem.ClearAll();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Export..."))
+            {
+                try
+                {
+                    var path = $"annotations_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+                    _annotationSystem.ExportToFile(path);
+                    OnVRMessage?.Invoke($"Annotations exported to: {path}");
+                }
+                catch (Exception ex)
+                {
+                    OnVRMessage?.Invoke($"Export failed: {ex.Message}");
+                }
+            }
+        }
+        
+        ImGui.End();
+    }
+
+    private void RenderLayersPanel()
+    {
+        ImGui.SetNextWindowPos(new Vector2(370, 540), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowSize(new Vector2(400, 300), ImGuiCond.FirstUseEver);
+
+        if (ImGui.Begin("Layers", ref _showLayers))
+        {
+            ImGui.Text("Model Layers");
+            ImGui.Separator();
+
+            // Organization buttons
+            if (ImGui.Button("By Storey"))
+            {
+                if (_currentModel != null)
+                    _layerManager.OrganizeByStorey(_currentModel);
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("By Type"))
+            {
+                if (_currentModel != null)
+                    _layerManager.OrganizeByType(_currentModel);
+            }
+            
+            ImGui.SameLine();
+            if (ImGui.Button("Show All"))
+            {
+                _layerManager.ShowAll();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Hide All"))
+            {
+                _layerManager.HideAll();
+            }
+
+            ImGui.Separator();
+
+            // Layer list
+            if (ImGui.BeginChild("LayerList"))
+            {
+                foreach (var layerName in _layerManager.LayerOrder)
+                {
+                    var layer = _layerManager.GetLayer(layerName);
+                    if (layer == null) continue;
+
+                    bool isVisible = layer.IsVisible;
+                    if (ImGui.Checkbox($"{layer.Name} ({layer.ElementCount})", ref isVisible))
+                    {
+                        _layerManager.SetLayerVisibility(layerName, isVisible);
+                    }
+
+                    // Context menu
+                    if (ImGui.BeginPopupContextItem($"layer_context_{layerName}"))
+                    {
+                        if (ImGui.MenuItem("Isolate"))
+                        {
+                            _layerManager.IsolateLayer(layerName);
+                        }
+                        
+                        if (ImGui.MenuItem("Hide"))
+                        {
+                            _layerManager.SetLayerVisibility(layerName, false);
+                        }
+                        
+                        if (ImGui.MenuItem("Show"))
+                        {
+                            _layerManager.SetLayerVisibility(layerName, true);
+                        }
+                        
+                        ImGui.EndPopup();
+                    }
+                }
+                
+                ImGui.EndChild();
+            }
+        }
+        
+        ImGui.End();
     }
 }
