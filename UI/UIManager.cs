@@ -3,6 +3,7 @@ using ImGuiNET;
 using Vizzio.Models;
 using Vizzio.Rendering;
 using Vizzio.VR;
+using Vizzio.Tools;
 
 namespace Vizzio.UI;
 
@@ -18,7 +19,9 @@ public class UIManager
     private bool _showElementList = true;
     private bool _showStatistics = true;
     private bool _showVRSettings = false;
+    private bool _showMeasurements = false; // NEW
     private Dictionary<string, bool> _typeVisibility = new();
+    private List<MeasurementResult> _measurementHistory = new(); // NEW
     
     public IfcElement? SelectedElement
     {
@@ -34,7 +37,10 @@ public class UIManager
     public event Action<string, bool>? OnTypeVisibilityChanged;
     public event Action? OnFocusRequested;
     public event Action? OnResetCameraRequested;
-    public event Action<string>? OnOpenFileRequested; // NEW
+    public event Action<string>? OnOpenFileRequested;
+    public event Action<MeasurementMode>? OnMeasurementModeChanged; // NEW
+    public event Action? OnClearMeasurements; // NEW
+    public event Action<string>? OnVRMessage; // NEW - for export messages
 
     public void SetModel(IfcModel model)
     {
@@ -62,6 +68,14 @@ public class UIManager
         
         if (_showVRSettings)
             RenderVRSettingsPanel(vrManager);
+        
+        if (_showMeasurements)
+            RenderMeasurementsPanel();
+    }
+
+    public void AddMeasurementResult(MeasurementResult result)
+    {
+        _measurementHistory.Add(result);
     }
 
     private void RenderMainMenuBar(Camera camera, VRManager vrManager, float fps)
@@ -95,6 +109,7 @@ public class UIManager
                 ImGui.MenuItem("Element List", "F2", ref _showElementList);
                 ImGui.MenuItem("Properties", "F3", ref _showProperties);
                 ImGui.MenuItem("Statistics", "F4", ref _showStatistics);
+                ImGui.MenuItem("Measurements", "F5", ref _showMeasurements); // NEW
                 
                 ImGui.Separator();
                 
@@ -134,6 +149,37 @@ public class UIManager
                 ImGui.Separator();
                 
                 ImGui.MenuItem("VR Settings", null, ref _showVRSettings);
+                
+                ImGui.EndMenu();
+            }
+
+            if (ImGui.BeginMenu("Tools")) // NEW
+            {
+                if (ImGui.MenuItem("Measure Distance", "M"))
+                {
+                    OnMeasurementModeChanged?.Invoke(MeasurementMode.Distance);
+                    _showMeasurements = true;
+                }
+                
+                if (ImGui.MenuItem("Measure Area", ""))
+                {
+                    OnMeasurementModeChanged?.Invoke(MeasurementMode.Area);
+                    _showMeasurements = true;
+                }
+                
+                if (ImGui.MenuItem("Measure Angle", ""))
+                {
+                    OnMeasurementModeChanged?.Invoke(MeasurementMode.Angle);
+                    _showMeasurements = true;
+                }
+                
+                ImGui.Separator();
+                
+                if (ImGui.MenuItem("Clear Measurements"))
+                {
+                    OnClearMeasurements?.Invoke();
+                    _measurementHistory.Clear();
+                }
                 
                 ImGui.EndMenu();
             }
@@ -379,5 +425,111 @@ public class UIManager
         }
         
         ImGui.End();
+    }
+
+    private void RenderMeasurementsPanel()
+    {
+        ImGui.SetNextWindowPos(new Vector2(780, 30), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowSize(new Vector2(400, 300), ImGuiCond.FirstUseEver);
+
+        if (ImGui.Begin("Measurements", ref _showMeasurements))
+        {
+            ImGui.Text("Measurement Tools");
+            ImGui.Separator();
+
+            // Mode selection
+            if (ImGui.Button("Distance (M)"))
+            {
+                OnMeasurementModeChanged?.Invoke(MeasurementMode.Distance);
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Area"))
+            {
+                OnMeasurementModeChanged?.Invoke(MeasurementMode.Area);
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Angle"))
+            {
+                OnMeasurementModeChanged?.Invoke(MeasurementMode.Angle);
+            }
+
+            ImGui.Separator();
+
+            // Instructions
+            ImGui.TextWrapped("Click on elements to add measurement points. Press Enter to complete area measurements.");
+            
+            ImGui.Separator();
+
+            // Measurement history
+            ImGui.Text($"History ({_measurementHistory.Count}):");
+            
+            if (ImGui.BeginChild("MeasurementHistory"))
+            {
+                for (int i = _measurementHistory.Count - 1; i >= 0; i--)
+                {
+                    var result = _measurementHistory[i];
+                    
+                    if (ImGui.Selectable($"#{i + 1}: {result}"))
+                    {
+                        // Could highlight this measurement
+                    }
+                    
+                    if (ImGui.IsItemHovered())
+                    {
+                        ImGui.BeginTooltip();
+                        ImGui.Text($"Time: {result.Timestamp:HH:mm:ss}");
+                        ImGui.Text($"Points: {result.Points.Count}");
+                        ImGui.EndTooltip();
+                    }
+                }
+                
+                ImGui.EndChild();
+            }
+
+            ImGui.Separator();
+
+            if (ImGui.Button("Clear All"))
+            {
+                OnClearMeasurements?.Invoke();
+                _measurementHistory.Clear();
+            }
+            
+            ImGui.SameLine();
+            
+            if (ImGui.Button("Export..."))
+            {
+                ExportMeasurements();
+            }
+        }
+        
+        ImGui.End();
+    }
+
+    private void ExportMeasurements()
+    {
+        try
+        {
+            var filePath = $"measurements_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+            using var writer = new System.IO.StreamWriter(filePath);
+            
+            writer.WriteLine("=== VIZZIO MEASUREMENTS ===");
+            writer.WriteLine($"Date: {DateTime.Now}");
+            writer.WriteLine($"Total: {_measurementHistory.Count}");
+            writer.WriteLine();
+            
+            foreach (var result in _measurementHistory)
+            {
+                writer.WriteLine(result.ToString());
+                writer.WriteLine($"  Time: {result.Timestamp:HH:mm:ss}");
+                writer.WriteLine($"  Points: {result.Points.Count}");
+                writer.WriteLine();
+            }
+            
+            OnVRMessage?.Invoke($"Measurements exported to: {filePath}");
+        }
+        catch (Exception ex)
+        {
+            OnVRMessage?.Invoke($"Failed to export measurements: {ex.Message}");
+        }
     }
 }
