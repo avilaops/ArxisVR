@@ -27,6 +27,8 @@ public class UIManager
     private bool _showLayers = false; // NEW
     private AnnotationSystem _annotationSystem = new(); // NEW
     private LayerManager _layerManager = new(); // NEW
+    private UndoRedoManager _undoRedoManager = new(); // NEW
+    private bool _showHistory = false; // NEW
     
     public IfcElement? SelectedElement
     {
@@ -51,6 +53,7 @@ public class UIManager
 
     public AnnotationSystem AnnotationSystem => _annotationSystem; // NEW
     public LayerManager LayerManager => _layerManager; // NEW
+    public UndoRedoManager UndoRedoManager => _undoRedoManager; // NEW
 
     public void SetModel(IfcModel model)
     {
@@ -124,6 +127,9 @@ public class UIManager
         
         if (_showLayers)
             RenderLayersPanel();
+        
+        if (_showHistory)
+            RenderHistoryPanel();
     }
 
     public void AddMeasurementResult(MeasurementResult result)
@@ -262,6 +268,35 @@ public class UIManager
                 ImGui.EndMenu();
             }
 
+            if (ImGui.BeginMenu("Edit")) // NEW
+            {
+                bool canUndo = _undoRedoManager.CanUndo;
+                bool canRedo = _undoRedoManager.CanRedo;
+                
+                if (ImGui.MenuItem("Undo", "Ctrl+Z", false, canUndo))
+                {
+                    _undoRedoManager.Undo();
+                }
+                
+                if (ImGui.MenuItem("Redo", "Ctrl+Y", false, canRedo))
+                {
+                    _undoRedoManager.Redo();
+                }
+                
+                ImGui.Separator();
+                
+                ImGui.MenuItem("History", "F9", ref _showHistory);
+                
+                ImGui.Separator();
+                
+                if (ImGui.MenuItem("Clear History"))
+                {
+                    _undoRedoManager.Clear();
+                }
+                
+                ImGui.EndMenu();
+            }
+
             // FPS counter on the right
             ImGui.SetCursorPosX(ImGui.GetWindowWidth() - 120);
             ImGui.Text($"FPS: {fps:F0}");
@@ -367,14 +402,16 @@ public class UIManager
             var color = _selectedElement.Color;
             if (ImGui.ColorEdit3("Color", ref color))
             {
-                _selectedElement.Color = color;
+                var action = new ChangeColorAction(_selectedElement, color);
+                _undoRedoManager.ExecuteAction(action);
             }
 
             // Visibility toggle
             bool isVisible = _selectedElement.IsVisible;
             if (ImGui.Checkbox("Visible", ref isVisible))
             {
-                _selectedElement.IsVisible = isVisible;
+                var action = new ChangeVisibilityAction(_selectedElement, isVisible);
+                _undoRedoManager.ExecuteAction(action);
             }
 
             ImGui.Separator();
@@ -763,6 +800,102 @@ public class UIManager
                 
                 ImGui.EndChild();
             }
+        }
+        
+        ImGui.End();
+    }
+
+    private void RenderHistoryPanel()
+    {
+        ImGui.SetNextWindowPos(new Vector2(780, 350), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowSize(new Vector2(350, 400), ImGuiCond.FirstUseEver);
+
+        if (ImGui.Begin("History", ref _showHistory))
+        {
+            ImGui.Text("Undo/Redo History");
+            ImGui.Separator();
+
+            // Controls
+            bool canUndo = _undoRedoManager.CanUndo;
+            bool canRedo = _undoRedoManager.CanRedo;
+
+            if (ImGui.Button("↶ Undo (Ctrl+Z)") && canUndo)
+            {
+                _undoRedoManager.Undo();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("↷ Redo (Ctrl+Y)") && canRedo)
+            {
+                _undoRedoManager.Redo();
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Clear All"))
+            {
+                _undoRedoManager.Clear();
+            }
+
+            ImGui.Separator();
+
+            // Statistics
+            ImGui.Text($"Undo Stack: {_undoRedoManager.UndoCount}");
+            ImGui.SameLine();
+            ImGui.Text($"| Redo Stack: {_undoRedoManager.RedoCount}");
+
+            ImGui.Separator();
+
+            // History lists
+            if (ImGui.BeginTabBar("HistoryTabs"))
+            {
+                if (ImGui.BeginTabItem("Undo History"))
+                {
+                    if (ImGui.BeginChild("UndoList"))
+                    {
+                        var undoHistory = _undoRedoManager.GetUndoHistory();
+                        
+                        for (int i = undoHistory.Count - 1; i >= 0; i--)
+                        {
+                            ImGui.Bullet();
+                            ImGui.Text(undoHistory[i]);
+                        }
+                        
+                        if (undoHistory.Count == 0)
+                        {
+                            ImGui.TextDisabled("No actions to undo");
+                        }
+                        
+                        ImGui.EndChild();
+                    }
+                    ImGui.EndTabItem();
+                }
+
+                if (ImGui.BeginTabItem("Redo History"))
+                {
+                    if (ImGui.BeginChild("RedoList"))
+                    {
+                        var redoHistory = _undoRedoManager.GetRedoHistory();
+                        
+                        for (int i = redoHistory.Count - 1; i >= 0; i--)
+                        {
+                            ImGui.Bullet();
+                            ImGui.Text(redoHistory[i]);
+                        }
+                        
+                        if (redoHistory.Count == 0)
+                        {
+                            ImGui.TextDisabled("No actions to redo");
+                        }
+                        
+                        ImGui.EndChild();
+                    }
+                    ImGui.EndTabItem();
+                }
+
+                ImGui.EndTabBar();
+            }
+
+            ImGui.Separator();
+            
+            ImGui.TextWrapped("Tip: Use Ctrl+Z to undo and Ctrl+Y to redo actions. The history shows all reversible changes.");
         }
         
         ImGui.End();
