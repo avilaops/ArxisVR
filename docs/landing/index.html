@@ -3,17 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Vizzio - Professional IFC Viewer with 3D Visualization, VR/AR Support and AI Assistant">
-    <meta name="keywords" content="IFC, BIM, 3D Viewer, VR, AR, Building Information Modeling">
+    <meta name="description" content="Vizzio - Professional IFC Viewer with 3D Visualization, VR/AR Support and AI Assistant. Built with .NET 10, OpenGL, and OpenXR.">
+    <meta name="keywords" content="IFC, BIM, 3D Viewer, VR, AR, Building Information Modeling, .NET, OpenGL, OpenXR, CAD, AEC">
     <meta name="author" content="Nícolas Ávila">
     
-    <!-- Open Graph -->
-    <meta property="og:title" content="Vizzio - IFC Viewer with 3D/VR/AI">
-    <meta property="og:description" content="Professional BIM viewer with intuitive 3D navigation, VR support, and AI assistant">
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://vr.avila.inc">
+    <meta property="og:title" content="Vizzio - Professional IFC Viewer with 3D/VR/AI">
+    <meta property="og:description" content="Free and open-source BIM viewer with intuitive 3D navigation, VR support, and AI assistant. Built for AEC professionals.">
+    <meta property="og:image" content="https://vr.avila.inc/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://vr.avila.inc">
+    <meta property="twitter:title" content="Vizzio - Professional IFC Viewer">
+    <meta property="twitter:description" content="Free BIM viewer with 3D/VR/AI support">
+    <meta property="twitter:image" content="https://vr.avila.inc/og-image.png">
     
-    <title>Vizzio - IFC Viewer with 3D/VR/AI</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏗️</text></svg>">
+    
+    <title>Vizzio - Professional IFC Viewer with 3D/VR/AI | Free & Open Source</title>
     
     <style>
         * {
@@ -31,6 +42,7 @@
             --light: #F3F4F6;
             --white: #FFFFFF;
             --accent: #8B5CF6;
+            --warning: #F59E0B;
         }
         
         body {
@@ -38,6 +50,11 @@
             line-height: 1.6;
             color: var(--dark);
             overflow-x: hidden;
+        }
+        
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
         }
         
         /* Navigation */
@@ -50,6 +67,18 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             z-index: 1000;
             padding: 1rem 0;
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
         
         nav .container {
@@ -66,6 +95,9 @@
             font-weight: 700;
             color: var(--primary);
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         
         nav .logo span {
@@ -82,6 +114,7 @@
             text-decoration: none;
             color: var(--dark);
             transition: color 0.3s;
+            font-weight: 500;
         }
         
         nav a:hover {
@@ -118,31 +151,63 @@
         }
         
         .hero-content {
-            max-width: 800px;
+            max-width: 900px;
             position: relative;
             z-index: 1;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .badges {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.4rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+        
+        .badge.new {
+            background: var(--warning);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: 4rem;
             font-weight: 800;
-            margin-bottom: 1rem;
-            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            text-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .hero .subtitle {
             font-size: 1.5rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-        }
-        
-        .hero .version {
-            display: inline-block;
-            background: rgba(255,255,255,0.2);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
+            opacity: 0.95;
+            margin-bottom: 2.5rem;
+            line-height: 1.5;
         }
         
         .hero-buttons {
@@ -150,6 +215,7 @@
             gap: 1rem;
             justify-content: center;
             flex-wrap: wrap;
+            margin-bottom: 3rem;
         }
         
         .btn {
@@ -161,15 +227,17 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: 1.1rem;
         }
         
         .btn-primary {
             background: var(--white);
             color: var(--primary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
         
@@ -177,11 +245,28 @@
             background: rgba(255,255,255,0.2);
             color: var(--white);
             border: 2px solid var(--white);
+            backdrop-filter: blur(10px);
         }
         
         .btn-secondary:hover {
             background: var(--white);
             color: var(--primary);
+        }
+        
+        .tech-stack {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            opacity: 0.8;
+        }
+        
+        .tech-badge {
+            font-size: 0.9rem;
+            padding: 0.3rem 0.6rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            backdrop-filter: blur(5px);
         }
         
         /* Features Section */
@@ -197,57 +282,66 @@
         
         .section-title {
             text-align: center;
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin-bottom: 1rem;
             color: var(--dark);
+            font-weight: 800;
         }
         
         .section-subtitle {
             text-align: center;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: #6B7280;
             margin-bottom: 4rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 2rem;
         }
         
         .feature-card {
             background: var(--white);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
         
         .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            border-color: var(--primary);
         }
         
         .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            display: block;
         }
         
         .feature-card h3 {
             color: var(--dark);
             margin-bottom: 1rem;
-            font-size: 1.5rem;
+            font-size: 1.6rem;
+            font-weight: 700;
         }
         
         .feature-card p {
             color: #6B7280;
             line-height: 1.8;
+            font-size: 1.05rem;
         }
         
         /* Stats Section */
         .stats {
-            padding: 4rem 2rem;
-            background: var(--primary);
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: var(--white);
         }
         
@@ -259,40 +353,46 @@
         }
         
         .stat-number {
-            font-size: 3rem;
+            font-size: 4rem;
             font-weight: 800;
             margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .stat-label {
-            font-size: 1.1rem;
-            opacity: 0.9;
+            font-size: 1.2rem;
+            opacity: 0.95;
+            font-weight: 500;
         }
         
-        /* Screenshots Section */
-        .screenshots {
+        /* Video Demo Section */
+        .demo {
             padding: 6rem 2rem;
+            background: var(--white);
         }
         
-        .screenshot-carousel {
-            display: flex;
-            gap: 2rem;
-            overflow-x: auto;
-            padding: 2rem 0;
-            scroll-snap-type: x mandatory;
+        .demo-container {
+            max-width: 900px;
+            margin: 0 auto;
         }
         
-        .screenshot {
-            min-width: 600px;
-            height: 400px;
-            background: var(--light);
-            border-radius: 12px;
-            scroll-snap-align: center;
+        .video-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            color: #9CA3AF;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .video-placeholder:hover {
+            transform: scale(1.02);
         }
         
         /* Download Section */
@@ -304,47 +404,69 @@
         }
         
         .download h2 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin-bottom: 1rem;
+            font-weight: 800;
         }
         
         .download p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
+            font-size: 1.3rem;
+            margin-bottom: 3rem;
             opacity: 0.9;
         }
         
         .platform-buttons {
             display: flex;
-            gap: 1rem;
-            justify-center: center;
+            gap: 1.5rem;
+            justify-content: center;
             flex-wrap: wrap;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
         }
         
         .platform-btn {
-            padding: 1rem 2rem;
+            padding: 1.25rem 2.5rem;
             background: var(--primary);
             color: var(--white);
-            border-radius: 8px;
+            border-radius: 10px;
             text-decoration: none;
             font-weight: 600;
+            font-size: 1.1rem;
             transition: all 0.3s;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
         
         .platform-btn:hover {
             background: var(--primary-dark);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
+        }
+        
+        .source-code-link {
+            font-size: 1.1rem;
+            margin-top: 2rem;
+        }
+        
+        .source-code-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary);
+            transition: all 0.3s;
+        }
+        
+        .source-code-link a:hover {
+            color: var(--accent);
+            border-color: var(--accent);
         }
         
         /* Footer */
         footer {
             background: var(--dark);
             color: var(--white);
-            padding: 3rem 2rem 1rem;
+            padding: 4rem 2rem 2rem;
         }
         
         .footer-content {
@@ -353,12 +475,14 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 3rem;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
         }
         
         .footer-section h3 {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             color: var(--primary);
+            font-size: 1.3rem;
+            font-weight: 700;
         }
         
         .footer-section ul {
@@ -366,13 +490,14 @@
         }
         
         .footer-section li {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
         }
         
         .footer-section a {
             color: rgba(255,255,255,0.8);
             text-decoration: none;
             transition: color 0.3s;
+            font-size: 1.05rem;
         }
         
         .footer-section a:hover {
@@ -383,7 +508,11 @@
             text-align: center;
             padding-top: 2rem;
             border-top: 1px solid rgba(255,255,255,0.1);
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .footer-bottom p {
+            margin-bottom: 0.5rem;
         }
         
         /* Responsive */
@@ -400,9 +529,25 @@
                 display: none;
             }
             
-            .screenshot {
-                min-width: 90vw;
+            .section-title {
+                font-size: 2.2rem;
             }
+            
+            .stat-number {
+                font-size: 3rem;
+            }
+        }
+        
+        /* Scroll reveal animation */
+        .scroll-reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease-out;
+        }
+        
+        .scroll-reveal.active {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -410,12 +555,16 @@
     <!-- Navigation -->
     <nav>
         <div class="container">
-            <a href="#" class="logo">Vizz<span>io</span></a>
+            <a href="#" class="logo">
+                <span>🏗️</span>
+                Vizz<span>io</span>
+            </a>
             <ul>
                 <li><a href="#features">Features</a></li>
+                <li><a href="#demo">Demo</a></li>
                 <li><a href="#download">Download</a></li>
-                <li><a href="https://github.com/avilaops/vizzio2">GitHub</a></li>
-                <li><a href="https://github.com/avilaops/vizzio2/blob/main/docs/INDEX.md">Docs</a></li>
+                <li><a href="https://github.com/avilaops/vizzio2" target="_blank">GitHub</a></li>
+                <li><a href="https://github.com/avilaops/vizzio2/blob/main/docs/INDEX.md" target="_blank">Docs</a></li>
             </ul>
         </div>
     </nav>
@@ -423,86 +572,103 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <div class="version">✨ Version 3.0 - Now Available</div>
+            <div class="badges">
+                <span class="badge new">✨ v3.0 Just Released</span>
+                <span class="badge">🆓 Free & Open Source</span>
+                <span class="badge">⭐ MIT License</span>
+            </div>
+            
             <h1>Professional IFC Viewer<br>with 3D/VR/AI</h1>
-            <p class="subtitle">Visualize your BIM models with intuitive 3D navigation, immersive VR, and AI-powered assistance</p>
+            <p class="subtitle">
+                Visualize your BIM models with intuitive 3D navigation, immersive VR experiences, 
+                and AI-powered assistance. Built for architects, engineers, and construction professionals.
+            </p>
+            
             <div class="hero-buttons">
                 <a href="#download" class="btn btn-primary">
-                    <span>⬇️</span> Download Now
+                    <span>⬇️</span> Download v3.0
                 </a>
-                <a href="https://github.com/avilaops/vizzio2" class="btn btn-secondary">
+                <a href="https://github.com/avilaops/vizzio2" class="btn btn-secondary" target="_blank">
                     <span>⭐</span> Star on GitHub
                 </a>
+            </div>
+            
+            <div class="tech-stack">
+                <span class="tech-badge">.NET 10</span>
+                <span class="tech-badge">OpenGL 4.5</span>
+                <span class="tech-badge">OpenXR</span>
+                <span class="tech-badge">ImGui</span>
+                <span class="tech-badge">Ollama AI</span>
             </div>
         </div>
     </section>
 
     <!-- Features Section -->
-    <section id="features" class="features">
+    <section id="features" class="features scroll-reveal">
         <div class="container">
             <h2 class="section-title">Powerful Features</h2>
-            <p class="section-subtitle">Everything you need for professional BIM visualization</p>
+            <p class="section-subtitle">Everything you need for professional BIM visualization and analysis</p>
             
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">🎮</div>
                     <h3>Intuitive 3D Navigation</h3>
-                    <p>Orbital camera mode with smooth rotation, pan, and zoom. Camera presets for quick views. Professional CAD-style controls.</p>
+                    <p>Orbital camera mode with smooth rotation, pan, and zoom. Camera presets for quick views (Front, Top, Iso). Professional CAD-style controls with 30+ keyboard shortcuts.</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">🥽</div>
                     <h3>VR/AR Ready</h3>
-                    <p>Full VR support with physics-based teleportation, gesture recognition, and OpenXR integration. Walk through your models.</p>
+                    <p>Full VR support with physics-based teleportation, gesture recognition, and OpenXR integration. Walk through your models in immersive virtual reality.</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">🤖</div>
                     <h3>AI Assistant</h3>
-                    <p>Local AI powered by Ollama. Ask questions about IFC elements, get contextual help, and analyze your models.</p>
+                    <p>Local AI powered by Ollama. Ask questions about IFC elements, get contextual help, and analyze your models. 100% private - data never leaves your machine.</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">📐</div>
                     <h3>Visual Reference</h3>
-                    <p>3D grid, color-coded axes, mini-map, and 3D compass for perfect spatial orientation. Always know where you are.</p>
+                    <p>3D grid, color-coded axes (RGB=XYZ), mini-map, and 3D compass for perfect spatial orientation. Always know where you are in your model.</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">💫</div>
                     <h3>Rich Feedback</h3>
-                    <p>Animated hover indicators and selection rings. Smooth animations with distance-based fading. Beautiful visual effects.</p>
+                    <p>Animated hover indicators and selection rings. Smooth animations with distance-based fading. Beautiful visual effects that enhance usability.</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">📚</div>
                     <h3>Interactive Tutorial</h3>
-                    <p>12-step guided tutorial with automatic progress detection. Contextual hints based on your actions. Learn by doing.</p>
+                    <p>12-step guided tutorial with automatic progress detection. Contextual hints based on your actions. Learn by doing with smart assistance.</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">🎯</div>
                     <h3>Smart Selection</h3>
-                    <p>Ray-picking for precise element selection. Instant property inspection. Hover to preview, click to select.</p>
+                    <p>Ray-picking for precise element selection. Instant property inspection. Hover to preview, click to select. Fast and accurate.</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">📏</div>
                     <h3>Measurement Tools</h3>
-                    <p>Measure distances between points. Snap to geometry. Real-time measurements displayed clearly.</p>
+                    <p>Measure distances between points. Snap to geometry. Real-time measurements displayed clearly. Essential for analysis and verification.</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">⚡</div>
                     <h3>High Performance</h3>
-                    <p>60+ FPS on desktop, 90 FPS for VR. Optimized rendering with <3ms overhead. Smooth even on large models.</p>
+                    <p>60+ FPS on desktop, 90 FPS for VR. Optimized rendering with &lt;3ms overhead. Smooth even on large models with 1000+ elements.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Stats Section -->
-    <section class="stats">
+    <section class="stats scroll-reveal">
         <div class="container">
             <div class="stats-grid">
                 <div class="stat">
@@ -525,43 +691,44 @@
         </div>
     </section>
 
-    <!-- Screenshots Section -->
-    <section class="screenshots">
-        <div class="container">
+    <!-- Demo Video Section -->
+    <section id="demo" class="demo scroll-reveal">
+        <div class="container demo-container">
             <h2 class="section-title">See It In Action</h2>
-            <p class="section-subtitle">Professional visualization for BIM professionals</p>
+            <p class="section-subtitle">Watch how Vizzio transforms BIM model visualization</p>
             
-            <div class="screenshot-carousel">
-                <div class="screenshot">📷 Screenshot 1: Main Interface</div>
-                <div class="screenshot">📷 Screenshot 2: VR Mode</div>
-                <div class="screenshot">📷 Screenshot 3: AI Assistant</div>
-                <div class="screenshot">📷 Screenshot 4: Measurements</div>
+            <div class="video-placeholder" onclick="alert('Demo video coming soon! Check out the GitHub repository for screenshots and examples.')">
+                <div style="text-align: center;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">▶️</div>
+                    <div>Demo Video</div>
+                    <div style="font-size: 1rem; opacity: 0.8; margin-top: 0.5rem;">Click to learn more</div>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Download Section -->
-    <section id="download" class="download">
+    <section id="download" class="download scroll-reveal">
         <div class="container">
             <h2>Download Vizzio 3.0</h2>
             <p>Free and open source. Available for Windows, Linux, and macOS.</p>
             
             <div class="platform-buttons">
-                <a href="https://github.com/avilaops/vizzio2/releases/latest/download/vizzio-windows.zip" class="platform-btn">
+                <a href="https://github.com/avilaops/vizzio2/releases/latest" class="platform-btn" target="_blank">
                     <span>🪟</span> Windows
                 </a>
-                <a href="https://github.com/avilaops/vizzio2/releases/latest/download/vizzio-linux.tar.gz" class="platform-btn">
+                <a href="https://github.com/avilaops/vizzio2/releases/latest" class="platform-btn" target="_blank">
                     <span>🐧</span> Linux
                 </a>
-                <a href="https://github.com/avilaops/vizzio2/releases/latest/download/vizzio-macos.dmg" class="platform-btn">
+                <a href="https://github.com/avilaops/vizzio2/releases/latest" class="platform-btn" target="_blank">
                     <span>🍎</span> macOS
                 </a>
             </div>
             
-            <p style="margin-top: 2rem;">
+            <div class="source-code-link">
                 Or build from source: 
-                <a href="https://github.com/avilaops/vizzio2" style="color: var(--primary);">GitHub Repository</a>
-            </p>
+                <a href="https://github.com/avilaops/vizzio2" target="_blank">GitHub Repository →</a>
+            </div>
         </div>
     </section>
 
@@ -570,45 +737,84 @@
         <div class="footer-content">
             <div class="footer-section">
                 <h3>Vizzio</h3>
-                <p>Professional IFC Viewer with 3D/VR/AI support. Free and open source.</p>
-                <p style="margin-top: 1rem;">Made with ❤️ by Nícolas Ávila</p>
+                <p>Professional IFC Viewer with 3D/VR/AI support. Free and open source under MIT License.</p>
+                <p style="margin-top: 1.5rem; font-weight: 600;">Made with ❤️ by <a href="https://github.com/avilaops" style="color: var(--primary);">Nícolas Ávila</a></p>
             </div>
             
             <div class="footer-section">
                 <h3>Quick Links</h3>
                 <ul>
-                    <li><a href="https://github.com/avilaops/vizzio2">GitHub</a></li>
-                    <li><a href="https://github.com/avilaops/vizzio2/releases">Releases</a></li>
-                    <li><a href="https://github.com/avilaops/vizzio2/blob/main/docs/INDEX.md">Documentation</a></li>
-                    <li><a href="https://github.com/avilaops/vizzio2/issues">Issues</a></li>
+                    <li><a href="https://github.com/avilaops/vizzio2" target="_blank">GitHub Repository</a></li>
+                    <li><a href="https://github.com/avilaops/vizzio2/releases" target="_blank">Releases & Downloads</a></li>
+                    <li><a href="https://github.com/avilaops/vizzio2/blob/main/docs/INDEX.md" target="_blank">Documentation</a></li>
+                    <li><a href="https://github.com/avilaops/vizzio2/issues" target="_blank">Report Issues</a></li>
                 </ul>
             </div>
             
             <div class="footer-section">
                 <h3>Documentation</h3>
                 <ul>
-                    <li><a href="https://github.com/avilaops/vizzio2/blob/main/docs/QUICK_START.md">Quick Start</a></li>
-                    <li><a href="https://github.com/avilaops/vizzio2/blob/main/docs/COMPLETE_3D_VR_SYSTEM.md">Complete Guide</a></li>
-                    <li><a href="https://github.com/avilaops/vizzio2/blob/main/AI_README.md">AI Assistant</a></li>
-                    <li><a href="https://github.com/avilaops/vizzio2/blob/main/CONTRIBUTING.md">Contributing</a></li>
+                    <li><a href="https://github.com/avilaops/vizzio2/blob/main/docs/QUICK_START.md" target="_blank">Quick Start Guide</a></li>
+                    <li><a href="https://github.com/avilaops/vizzio2/blob/main/docs/COMPLETE_3D_VR_SYSTEM.md" target="_blank">Complete System Guide</a></li>
+                    <li><a href="https://github.com/avilaops/vizzio2/blob/main/AI_README.md" target="_blank">AI Assistant Setup</a></li>
+                    <li><a href="https://github.com/avilaops/vizzio2/blob/main/CONTRIBUTING.md" target="_blank">Contributing Guide</a></li>
                 </ul>
             </div>
             
             <div class="footer-section">
                 <h3>Community</h3>
                 <ul>
-                    <li><a href="https://github.com/avilaops/vizzio2/discussions">Discussions</a></li>
-                    <li><a href="https://github.com/avilaops/vizzio2/issues/new">Report Bug</a></li>
-                    <li><a href="https://github.com/avilaops/vizzio2/issues/new">Request Feature</a></li>
-                    <li><a href="https://github.com/avilaops">Developer</a></li>
+                    <li><a href="https://github.com/avilaops/vizzio2/discussions" target="_blank">Discussions</a></li>
+                    <li><a href="https://github.com/avilaops/vizzio2/issues/new?template=bug_report.md" target="_blank">Report Bug</a></li>
+                    <li><a href="https://github.com/avilaops/vizzio2/issues/new?template=feature_request.md" target="_blank">Request Feature</a></li>
+                    <li><a href="https://github.com/avilaops" target="_blank">Developer Profile</a></li>
                 </ul>
             </div>
         </div>
         
         <div class="footer-bottom">
             <p>&copy; 2025 Nícolas Ávila. Licensed under MIT License.</p>
-            <p>Vizzio v3.0 - Complete 3D/VR System</p>
+            <p><strong>Vizzio v3.0</strong> - Complete 3D/VR System with AI Assistant</p>
+            <p style="margin-top: 0.5rem; opacity: 0.6;">Built with .NET 10, OpenGL, OpenXR, and ❤️</p>
         </div>
     </footer>
+    
+    <!-- Simple scroll reveal script -->
+    <script>
+        // Scroll reveal animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+            observer.observe(el);
+        });
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>

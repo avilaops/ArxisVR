@@ -1,6 +1,33 @@
-# Vizzio - IFC Viewer with 3D Visualization, VR/AR Support and AI Assistant 🤖
+# Vizzio - IFC Viewer with 3D/VR/AI 🏗️
 
-A powerful .NET 10 application for viewing and interacting with IFC (Industry Foundation Classes) files in 3D, with support for Virtual Reality (VR), Augmented Reality (AR), and AI-powered assistance.
+<div align="center">
+
+![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)
+![Status](https://img.shields.io/badge/status-production%20ready-success.svg)
+
+**Professional IFC Viewer with Intuitive 3D Navigation, VR Support, and AI Assistant**
+
+[🚀 Download](https://github.com/avilaops/vizzio2/releases/latest) • [📚 Documentation](docs/INDEX.md) • [🤖 AI Setup](AI_README.md) • [🐛 Report Bug](https://github.com/avilaops/vizzio2/issues)
+
+</div>
+
+---
+
+## ✨ Highlights
+
+- 🎮 **Intuitive 3D Navigation** - Orbital camera with CAD-style controls
+- 🥽 **Full VR Support** - Physics-based teleportation and gesture recognition
+- 🤖 **AI Assistant** - Local AI powered by Ollama (100% private)
+- 📐 **Visual Reference** - 3D grid, axes, mini-map, and compass
+- 💫 **Rich Feedback** - Animated indicators and selection effects
+- 📚 **Interactive Tutorial** - 12-step guided learning experience
+- ⚡ **High Performance** - 60+ FPS desktop, 90 FPS VR
+- 🆓 **Free & Open Source** - MIT License
+
+---
 
 ## 🎯 Features
 
