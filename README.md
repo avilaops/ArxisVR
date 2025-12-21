@@ -1,8 +1,27 @@
-# Vizzio - IFC Viewer with 3D Visualization and VR/AR Support
+# Vizzio - IFC Viewer with 3D Visualization, VR/AR Support and AI Assistant 🤖
 
-A powerful .NET 10 application for viewing and interacting with IFC (Industry Foundation Classes) files in 3D, with support for Virtual Reality (VR) and Augmented Reality (AR).
+A powerful .NET 10 application for viewing and interacting with IFC (Industry Foundation Classes) files in 3D, with support for Virtual Reality (VR), Augmented Reality (AR), and AI-powered assistance.
 
 ## 🎯 Features
+
+### 🆕 3D/VR Navigation System (NEW! ✨)
+- **Orbital Camera**: Intuitive arcball navigation around models
+- **Camera Presets**: Quick views (Front, Top, Right, Isometric)
+- **Grid & Axes**: 3D reference grid with colored XYZ axes
+- **Interactive Feedback**: Hover indicators and selection rings with animations
+- **Mini-map & Compass**: Real-time 2D minimap and 3D compass
+- **VR Teleportation**: Physics-based teleport system with visual arc
+- **VR Gestures**: Swipe detection and two-hand grab interactions
+- **Interactive Tutorial**: 12-step guided tutorial with automatic action detection
+- **Contextual Hints**: Smart tips based on user actions
+
+### 🆕 AI Assistant (NEW!)
+- **Ollama Integration**: Local AI powered by Ollama
+- **IFC/BIM Expert**: Specialized assistant for building models
+- **Element Analysis**: AI-powered property analysis
+- **Contextual Help**: Smart suggestions based on your workflow
+- **Natural Language**: Ask questions in plain English
+- **Privacy-First**: 100% local processing, no data leaves your machine
 
 ### Core Functionality
 - **IFC File Support**: Load and parse IFC files (IFC2x3, IFC4, IFC4x3)
@@ -14,22 +33,32 @@ A powerful .NET 10 application for viewing and interacting with IFC (Industry Fo
 - **Professional UI**: ImGui-based interface with multiple panels
 
 ### Navigation & Controls
-- **FPS-Style Camera**: WASD keyboard movement with mouse look
-- **Variable Speed**: Adjustable camera movement speed
-- **Focus Mode**: Automatically frame the loaded model
+- **Orbital Camera**: Rotate around model with right-click + drag (default mode)
+- **FPS Mode**: Toggle with 'O' key for first-person navigation
+- **Pan**: Middle-click + drag for lateral movement
+- **Camera Presets**: Numpad 1/3/7/0 for Front/Right/Top/Isometric views
+- **Variable Speed**: Adjustable camera movement speed (+/- keys)
+- **Focus Mode**: Press 'F' to automatically frame the loaded model
 - **Zoom**: Mouse scroll wheel support
 - **Element Selection**: Left-click to select, hover to highlight
+- **Grid & Axes**: Toggle with G/H keys for spatial reference
+- **Mini-map**: Press 'N' to show/hide navigation minimap
+- **Compass**: Press 'B' to show/hide 3D orientation compass
 
 ### User Interface (NEW! 🆕)
 - **Element List Panel**: Search, filter by type, quick selection
 - **Properties Panel**: View and edit element properties
 - **Statistics Panel**: Real-time model metrics
 - **VR Settings Panel**: Configure IPD and VR parameters
+- **Tutorial System**: Interactive 12-step guided tutorial (Press 'T')
+- **Contextual Hints**: Smart tips that appear based on your actions
 - **Main Menu**: File, View, VR/AR, Help menus
 
 ### VR/AR Support
 - **VR Mode**: Stereoscopic rendering for VR headsets
 - **OpenXR Integration**: Ready for real VR hardware
+- **VR Teleportation**: Physics-based arc teleport system
+- **VR Gestures**: Swipe and multi-hand gesture recognition
 - **AR Mode**: Integration hooks for AR devices
 - **Device Tracking**: Head and controller tracking support
 - **Configurable Settings**: IPD, head height, comfort options
@@ -37,270 +66,370 @@ A powerful .NET 10 application for viewing and interacting with IFC (Industry Fo
 ### Rendering Features
 - **Advanced Lighting**: Configurable directional lighting
 - **GLSL Shaders**: Modern vertex and fragment shaders
+- **Interactive Feedback**: Animated hover and selection indicators
+- **Grid Rendering**: 3D reference grid with configurable transparency
+- **Axes Display**: Color-coded orientation axes (RGB = XYZ)
+- **Mini-map Overlay**: 2D navigation minimap with player indicator
+- **Compass Overlay**: 3D rotating compass showing cardinal directions
 - **Culling**: Back-face culling for performance
 - **Depth Testing**: Proper 3D depth rendering
 - **Selection Highlight**: Visual feedback for selected elements
 
-## 📦 Requirements
+## 🤖 AI Assistant Setup
 
-- .NET 10 SDK
-- Windows, Linux, or macOS
-- Graphics card with OpenGL 3.3+ support
-- For VR: VR headset with OpenXR support (optional)
-- For AR: Compatible AR device (optional)
+### Quick Start (3 steps)
 
-## 🚀 Installation
+1. **Install Ollama**
+   ```bash
+   # Windows
+   winget install Ollama.Ollama
+   # Or download from: https://ollama.ai/download
+   ```
 
-1. Clone the repository:
-```bash
-git clone https://github.com/avilaops/vizzio2.git
-cd vizzio2
-```
+2. **Setup AI models**
+   ```bash
+   # Run the setup script (RECOMMENDED)
+   .\setup-ollama.bat
+   
+   # Or manually:
+   ollama pull llama3.2:3b
+   ```
 
-2. Restore dependencies:
-```bash
-dotnet restore
-```
+3. **Run VIZZIO**
+   ```bash
+   .\run.bat
+   ```
 
-3. Build the project:
-```bash
-dotnet build
-```
+The AI Assistant will load automatically! ✅
 
-4. Run the application:
-```bash
-dotnet run
-```
+For detailed setup and usage, see: **[AI_README.md](AI_README.md)**
 
-## 📖 Usage
+## 🎮 3D/VR Navigation System
 
-### Loading IFC Files
+### Quick Start
 
-**Method 1: File Menu** (Recommended) 🆕
-- Click **File > Open IFC...** in the menu, OR
-- Press **Ctrl+O**
-- Select your IFC file in the dialog
+1. **Basic Navigation**
+   ```
+   Right-Click + Drag  → Rotate around model (Orbital mode)
+   Middle-Click + Drag → Pan view
+   Mouse Scroll        → Zoom in/out
+   WASD + Space/Shift  → Move camera
+   ```
 
-**Method 2: Drag and Drop**
-- Drag an IFC file from your file explorer and drop it onto the viewer window
+2. **Camera Presets** (Press to activate)
+   ```
+   Numpad 7  → Top view (Plan)
+   Numpad 1  → Front view
+   Numpad 3  → Right side view
+   Numpad 0  → Isometric view
+   F         → Focus on model
+   R         → Reset camera
+   ```
+
+3. **Visual Aids**
+   ```
+   G  → Toggle Grid (100m × 100m reference)
+   H  → Toggle Axes (RGB = XYZ)
+   N  → Toggle Mini-map
+   B  → Toggle Compass
+   O  → Switch Orbital/FPS mode
+   ```
+
+4. **Tutorial & Help**
+   ```
+   T   → Start interactive tutorial (12 steps)
+   F1  → Show all controls
+   ```
 
 ### Controls
 
-#### Camera Movement
+#### 🎮 Basic Navigation
 - **W/A/S/D**: Move forward/left/backward/right
 - **Space**: Move up
 - **Left Shift**: Move down
 - **+/-**: Increase/decrease movement speed
 
-#### Camera View
-- **Right-Click**: Capture mouse for looking around
-- **Mouse Movement**: Look around (when captured)
+#### 🖱️ Mouse Controls
+- **Right-Click + Drag**: Rotate view (Orbital mode - default)
+- **Middle-Click + Drag**: Pan view (move sideways)
 - **Mouse Scroll**: Zoom in/out
+- **Left-Click**: Select element
 - **ESC**: Release mouse (when captured) or exit application
 
-#### Element Interaction (NEW! 🆕)
+#### 📷 Camera Presets
+- **Numpad 1**: Front view
+- **Numpad 3**: Right side view
+- **Numpad 7**: Top view (Plan)
+- **Numpad 0**: Isometric view
+- **F**: Focus on model center
+- **R**: Reset camera to default
+
+#### 🎨 Visual Aids
+- **G**: Toggle Grid (100m reference grid)
+- **H**: Toggle Axes (RGB = XYZ orientation)
+- **N**: Toggle Mini-map (top-right corner)
+- **B**: Toggle Compass (3D orientation)
+- **O**: Switch between Orbital/FPS camera modes
+- **L**: Toggle lighting on/off
+
+#### 🎯 Element Interaction (NEW! 🆕)
 - **Left-Click**: Select element
-- **Hover**: Highlight element
+- **Hover**: Show hover indicator (cyan circle)
 - **Delete**: Clear selection
 
-#### View Options
-- **F**: Focus camera on model
-- **R**: Reset camera to default position
-- **L**: Toggle lighting on/off
-- **F11**: Toggle fullscreen
+#### 📚 Tutorial & Help
+- **T**: Toggle interactive tutorial (12 steps)
+- **F1**: Show complete controls help in console
+- **M**: Activate measurement mode
+- **F12**: Take screenshot
 
-#### VR/AR
-- **F2**: Toggle VR mode
+#### 🥽 VR/AR
+- **F2**: Toggle VR mode (with teleport & gestures)
 - **F3**: Toggle AR mode
 
-#### Help
-- **F1**: Show controls help in console
+#### 🪟 Window
+- **F11**: Toggle fullscreen
+- **Ctrl+O**: Open IFC file dialog
 
-## 🎨 User Interface
+### Features in Detail
 
-### Element List Panel
-- Search elements by name or type
-- Filter by element type (walls, beams, columns, etc.)
-- Quick selection with visual feedback
-- Element count per type
+#### Orbital Camera
+- **Intuitive rotation** around a focal point
+- **Smooth pan** with middle mouse button
+- **Smart zoom** that maintains orientation
+- **Auto-focus** on loaded models
 
-### Properties Panel
-- Complete IFC properties display
-- Organized by property sets
-- Color editor
-- Visibility toggle
-- Geometry information
+#### Visual Feedback
+- **Hover indicator**: Cyan pulsing circle when mouse over elements
+- **Selection ring**: Gold animated ring around selected elements
+- **Distance fade**: Indicators become transparent when far away
 
-### Statistics Panel
-- Model filename
-- Total elements count
-- Element types breakdown
-- Vertex and triangle counts
-- Model center and size
+#### VR Mode (F2)
+- **Teleportation**: Physics-based arc shows valid/invalid targets
+- **Gestures**: Swipe left/right, two-hand grab
+- **Smooth locomotion**: Alternative to teleport
+- **Controller tracking**: Ready for OpenXR devices
 
-### VR Settings Panel
-- IPD (Interpupillary Distance) adjustment
-- Head height configuration
-- VR device status
-- Runtime information
+#### Tutorial System
+**12 Interactive Steps**:
+1. Welcome
+2. Load IFC model
+3. Orbital rotation
+4. Pan movement
+5. Zoom
+6. Element selection
+7. Camera presets
+8. Grid & axes
+9. Element list
+10. Measurements
+11. VR mode (optional)
+12. Completion
 
-## 🏗️ Architecture
+**Smart Features**:
+- Automatic action detection
+- Contextual hints
+- Progress tracking
+- Skip/previous navigation
+
+For complete 3D/VR documentation, see:
+- **Quick Start**: [docs/QUICK_START.md](docs/QUICK_START.md)
+- **Complete Guide**: [docs/COMPLETE_3D_VR_SYSTEM.md](docs/COMPLETE_3D_VR_SYSTEM.md)
+- **Test Checklist**: [docs/TEST_CHECKLIST.md](docs/TEST_CHECKLIST.md)
+
+## 📦 Requirements
 
 ### Project Structure
 ```
 Vizzio/
+├── AI/                     # 🤖 AI Assistant
+│   ├── AIConfig.cs         # AI configuration
+│   ├── OllamaService.cs    # Ollama client
+│   └── IfcAIAssistant.cs   # IFC-specialized assistant
+├── Examples/               # 📚 Code examples
+│   └── AIExamples.cs       # AI usage examples
 ├── Models/
 │   ├── IfcGeometry.cs      # Vertex and mesh data structures
 │   ├── IfcElement.cs       # IFC element model
 │   └── IfcModel.cs         # Complete model container
 ├── Services/
 │   └── IfcParser.cs        # IFC file parsing service
-├── Rendering/
-│   ├── Camera.cs           # 3D camera with FPS controls
-│   ├── Mesh.cs             # Mesh management
-│   └── Renderer3D.cs       # OpenGL renderer
-├── UI/                     # NEW! 🆕
+├── Rendering/              # 🎨 3D Rendering
+│   ├── Camera.cs           # Orbital/FPS camera with presets
+│   ├── Renderer3D.cs       # OpenGL renderer
+│   ├── GridRenderer.cs     # 3D grid and axes (NEW!)
+│   ├── InteractionFeedback.cs  # Hover/selection indicators (NEW!)
+│   └── Mesh.cs             # Mesh management
+├── UI/                     # 🖼️ User Interface
 │   ├── ImGuiController.cs  # ImGui OpenGL renderer
-│   └── UIManager.cs        # UI panels and layout
-├── Interaction/            # NEW! 🆕
+│   ├── UIManager.cs        # UI panels and layout
+│   ├── MinimapCompass.cs   # Minimap & compass (NEW!)
+│   └── TutorialSystem.cs   # Interactive tutorial (NEW!)
+├── Interaction/            # 🎯 User interaction
 │   └── SelectionManager.cs # Ray picking and selection
-├── VR/
+├── VR/                     # 🥽 Virtual Reality
 │   ├── VRManager.cs        # VR/AR integration
-│   └── OpenXRManager.cs    # OpenXR implementation
+│   ├── OpenXRManager.cs    # OpenXR implementation
+│   ├── VRNavigation.cs     # VR navigation & gestures (NEW!)
+│   └── TeleportRenderer.cs # VR teleport visualization (NEW!)
+├── Tools/
+│   └── LayerManager.cs     # Layer management
 ├── Application/
 │   └── IfcViewer.cs        # Main application controller
+├── docs/                   # 📄 Documentation
+│   ├── QUICK_START.md      # Quick start guide (NEW!)
+│   ├── COMPLETE_3D_VR_SYSTEM.md  # Full 3D/VR docs (NEW!)
+│   ├── TEST_CHECKLIST.md   # Test checklist (NEW!)
+│   └── PROJECT_SUMMARY.md  # Project summary (NEW!)
+├── .env                    # Environment configuration
+├── setup-ollama.bat        # AI setup script
+├── test-ai.bat            # AI testing script
 └── Program.cs              # Entry point
+
 ```
-
-### Key Technologies
-- **Xbim.Essentials**: IFC file parsing and metadata extraction
-- **Xbim.Geometry.Engine.Interop**: Geometry processing
-- **Silk.NET**: Cross-platform OpenGL bindings and windowing
-- **Silk.NET.OpenXR**: OpenXR VR integration
-- **ImGui.NET**: Immediate mode GUI
-- **System.Numerics**: Vector and matrix mathematics
-
-## 📊 Performance
-
-### Optimization Features
-- Efficient vertex buffer objects (VBO)
-- Index buffer objects (EBO) for shared vertices
-- Bounding box culling for ray picking
-- Batch rendering of all meshes
-- ImGui optimized rendering
-
-### Statistics Display
-The viewer displays real-time statistics:
-- Total elements loaded
-- Element types and counts
-- Vertex count
-- Triangle count
-- Frames per second (FPS)
-
-## 🥽 VR/AR Integration
-
-### Current Status
-The application includes:
-- **OpenXR Framework**: Ready for VR hardware integration
-- **Stereoscopic Rendering**: Separate views for each eye
-- **IPD Configuration**: Adjustable interpupillary distance
-- **Simulation Mode**: Works without VR hardware for testing
-
-### Supported Platforms
-- **OpenXR** - Cross-platform VR/AR standard
-- **SteamVR** (via OpenXR)
-- **Oculus/Meta Quest** (via OpenXR)
-- **Windows Mixed Reality** (via OpenXR)
-
-### Using VR Mode
-1. Connect your VR headset
-2. Ensure OpenXR runtime is installed (SteamVR, Oculus, etc.)
-3. Press **F2** to enable VR mode
-4. If no headset is detected, simulation mode activates
-
-## 📝 Sample IFC Files
-
-You can test the viewer with free IFC sample files from:
-- [buildingSMART Sample Files](https://github.com/buildingSMART/Sample-Test-Files)
-- [IFC Examples Repository](https://www.ifcwiki.org/index.php?title=KIT_IFC_Examples)
-
-## 🐛 Troubleshooting
-
-### OpenGL Errors
-- Ensure your graphics drivers are up to date
-- Verify OpenGL 3.3+ support
-
-### IFC Loading Issues
-- Verify the IFC file is valid
-- Check console output for specific error messages
-- Try with sample IFC files first
-
-### Performance Issues
-- Use type filters to hide unnecessary elements
-- Close other GPU-intensive applications
-- Check FPS counter in the UI
-
-### UI Not Appearing
-- Ensure OpenGL 3.3+ is supported
-- Check console for initialization errors
-- Verify ImGui.NET dependencies are installed
 
 ## 🎓 Documentation
 
-- **Quick Start Guide**: See [GUIA_RAPIDO.md](GUIA_RAPIDO.md)
-- **Improvements Log**: See [MELHORIAS.md](MELHORIAS.md)
-- **Full README**: This file
+### Core Documentation
+- **Main README**: This file - Complete feature overview
+- **Quick Start**: [docs/QUICK_START.md](docs/QUICK_START.md) - Get started in 2 minutes
+- **Portuguese Guide**: [GUIA_RAPIDO.md](GUIA_RAPIDO.md) - Guia em português
+
+### 3D/VR System (NEW! ✨)
+- **Quick Start**: [docs/QUICK_START.md](docs/QUICK_START.md) - 3D navigation basics
+- **Complete Guide**: [docs/COMPLETE_3D_VR_SYSTEM.md](docs/COMPLETE_3D_VR_SYSTEM.md) - Full system documentation
+- **Test Checklist**: [docs/TEST_CHECKLIST.md](docs/TEST_CHECKLIST.md) - Validation checklist
+- **Project Summary**: [docs/PROJECT_SUMMARY.md](docs/PROJECT_SUMMARY.md) - Development summary
+- **Improvements Log**: [docs/3D_VR_IMPROVEMENTS.md](docs/3D_VR_IMPROVEMENTS.md) - Phase 1 improvements
+
+### AI Assistant 🤖
+- **AI README**: [AI_README.md](AI_README.md) - Complete AI documentation
+- **AI Setup**: [docs/OLLAMA_SETUP.md](docs/OLLAMA_SETUP.md) - Detailed setup guide
+- **AI Integration**: [AI_INTEGRATION_SUMMARY.md](AI_INTEGRATION_SUMMARY.md) - Integration details
+- **AI Checklist**: [AI_CHECKLIST.md](AI_CHECKLIST.md) - Setup checklist
+- **AI Visual Guide**: [AI_VISUAL_GUIDE.md](AI_VISUAL_GUIDE.md) - Visual guide
+
+### Development
+- **Improvements Log**: [MELHORIAS.md](MELHORIAS.md) - General improvements
+- **Contributing**: See Contributing section below
+
+## 🤝 Contributing
+
+Contributions are welcome! Areas where help is needed:
+
+### AI Features 🤖
+- AI feature enhancements
+- Natural language query processing
+- Voice command integration
+- AI-powered clash detection
+
+### 3D/VR System ✨
+- Full OpenXR VR hardware integration
+- VR controller input mapping
+- Hand tracking support
+- Multiplayer VR features
+- Advanced VR gestures
+- Haptic feedback
+
+### Visualization
+- Complete IFC geometry tessellation
+- Materials and textures
+- Advanced lighting (SSAO, shadows)
+- Transparency support
+- Section cuts and clipping
+
+### UI/UX
+- UI/UX improvements
+- Accessibility features
+- Touch controls for tablets
+- Mobile VR optimization
+
+### Performance
+- Performance optimizations
+- LOD (Level of Detail) system
+- Occlusion culling
+- Instanced rendering
+
+### Documentation
+- Additional IFC schema support
+- Documentation and tutorials
+- Video tutorials
+- Localization (i18n)
+
+**How to Contribute**:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Update documentation
+6. Submit a pull request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## 🚀 Future Enhancements
 
+### Implemented ✅
+- [x] AI Assistant integration 🤖
+- [x] Local AI inference with Ollama
+- [x] IFC element analysis
+- [x] Orbital camera navigation ✨
+- [x] Camera presets (Front/Top/Right/Isometric) ✨
+- [x] 3D grid and orientation axes ✨
+- [x] Interactive visual feedback ✨
+- [x] VR teleportation system ✨
+- [x] VR gesture recognition ✨
+- [x] Mini-map and 3D compass ✨
+- [x] Interactive tutorial (12 steps) ✨
+- [x] Contextual hints system ✨
+- [x] File dialog for opening IFC files
+- [x] Measurement tools
+
 ### Planned Features
-- [ ] File dialog for opening IFC files
+- [ ] Voice commands for VR
+- [ ] AI-powered clash detection
+- [ ] Automated report generation
+- [ ] Natural language queries ("Show all walls on floor 2")
 - [ ] Multi-model support
-- [ ] Measurement tools
 - [ ] Section cuts and clipping planes
 - [ ] Animation and walkthroughs
-- [ ] Clash detection
-- [ ] Export screenshots and videos
+- [ ] Export screenshots and videos (F12 implemented)
 - [ ] Cloud storage integration
 - [ ] Collaboration features
-- [ ] Full OpenXR hardware integration
+- [ ] Real-time multi-user VR
+- [ ] Annotation tools in VR
+- [ ] 4D construction sequencing
 
 ### Geometry
 - [ ] Complete tessellation using Xbim.Geometry
 - [ ] Level of Detail (LOD) support
 - [ ] Materials and textures
 - [ ] Transparency support
-
-## 🤝 Contributing
-
-Contributions are welcome! Areas where help is needed:
-- Full OpenXR VR hardware integration
-- Complete IFC geometry tessellation
-- UI/UX improvements
-- Performance optimizations
-- Additional IFC schema support
-- Documentation and tutorials
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🙏 Credits
-
-- **Xbim Toolkit**: For IFC parsing capabilities
-- **Silk.NET**: For OpenGL and OpenXR bindings
-- **ImGui.NET**: For immediate mode GUI
-- **buildingSMART**: For IFC standards
+- [ ] Advanced lighting (SSAO, shadows)
 
 ## 📧 Contact
 
 For questions or support:
 - **GitHub Issues**: [https://github.com/avilaops/vizzio2/issues](https://github.com/avilaops/vizzio2/issues)
-- **Quick Guide**: See GUIA_RAPIDO.md for detailed usage
-- **Improvements**: See MELHORIAS.md for technical details
+- **Developer**: Nícolas Ávila
+- **Project**: Vizzio IFC Viewer v3.0
+
+### Documentation Links
+- **AI Setup**: [AI_README.md](AI_README.md) 🤖
+- **Quick Start**: [docs/QUICK_START.md](docs/QUICK_START.md) 🎮
+- **Portuguese Guide**: [GUIA_RAPIDO.md](GUIA_RAPIDO.md) 🇧🇷
+- **Full 3D/VR Guide**: [docs/COMPLETE_3D_VR_SYSTEM.md](docs/COMPLETE_3D_VR_SYSTEM.md) ✨
+
+### Resources
+- **Sample IFC Files**: [buildingSMART Samples](https://github.com/buildingSMART/Sample-Test-Files)
+- **IFC Standards**: [buildingSMART International](https://www.buildingsmart.org/)
+- **OpenXR Spec**: [Khronos OpenXR](https://www.khronos.org/openxr/)
+- **Ollama**: [Ollama.ai](https://ollama.ai/)
 
 ---
 
-**Made with ❤️ for the AEC industry**
+**Made with ❤️ for the AEC industry by Nícolas Ávila**
 
-*Visualize your BIM models with ease! 🏗️✨*
+*Visualize your BIM models with ease! 🏗️✨🤖*
+
+**Version 3.0** - Complete 3D/VR System with AI Assistant  
+**Status**: ✅ Production Ready  
+**Last Updated**: December 2025

@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Runtime.Versioning;
 using System.Drawing.Imaging;
 using Silk.NET.OpenGL;
 using GLPixelFormat = Silk.NET.OpenGL.PixelFormat;
@@ -9,10 +10,11 @@ namespace Vizzio.Tools;
 /// <summary>
 /// Captures screenshots of the 3D viewport
 /// </summary>
+[SupportedOSPlatform("windows")]
 public class ScreenshotCapture
 {
     private GL? _gl;
-    
+
     public event Action<string>? OnScreenshotSaved;
     public event Action<string>? OnError;
 
@@ -33,7 +35,7 @@ public class ScreenshotCapture
         {
             // Read pixels from framebuffer
             var pixels = new byte[width * height * 4]; // RGBA
-            
+
             unsafe
             {
                 fixed (byte* ptr = pixels)
@@ -44,7 +46,7 @@ public class ScreenshotCapture
 
             // Create bitmap and flip vertically (OpenGL has origin at bottom-left)
             var bitmap = new Bitmap(width, height, DrawingPixelFormat.Format32bppArgb);
-            
+
             var bitmapData = bitmap.LockBits(
                 new Rectangle(0, 0, width, height),
                 ImageLockMode.WriteOnly,
@@ -54,7 +56,7 @@ public class ScreenshotCapture
             unsafe
             {
                 byte* bmpPtr = (byte*)bitmapData.Scan0;
-                
+
                 // Copy and flip vertically
                 for (int y = 0; y < height; y++)
                 {
@@ -63,7 +65,7 @@ public class ScreenshotCapture
                     {
                         int srcIndex = (srcY * width + x) * 4;
                         int dstIndex = (y * width + x) * 4;
-                        
+
                         // RGBA to BGRA
                         bmpPtr[dstIndex + 0] = pixels[srcIndex + 2]; // B
                         bmpPtr[dstIndex + 1] = pixels[srcIndex + 1]; // G
@@ -78,7 +80,7 @@ public class ScreenshotCapture
             // Save to file
             var filePath = customPath ?? GenerateScreenshotPath();
             var directory = Path.GetDirectoryName(filePath);
-            
+
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
@@ -107,7 +109,7 @@ public class ScreenshotCapture
         {
             // Read pixels
             var pixels = new byte[width * height * 4];
-            
+
             unsafe
             {
                 fixed (byte* ptr = pixels)
@@ -118,7 +120,7 @@ public class ScreenshotCapture
 
             // Create bitmap
             var bitmap = new Bitmap(width, height, DrawingPixelFormat.Format24bppRgb);
-            
+
             var bitmapData = bitmap.LockBits(
                 new Rectangle(0, 0, width, height),
                 ImageLockMode.WriteOnly,
@@ -128,7 +130,7 @@ public class ScreenshotCapture
             unsafe
             {
                 byte* bmpPtr = (byte*)bitmapData.Scan0;
-                
+
                 for (int y = 0; y < height; y++)
                 {
                     int srcY = height - 1 - y;
@@ -136,7 +138,7 @@ public class ScreenshotCapture
                     {
                         int srcIndex = (srcY * width + x) * 4;
                         int dstIndex = (y * width + x) * 3;
-                        
+
                         bmpPtr[dstIndex + 0] = pixels[srcIndex + 2]; // B
                         bmpPtr[dstIndex + 1] = pixels[srcIndex + 1]; // G
                         bmpPtr[dstIndex + 2] = pixels[srcIndex + 0]; // R
@@ -149,7 +151,7 @@ public class ScreenshotCapture
             // Save as JPEG
             var filePath = customPath ?? GenerateScreenshotPath(".jpg");
             var directory = Path.GetDirectoryName(filePath);
-            
+
             if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
@@ -157,7 +159,7 @@ public class ScreenshotCapture
 
             var encoderParams = new EncoderParameters(1);
             encoderParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, quality);
-            
+
             var jpegCodec = GetEncoderInfo("image/jpeg");
             if (jpegCodec != null)
             {
@@ -167,7 +169,7 @@ public class ScreenshotCapture
             {
                 bitmap.Save(filePath, ImageFormat.Jpeg);
             }
-            
+
             bitmap.Dispose();
 
             OnScreenshotSaved?.Invoke(filePath);
@@ -183,7 +185,7 @@ public class ScreenshotCapture
         var screenshotsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "Vizzio");
         var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         var filename = $"vizzio_screenshot_{timestamp}{extension}";
-        
+
         return Path.Combine(screenshotsDir, filename);
     }
 

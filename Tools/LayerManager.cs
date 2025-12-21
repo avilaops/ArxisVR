@@ -14,7 +14,9 @@ public class LayerManager
     public IReadOnlyList<string> LayerOrder => _layerOrder;
 
     public event Action<Layer>? OnLayerAdded;
+#pragma warning disable CS0067
     public event Action<Layer>? OnLayerRemoved;
+#pragma warning restore CS0067
     public event Action<Layer>? OnLayerVisibilityChanged;
 
     public void OrganizeByStorey(IfcModel model)
@@ -28,18 +30,18 @@ public class LayerManager
         foreach (var element in model.Elements)
         {
             var storey = ExtractStorey(element);
-            
+
             if (!elementsByStorey.ContainsKey(storey))
             {
                 elementsByStorey[storey] = new List<IfcElement>();
             }
-            
+
             elementsByStorey[storey].Add(element);
         }
 
         // Create layers
         var sortedStoreys = elementsByStorey.Keys.OrderBy(s => ExtractStoreyNumber(s)).ToList();
-        
+
         foreach (var storey in sortedStoreys)
         {
             var layer = new Layer
@@ -128,7 +130,7 @@ public class LayerManager
     private string ExtractStorey(IfcElement element)
     {
         // Try to extract storey from properties
-        var storeyProp = element.Properties.FirstOrDefault(p => 
+        var storeyProp = element.Properties.FirstOrDefault(p =>
             p.Key.Contains("Storey", StringComparison.OrdinalIgnoreCase) ||
             p.Key.Contains("Level", StringComparison.OrdinalIgnoreCase) ||
             p.Key.Contains("Floor", StringComparison.OrdinalIgnoreCase));
@@ -142,13 +144,13 @@ public class LayerManager
         if (element.Geometry != null)
         {
             var height = element.Geometry.GetCenter().Y;
-            
+
             if (height < 0) return "Foundation";
             if (height < 4) return "Ground Floor";
             if (height < 8) return "1st Floor";
             if (height < 12) return "2nd Floor";
             if (height < 16) return "3rd Floor";
-            
+
             var floorNumber = (int)(height / 4);
             return $"{floorNumber}th Floor";
         }
