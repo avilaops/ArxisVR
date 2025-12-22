@@ -62,6 +62,11 @@ public class MeshManager
         _meshes.Clear();
     }
 
+    public void ClearAll()
+    {
+        Clear();
+    }
+
     public int GetMeshCount()
     {
         return _meshes.Count;
@@ -81,28 +86,28 @@ public static class MeshConverter
     public static float[] ToVertexArray(MeshGeometry geometry, Vector3 color)
     {
         var vertexData = new float[geometry.Vertices.Count * 9]; // 3 pos + 3 normal + 3 color
-        
+
         for (int i = 0; i < geometry.Vertices.Count; i++)
         {
             var vertex = geometry.Vertices[i];
             var index = i * 9;
-            
+
             // Position
             vertexData[index + 0] = vertex.Position.X;
             vertexData[index + 1] = vertex.Position.Y;
             vertexData[index + 2] = vertex.Position.Z;
-            
+
             // Normal
             vertexData[index + 3] = vertex.Normal.X;
             vertexData[index + 4] = vertex.Normal.Y;
             vertexData[index + 5] = vertex.Normal.Z;
-            
+
             // Color
             vertexData[index + 6] = color.X;
             vertexData[index + 7] = color.Y;
             vertexData[index + 8] = color.Z;
         }
-        
+
         return vertexData;
     }
 

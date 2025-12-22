@@ -92,6 +92,11 @@ B         → Bússola
 | Space | Subir |
 | Shift | Descer |
 | +/- | Velocidade |
+| **Câmera (Correções)** ||
+| R | Reset completo |
+| Home | Reset orientação |
+| PageUp | Nivelar câmera (corrige inversão) |
+| End | Corrigir câmera de ponta-cabeça |
 | **Visualização** ||
 | G | Toggle Grid |
 | H | Toggle Eixos |
@@ -195,6 +200,12 @@ F3  → Ativa modo AR
 ✅ Verifique se é arquivo .IFC válido
 ✅ Tente arrastar para a janela
 ✅ Use Ctrl+O para abrir diálogo
+
+### Câmera ficou de ponta-cabeça
+✅ Pressione **Home** para resetar orientação
+✅ Pressione **PageUp** para nivelar (remove pitch)
+✅ Pressione **End** para correção automática
+✅ Pressione **R** para reset completo
 
 ### Navegação muito rápida
 ✅ Pressione **-** para diminuir velocidade

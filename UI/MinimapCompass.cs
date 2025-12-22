@@ -1,5 +1,6 @@
 using System.Numerics;
 using Silk.NET.OpenGL;
+using ImGuiNET;
 
 namespace Vizzio.UI;
 
@@ -15,19 +16,27 @@ public class MinimapCompass : IDisposable
     private uint _compassVBO;
     private uint _minimapVAO;
     private uint _minimapVBO;
-    
+
     // Settings
     public bool ShowMinimap { get; set; } = true;
     public bool ShowCompass { get; set; } = true;
     public Vector2 MinimapPosition { get; set; } = new Vector2(0.85f, 0.85f); // Normalized screen coords
     public Vector2 MinimapSize { get; set; } = new Vector2(0.12f, 0.12f);
-    public Vector2 CompassPosition { get; set; } = new Vector2(0.5f, 0.95f);
-    public float CompassSize { get; set; } = 0.08f;
-    
+    public Vector2 CompassPosition { get; set; } = new Vector2(0.92f, 0.12f); // Top-right corner
+    public float CompassSize { get; set; } = 0.065f;
+    public bool ShowGeographicCoordinates { get; set; } = true;
+
     private Vector3 _cameraPosition;
     private float _cameraYaw;
     private Vector3 _modelCenter;
     private float _modelSize;
+
+    // Geographic orientation (project north)
+    public float ProjectNorth { get; set; } = 0.0f; // Degrees from true north
+    public bool IsInteractive { get; set; } = true;
+
+    // Events
+    public event Action<float>? OnCompassClicked; // Returns direction in degrees
 
     public void Initialize(GL gl)
     {
@@ -46,22 +55,22 @@ public class MinimapCompass : IDisposable
             #version 330 core
             layout (location = 0) in vec2 aPosition;
             layout (location = 1) in vec3 aColor;
-            
+
             out vec3 Color;
-            
+
             uniform vec2 screenPos;
             uniform float size;
             uniform float rotation;
-            
+
             void main()
             {
                 float c = cos(rotation);
                 float s = sin(rotation);
                 mat2 rot = mat2(c, s, -s, c);
-                
+
                 vec2 rotated = rot * (aPosition * size);
                 vec2 pos = screenPos + rotated;
-                
+
                 Color = aColor;
                 gl_Position = vec4(pos * 2.0 - 1.0, 0.0, 1.0);
             }
@@ -71,7 +80,7 @@ public class MinimapCompass : IDisposable
             #version 330 core
             in vec3 Color;
             out vec4 FragColor;
-            
+
             void main()
             {
                 FragColor = vec4(Color, 0.9);
@@ -98,12 +107,12 @@ public class MinimapCompass : IDisposable
             #version 330 core
             layout (location = 0) in vec2 aPosition;
             layout (location = 1) in vec3 aColor;
-            
+
             out vec3 Color;
-            
+
             uniform vec2 screenPos;
             uniform vec2 size;
-            
+
             void main()
             {
                 vec2 pos = screenPos + aPosition * size;
@@ -116,7 +125,7 @@ public class MinimapCompass : IDisposable
             #version 330 core
             in vec3 Color;
             out vec4 FragColor;
-            
+
             void main()
             {
                 FragColor = vec4(Color, 0.8);
@@ -163,23 +172,23 @@ public class MinimapCompass : IDisposable
             0.0f, 0.0f,    1.0f, 0.0f, 0.0f,
             -0.3f, -0.5f,  0.6f, 0.0f, 0.0f,
             0.3f, -0.5f,   0.6f, 0.0f, 0.0f,
-            
+
             // North indicator
             0.0f, 0.8f,    1.0f, 0.3f, 0.3f,
             0.0f, 0.5f,    1.0f, 0.3f, 0.3f,
-            
+
             // South indicator (White)
             0.0f, -0.8f,   0.8f, 0.8f, 0.8f,
             0.0f, -0.5f,   0.8f, 0.8f, 0.8f,
-            
+
             // East indicator
             0.8f, 0.0f,    0.5f, 0.5f, 0.5f,
             0.5f, 0.0f,    0.5f, 0.5f, 0.5f,
-            
+
             // West indicator
             -0.8f, 0.0f,   0.5f, 0.5f, 0.5f,
             -0.5f, 0.0f,   0.5f, 0.5f, 0.5f,
-            
+
             // Circle
         };
 
@@ -191,7 +200,7 @@ public class MinimapCompass : IDisposable
             float angle = (float)i / segments * MathF.PI * 2.0f;
             float x = MathF.Cos(angle);
             float y = MathF.Sin(angle);
-            
+
             verticesList.Add(x);
             verticesList.Add(y);
             verticesList.Add(0.3f);
@@ -204,7 +213,7 @@ public class MinimapCompass : IDisposable
 
         _gl.BindVertexArray(_compassVAO);
         _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _compassVBO);
-        
+
         var vertexArray = verticesList.ToArray();
         unsafe
         {
@@ -235,7 +244,7 @@ public class MinimapCompass : IDisposable
              1.0f, -1.0f,   0.1f, 0.1f, 0.15f,
              1.0f,  1.0f,   0.1f, 0.1f, 0.15f,
             -1.0f,  1.0f,   0.1f, 0.1f, 0.15f,
-            
+
             // Camera position indicator (center)
             -0.05f, -0.05f,  1.0f, 1.0f, 0.0f,
              0.05f, -0.05f,  1.0f, 1.0f, 0.0f,
@@ -248,7 +257,7 @@ public class MinimapCompass : IDisposable
 
         _gl.BindVertexArray(_minimapVAO);
         _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _minimapVBO);
-        
+
         unsafe
         {
             fixed (float* v = vertices)
@@ -287,25 +296,25 @@ public class MinimapCompass : IDisposable
         if (ShowCompass)
         {
             _gl.UseProgram(_compassShader);
-            
+
             var location = _gl.GetUniformLocation(_compassShader, "screenPos");
             _gl.Uniform2(location, CompassPosition.X, CompassPosition.Y);
-            
+
             location = _gl.GetUniformLocation(_compassShader, "size");
             _gl.Uniform1(location, CompassSize);
-            
+
             location = _gl.GetUniformLocation(_compassShader, "rotation");
             _gl.Uniform1(location, -_cameraYaw * MathF.PI / 180.0f);
 
             _gl.BindVertexArray(_compassVAO);
-            
+
             // Draw north arrow
             _gl.DrawArrays(PrimitiveType.Triangles, 0, 3);
-            
+
             // Draw direction indicators
             _gl.LineWidth(2.0f);
             _gl.DrawArrays(PrimitiveType.Lines, 3, 8);
-            
+
             // Draw circle
             _gl.DrawArrays(PrimitiveType.LineLoop, 11, 33);
             _gl.LineWidth(1.0f);
@@ -315,18 +324,18 @@ public class MinimapCompass : IDisposable
         if (ShowMinimap)
         {
             _gl.UseProgram(_minimapShader);
-            
+
             var location = _gl.GetUniformLocation(_minimapShader, "screenPos");
             _gl.Uniform2(location, MinimapPosition.X, MinimapPosition.Y);
-            
+
             location = _gl.GetUniformLocation(_minimapShader, "size");
             _gl.Uniform2(location, MinimapSize.X, MinimapSize.Y);
 
             _gl.BindVertexArray(_minimapVAO);
-            
+
             // Draw background
             _gl.DrawArrays(PrimitiveType.TriangleFan, 0, 4);
-            
+
             // Draw camera indicator
             _gl.DrawArrays(PrimitiveType.TriangleFan, 4, 4);
         }
@@ -334,6 +343,104 @@ public class MinimapCompass : IDisposable
         _gl.BindVertexArray(0);
         _gl.Enable(EnableCap.DepthTest);
         _gl.Disable(EnableCap.Blend);
+    }
+
+    /// <summary>
+    /// Render geographic coordinates overlay with ImGui (AutoCAD style)
+    /// </summary>
+    public void RenderGeographicOverlay()
+    {
+        if (!ShowCompass || !ShowGeographicCoordinates) return;
+
+        // Position at top-right with compass
+        var displaySize = ImGui.GetIO().DisplaySize;
+        var compassScreenPos = new Vector2(
+            displaySize.X * CompassPosition.X,
+            displaySize.Y * CompassPosition.Y
+        );
+
+        ImGui.SetNextWindowPos(new Vector2(compassScreenPos.X + 80, compassScreenPos.Y - 50));
+        ImGui.SetNextWindowSize(new Vector2(160, 140));
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(8, 8));
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 8);
+        ImGui.PushStyleColor(ImGuiCol.WindowBg, new Vector4(0.1f, 0.1f, 0.15f, 0.92f));
+
+        if (ImGui.Begin("##GeographicCoords", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove))
+        {
+            ImGui.PushFont(ImGui.GetFont());
+
+            // Title
+            ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.8f, 0.9f, 1.0f, 1.0f));
+            ImGui.Text("🧭 Geographic");
+            ImGui.PopStyleColor();
+            ImGui.Separator();
+
+            // Calculate bearing from camera yaw
+            float bearing = (_cameraYaw + ProjectNorth) % 360.0f;
+            if (bearing < 0) bearing += 360.0f;
+
+            string direction = GetCardinalDirection(bearing);
+
+            // Display bearing with color based on cardinal direction
+            ImGui.Text($"Bearing: {bearing:F1}°");
+
+            ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(1.0f, 0.3f, 0.3f, 1.0f));
+            ImGui.Text($"➤ {direction}");
+            ImGui.PopStyleColor();
+
+            ImGui.Spacing();
+
+            // Cardinal directions as clickable buttons (AutoCAD style)
+            ImGui.Text("Quick Orient:");
+
+            // North button
+            if (ImGui.Button("N🧭", new Vector2(35, 25)))
+            {
+                OnCompassClicked?.Invoke(0.0f);
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Face North");
+
+            // East and West
+            ImGui.SameLine();
+            if (ImGui.Button("E", new Vector2(35, 25)))
+            {
+                OnCompassClicked?.Invoke(90.0f);
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Face East");
+
+            ImGui.SameLine();
+            if (ImGui.Button("S", new Vector2(35, 25)))
+            {
+                OnCompassClicked?.Invoke(180.0f);
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Face South");
+
+            ImGui.SameLine();
+            if (ImGui.Button("W", new Vector2(35, 25)))
+            {
+                OnCompassClicked?.Invoke(270.0f);
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Face West");
+
+            ImGui.PopFont();
+        }
+        ImGui.End();
+
+        ImGui.PopStyleColor();
+        ImGui.PopStyleVar(2);
+    }
+
+    private string GetCardinalDirection(float bearing)
+    {
+        // 16-point compass rose
+        var directions = new[] { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                                "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
+        int index = (int)Math.Round(bearing / 22.5f) % 16;
+        return directions[index];
     }
 
     public void Dispose()

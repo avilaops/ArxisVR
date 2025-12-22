@@ -16,6 +16,7 @@ public class UIManager
     private IfcModel? _currentModel;
     private IfcElement? _selectedElement;
     private string _searchFilter = "";
+    private bool _isUpdatingSelection = false; // Prevent re-entrance
     private bool _showProperties = true;
     private bool _showElementList = true;
     private bool _showStatistics = true;
@@ -25,15 +26,15 @@ public class UIManager
     private bool _showLayers = false;
     private bool _showHistory = false;
     private bool _showAIChat = true; // NEW!
-    
+
     private Dictionary<string, bool> _typeVisibility = new();
     private List<MeasurementResult> _measurementHistory = new();
-    
+
     // Modern components
     private Toolbar _toolbar = new();
     private ElementListPanel _elementListPanel = new();
     private AIChatPanel _aiChatPanel = new(); // NEW!
-    
+
     // Existing components
     private AnnotationSystem _annotationSystem = new();
     private LayerManager _layerManager = new();
@@ -47,8 +48,18 @@ public class UIManager
         get => _selectedElement;
         set
         {
-            _selectedElement = value;
-            OnElementSelected?.Invoke(value);
+            if (_isUpdatingSelection) return; // Prevent re-entrance loop
+
+            try
+            {
+                _isUpdatingSelection = true;
+                _selectedElement = value;
+                OnElementSelected?.Invoke(value);
+            }
+            finally
+            {
+                _isUpdatingSelection = false;
+            }
         }
     }
 
@@ -105,7 +116,8 @@ public class UIManager
 
         _toolbar.OnSaveScreenshot += () =>
         {
-            ShowNotification("Screenshot feature coming soon!", NotificationType.Info);
+            // Trigger screenshot via event to IfcViewer
+            OnVRMessage?.Invoke("TAKE_SCREENSHOT");
         };
 
         _toolbar.OnMeasureDistance += () =>
@@ -193,6 +205,12 @@ public class UIManager
         // Toolbar
         _toolbar.Render((int)ImGui.GetIO().DisplaySize.X, (int)ImGui.GetIO().DisplaySize.Y);
 
+        // CS-style crosshair (center of screen)
+        RenderCrosshair();
+
+        // Navigation indicator (bottom-left corner)
+        RenderNavigationIndicator(camera);
+
         // Modern panels
         if (_showElementList)
             _elementListPanel.Render(_currentModel, element => SelectedElement = element);
@@ -258,7 +276,7 @@ public class UIManager
 
                 if (ImGui.MenuItem("💾 Save Screenshot", "F12"))
                 {
-                    ShowNotification("Screenshot feature coming soon!", NotificationType.Info);
+                    OnVRMessage?.Invoke("TAKE_SCREENSHOT");
                 }
 
                 ImGui.Separator();
@@ -278,9 +296,9 @@ public class UIManager
                 ImGui.MenuItem("ℹ️ Properties", "F3", ref _showProperties);
                 ImGui.MenuItem("📊 Statistics", "F4", ref _showStatistics);
                 ImGui.MenuItem("🤖 AI Chat", "F9", ref _showAIChat);
-                
+
                 ImGui.Separator();
-                
+
                 ImGui.MenuItem("📏 Measurements", "F5", ref _showMeasurements);
                 ImGui.MenuItem("📝 Annotations", "F7", ref _showAnnotations);
                 ImGui.MenuItem("🗂️ Layers", "F8", ref _showLayers);
@@ -371,7 +389,7 @@ public class UIManager
             // FPS counter (right-aligned)
             var availWidth = ImGui.GetContentRegionAvail().X;
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + availWidth - 100);
-            
+
             ImGui.PushStyleColor(ImGuiCol.Text, ModernTheme.Colors.Success);
             ImGui.Text($"⚡ {fps:F0} FPS");
             ImGui.PopStyleColor();
@@ -382,23 +400,48 @@ public class UIManager
         ImGui.PopStyleVar();
     }
 
+    private string GetElementIcon(string ifcType)
+    {
+        return ifcType switch
+        {
+            var t when t.Contains("Wall") => "🧱",
+            var t when t.Contains("Slab") => "⬜",
+            var t when t.Contains("Column") => "🏛️",
+            var t when t.Contains("Beam") => "━",
+            var t when t.Contains("Door") => "🚪",
+            var t when t.Contains("Window") => "🪟",
+            var t when t.Contains("Roof") => "🏠",
+            var t when t.Contains("Stair") => "🪜",
+            var t when t.Contains("Railing") => "🛡️",
+            var t when t.Contains("Pile") || t.Contains("Footing") => "🏗️",
+            var t when t.Contains("Flow") || t.Contains("Pipe") => "🔧",
+            _ => "📦"
+        };
+    }
+
     private void RenderModernPropertiesPanel()
     {
         if (_selectedElement == null)
             return;
 
-        ImGui.SetNextWindowSize(new Vector2(380, 550), ImGuiCond.FirstUseEver);
-        ImGui.SetNextWindowPos(new Vector2(ImGui.GetIO().DisplaySize.X - 400, 120), ImGuiCond.FirstUseEver);
+        // Larger window for complete properties (AutoCAD/Revit style)
+        ImGui.SetNextWindowSize(new Vector2(420, 700), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowPos(new Vector2(ImGui.GetIO().DisplaySize.X - 440, 120), ImGuiCond.FirstUseEver);
 
-        if (ImGui.Begin("ℹ️ Properties", ref _showProperties))
+        if (ImGui.Begin("📋 Properties Inspector", ref _showProperties))
         {
-            // Header
-            ModernTheme.SectionHeader(_selectedElement.Name ?? "Unknown");
+            // Header with icon based on type
+            var icon = GetElementIcon(_selectedElement.IfcType ?? "");
+            ModernTheme.SectionHeader($"{icon} {_selectedElement.Name ?? "Unnamed Element"}");
 
-            // Basic info
-            ImGui.Text($"Type: {_selectedElement.IfcType}");
+            // Type badge
+            ImGui.PushStyleColor(ImGuiCol.Button, ModernTheme.Colors.Primary);
+            ImGui.Button(_selectedElement.IfcType ?? "Unknown");
+            ImGui.PopStyleColor();
+
+            ImGui.SameLine();
             ImGui.TextDisabled($"ID: {_selectedElement.GlobalId}");
-            
+
             ImGui.Spacing();
             ImGui.Separator();
             ImGui.Spacing();
@@ -424,7 +467,7 @@ public class UIManager
             // AI Analysis button
             if (ModernTheme.StyledButton("🤖 Analyze with AI", null, ModernTheme.Colors.AIAssistant))
             {
-                _ = _aiChatPanel.AnalyzeElement(_selectedElement.Type ?? "Element", 
+                _ = _aiChatPanel.AnalyzeElement(_selectedElement.Type ?? "Element",
                     _selectedElement.Properties);
             }
 
@@ -432,27 +475,55 @@ public class UIManager
             ImGui.Separator();
             ImGui.Spacing();
 
-            // Properties table
+            // Properties table - Complete view (AutoCAD/Revit style)
             if (ImGui.BeginTabBar("PropertyTabs"))
             {
-                if (ImGui.BeginTabItem("📋 Properties"))
+                if (ImGui.BeginTabItem("📋 All Properties"))
                 {
-                    if (ImGui.BeginTable("props", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.ScrollY))
+                    // Group properties by category
+                    var groupedProps = _selectedElement.Properties
+                        .GroupBy(p => GetPropertyCategory(p.Key))
+                        .OrderBy(g => g.Key);
+
+                    foreach (var group in groupedProps)
                     {
-                        ImGui.TableSetupColumn("Property", ImGuiTableColumnFlags.WidthFixed, 150);
-                        ImGui.TableSetupColumn("Value");
-                        ImGui.TableHeadersRow();
-
-                        foreach (var (key, value) in _selectedElement.Properties.OrderBy(p => p.Key))
+                        if (ImGui.CollapsingHeader(group.Key, ImGuiTreeNodeFlags.DefaultOpen))
                         {
-                            ImGui.TableNextRow();
-                            ImGui.TableNextColumn();
-                            ImGui.TextUnformatted(key);
-                            ImGui.TableNextColumn();
-                            ImGui.TextWrapped(value);
-                        }
+                            if (ImGui.BeginTable($"props_{group.Key}", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp))
+                            {
+                                ImGui.TableSetupColumn("Property", ImGuiTableColumnFlags.WidthFixed, 180);
+                                ImGui.TableSetupColumn("Value");
+                                ImGui.TableHeadersRow();
 
-                        ImGui.EndTable();
+                                foreach (KeyValuePair<string, string> prop in group.OrderBy(p => p.Key))
+                                {
+                                    ImGui.TableNextRow();
+                                    ImGui.TableNextColumn();
+                                    ImGui.PushStyleColor(ImGuiCol.Text, ModernTheme.Colors.Text);
+                                    ImGui.TextUnformatted(prop.Key);
+                                    ImGui.PopStyleColor();
+
+                                    ImGui.TableNextColumn();
+                                    ImGui.TextWrapped(prop.Value);
+
+                                    // Copy button
+                                    if (ImGui.IsItemHovered())
+                                    {
+                                        ImGui.BeginTooltip();
+                                        ImGui.Text("Right-click to copy");
+                                        ImGui.EndTooltip();
+
+                                        if (ImGui.IsMouseClicked(ImGuiMouseButton.Right))
+                                        {
+                                            ImGui.SetClipboardText(prop.Value);
+                                            ShowNotification($"Copied: {prop.Key}", NotificationType.Info);
+                                        }
+                                    }
+                                }
+
+                                ImGui.EndTable();
+                            }
+                        }
                     }
                     ImGui.EndTabItem();
                 }
@@ -772,5 +843,149 @@ public class UIManager
     public void AddMeasurementResult(MeasurementResult result)
     {
         _measurementHistory.Add(result);
+    }
+
+    private void RenderNavigationIndicator(Camera camera)
+    {
+        var viewport = ImGui.GetMainViewport();
+        ImGui.SetNextWindowPos(new Vector2(20, viewport.Size.Y - 200), ImGuiCond.Always);
+        ImGui.SetNextWindowSize(new Vector2(260, 170), ImGuiCond.Always);
+
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 12.0f);
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(16, 12));
+        ImGui.PushStyleColor(ImGuiCol.WindowBg, new Vector4(0.08f, 0.08f, 0.10f, 0.92f));
+        ImGui.PushStyleColor(ImGuiCol.Border, new Vector4(0.4f, 0.7f, 0.98f, 0.4f));
+
+        var flags = ImGuiWindowFlags.NoDecoration |
+                   ImGuiWindowFlags.NoMove |
+                   ImGuiWindowFlags.NoResize |
+                   ImGuiWindowFlags.NoSavedSettings |
+                   ImGuiWindowFlags.NoFocusOnAppearing;
+
+        if (ImGui.Begin("##NavigationIndicator", flags))
+        {
+            // Title
+            ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.4f, 0.7f, 0.98f, 1.0f));
+            ImGui.Text("🎮 CS-Style Navigation");
+            ImGui.PopStyleColor();
+
+            ImGui.Separator();
+            ImGui.Spacing();
+
+            // Camera mode
+            string modeIcon = camera.IsOrbitMode ? "🔄" : "🚶";
+            string modeText = camera.IsOrbitMode ? "Orbit" : "FPS";
+            ImGui.Text($"{modeIcon} Mode: {modeText}");
+
+            // Movement state
+            string stateIcon = "🟢";
+            string stateText = "Walk";
+            Vector4 stateColor = new Vector4(0.3f, 0.8f, 0.4f, 1.0f);
+
+            if (camera.IsSprinting)
+            {
+                stateIcon = "🔥";
+                stateText = "SPRINT";
+                stateColor = new Vector4(1.0f, 0.4f, 0.2f, 1.0f);
+            }
+            else if (camera.IsCrouching)
+            {
+                stateIcon = "🟡";
+                stateText = "Crouch";
+                stateColor = new Vector4(1.0f, 0.8f, 0.0f, 1.0f);
+            }
+
+            ImGui.PushStyleColor(ImGuiCol.Text, stateColor);
+            ImGui.Text($"{stateIcon} {stateText}");
+            ImGui.PopStyleColor();
+
+            // Velocity (CS-style speedometer)
+            float velocity = camera.CurrentVelocity;
+            float velocityPercent = Math.Min(velocity / (camera.MovementSpeed * 2.0f), 1.0f);
+
+            ImGui.Text($"⚡ Speed: {velocity:F1} u/s");
+
+            // Speed bar
+            ImGui.PushStyleColor(ImGuiCol.PlotHistogram, new Vector4(0.2f + velocityPercent * 0.6f, 0.8f - velocityPercent * 0.5f, 0.2f, 1.0f));
+            ImGui.ProgressBar(velocityPercent, new Vector2(-1, 8), "");
+            ImGui.PopStyleColor();
+
+            // FOV
+            ImGui.Text($"🔍 FOV: {camera.Fov:F0}°");
+
+            ImGui.Spacing();
+
+            // Controls hint
+            ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.5f, 0.5f, 0.55f, 1.0f));
+            ImGui.TextWrapped("Shift=Sprint • Ctrl=Crouch");
+            ImGui.TextWrapped("Double-click to focus");
+            ImGui.PopStyleColor();
+        }
+        ImGui.End();
+
+        ImGui.PopStyleColor(2);
+        ImGui.PopStyleVar(2);
+    }
+
+    private void RenderCrosshair()
+    {
+        var viewport = ImGui.GetMainViewport();
+        var center = new Vector2(viewport.Size.X / 2, viewport.Size.Y / 2);
+
+        // Subtle CS-style crosshair
+        var drawList = ImGui.GetForegroundDrawList();
+
+        float size = 8.0f;
+        float thickness = 1.5f;
+        float gap = 4.0f;
+
+        var color = ImGui.ColorConvertFloat4ToU32(new Vector4(0.0f, 1.0f, 0.3f, 0.7f));
+
+        // Horizontal lines
+        drawList.AddLine(
+            new Vector2(center.X - size - gap, center.Y),
+            new Vector2(center.X - gap, center.Y),
+            color, thickness);
+        drawList.AddLine(
+            new Vector2(center.X + gap, center.Y),
+            new Vector2(center.X + size + gap, center.Y),
+            color, thickness);
+
+        // Vertical lines
+        drawList.AddLine(
+            new Vector2(center.X, center.Y - size - gap),
+            new Vector2(center.X, center.Y - gap),
+            color, thickness);
+        drawList.AddLine(
+            new Vector2(center.X, center.Y + gap),
+            new Vector2(center.X, center.Y + size + gap),
+            color, thickness);
+
+        // Center dot (optional)
+        drawList.AddCircleFilled(center, 1.0f, color);
+    }
+
+    private string GetPropertyCategory(string propertyKey)
+    {
+        // Categorize properties based on common IFC patterns
+        if (propertyKey.Contains("Dimension") || propertyKey.Contains("Width") || propertyKey.Contains("Height") ||
+            propertyKey.Contains("Length") || propertyKey.Contains("Thickness") || propertyKey.Contains("Area") ||
+            propertyKey.Contains("Volume"))
+            return "📏 Dimensions";
+
+        if (propertyKey.Contains("Material") || propertyKey.Contains("Finish"))
+            return "🎨 Materials";
+
+        if (propertyKey.Contains("Structural") || propertyKey.Contains("Load") || propertyKey.Contains("Strength"))
+            return "🏗️ Structural";
+
+        if (propertyKey.Contains("Fire") || propertyKey.Contains("Acoustic") || propertyKey.Contains("Thermal"))
+            return "🔥 Performance";
+
+        if (propertyKey.Contains("Status") || propertyKey.Contains("Phase") || propertyKey.Contains("Created") ||
+            propertyKey.Contains("Modified"))
+            return "📋 Status";
+
+        return "📦 General";
     }
 }

@@ -11,21 +11,33 @@ public class SelectionManager
 {
     private IfcElement? _selectedElement;
     private IfcElement? _hoveredElement;
-    
+    private bool _isUpdatingSelection = false;
+
     public IfcElement? SelectedElement
     {
         get => _selectedElement;
         set
         {
-            if (_selectedElement != null)
-                _selectedElement.IsSelected = false;
-            
-            _selectedElement = value;
-            
-            if (_selectedElement != null)
-                _selectedElement.IsSelected = true;
-            
-            OnSelectionChanged?.Invoke(_selectedElement);
+            if (_isUpdatingSelection) return; // Prevent re-entrance
+
+            try
+            {
+                _isUpdatingSelection = true;
+
+                if (_selectedElement != null)
+                    _selectedElement.IsSelected = false;
+
+                _selectedElement = value;
+
+                if (_selectedElement != null)
+                    _selectedElement.IsSelected = true;
+
+                OnSelectionChanged?.Invoke(_selectedElement);
+            }
+            finally
+            {
+                _isUpdatingSelection = false;
+            }
         }
     }
 
@@ -78,7 +90,7 @@ public class SelectionManager
         var view = camera.GetViewMatrix();
         Matrix4x4.Invert(view, out var invView);
         var rayWorld = Vector4.Transform(rayEye, invView);
-        
+
         var direction = new Vector3(rayWorld.X, rayWorld.Y, rayWorld.Z);
         direction = Vector3.Normalize(direction);
 
@@ -96,7 +108,7 @@ public class SelectionManager
                 continue;
 
             var distance = RayIntersectsElement(ray, element);
-            
+
             if (distance.HasValue && distance.Value < closestDistance)
             {
                 closestDistance = distance.Value;
@@ -127,7 +139,7 @@ public class SelectionManager
             var v2 = geometry.Vertices[(int)geometry.Indices[i + 2]].Position;
 
             var hit = RayIntersectsTriangle(ray, v0, v1, v2);
-            
+
             if (hit.HasValue)
             {
                 if (!closestHit.HasValue || hit.Value < closestHit.Value)
@@ -173,7 +185,7 @@ public class SelectionManager
     {
         // Möller–Trumbore intersection algorithm
         const float epsilon = 0.0000001f;
-        
+
         var edge1 = v1 - v0;
         var edge2 = v2 - v0;
         var h = Vector3.Cross(ray.Direction, edge2);
@@ -199,7 +211,7 @@ public class SelectionManager
 
         if (t > epsilon)
             return t; // Ray intersection
-        
+
         return null;
     }
 }

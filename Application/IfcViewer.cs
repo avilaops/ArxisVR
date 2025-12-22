@@ -50,6 +50,10 @@ public class IfcViewer : IDisposable
     private bool _uiWantsMouse = false;
     private bool _isMiddleMousePressed = false;
 
+    // Double click detection
+    private DateTime _lastClickTime = DateTime.MinValue;
+    private const double DoubleClickThreshold = 0.3; // seconds
+
     private float _deltaTime;
     private DateTime _lastFrameTime = DateTime.Now;
 
@@ -58,7 +62,10 @@ public class IfcViewer : IDisposable
     public float FPS { get; private set; }
     private DateTime _lastFpsUpdate = DateTime.Now;
 
-    // Events
+    // Safe loading system
+    private bool _isLoadingModel = false;
+    private IfcModel? _pendingModel = null;
+    private readonly object _loadLock = new object();
     public event Action<string>? OnStatusMessage;
     public event Action<IfcModel>? OnModelLoaded;
 
@@ -117,39 +124,45 @@ public class IfcViewer : IDisposable
 
         _selectionHighlight = new SelectionHighlight();
         _selectionHighlight.Initialize(_gl);
-        
+
         // Initialize grid renderer
         _gridRenderer = new GridRenderer();
         _gridRenderer.Initialize(_gl);
         _gridRenderer.ShowGrid = true;
         _gridRenderer.ShowAxes = true;
-        
+
         // Initialize VR navigation
         _vrNavigation = new VRNavigation();
         _vrNavigation.OnNavigationMessage += (msg) => OnStatusMessage?.Invoke($"[VR] {msg}");
-        
+
         _vrGestures = new VRGestures();
         _vrGestures.OnGestureMessage += (msg) => OnStatusMessage?.Invoke($"[Gesture] {msg}");
         _vrGestures.OnGestureDetected += HandleVRGesture;
-        
+
         // Initialize interaction feedback
         _interactionFeedback = new InteractionFeedback();
         _interactionFeedback.Initialize(_gl);
-        
+
         // Initialize teleport renderer
         _teleportRenderer = new TeleportRenderer();
         _teleportRenderer.Initialize(_gl);
-        
+
         // Initialize minimap and compass
         _minimapCompass = new MinimapCompass();
         _minimapCompass.Initialize(_gl);
-        
+        _minimapCompass.OnCompassClicked += (bearing) =>
+        {
+            // Rotate camera to face the clicked direction
+            _renderer.Camera.Yaw = -bearing; // Negative because yaw is CCW
+            OnStatusMessage?.Invoke($"Camera oriented to {GetCardinalDirection(bearing)} ({bearing:F0}°)");
+        };
+
         // Initialize tutorial system
         _tutorialSystem = new TutorialSystem();
         _tutorialSystem.OnStepChanged += (step) => OnStatusMessage?.Invoke($"📚 Tutorial: {step.Title}");
         _tutorialSystem.OnTutorialCompleted += () => OnStatusMessage?.Invoke("🎉 Tutorial completed!");
         _tutorialSystem.OnHint += (hint) => _contextualHints?.AddHint(hint);
-        
+
         _contextualHints = new ContextualHints();
 
         // Set camera to orbit mode by default for more intuitive navigation
@@ -205,7 +218,14 @@ public class IfcViewer : IDisposable
 
         _uiManager.OnVRMessage += (message) =>
         {
-            OnStatusMessage?.Invoke(message);
+            if (message == "TAKE_SCREENSHOT" && _screenshotCapture != null && _window != null)
+            {
+                _screenshotCapture.CaptureScreenshot(_window.Size.X, _window.Size.Y);
+            }
+            else
+            {
+                OnStatusMessage?.Invoke(message);
+            }
         };
 
         // Subscribe to measurement tool events
@@ -242,12 +262,15 @@ public class IfcViewer : IDisposable
         // Setup input
         SetupInput();
 
-        OnStatusMessage?.Invoke("Vizzio IFC Viewer initialized. Press F1 for help.");
-        OnStatusMessage?.Invoke("Drag and drop an IFC file to load it.");
-        
+        OnStatusMessage?.Invoke("🎮 Vizzio IFC Viewer - CS-Style Navigation Activated!");
+        OnStatusMessage?.Invoke("WASD=Move • Shift=Sprint • Ctrl=Crouch • Double-click=Focus");
+
+        // Show welcome notification
+        _uiManager?.ShowNotification("Welcome to Vizzio! CS-style movement enabled 🔥", UI.NotificationType.Success);
+
         // Show tutorial on first launch
         _tutorialSystem?.ShowContextualHint("first_load");
-        
+
         // Optionally start tutorial
         // _tutorialSystem?.Start();
     }
@@ -291,9 +314,66 @@ public class IfcViewer : IDisposable
             _lastFpsUpdate = DateTime.Now;
         }
 
+        // Check for pending model to load (on main thread)
+        lock (_loadLock)
+        {
+            if (_pendingModel != null && !_isLoadingModel)
+            {
+                _isLoadingModel = true;
+                try
+                {
+                    _renderer.LoadModel(_pendingModel);
+                    _currentModel = _pendingModel;
+
+                    if (_uiManager != null)
+                    {
+                        _uiManager.SetModel(_pendingModel);
+                    }
+
+                    OnModelLoaded?.Invoke(_pendingModel);
+                    OnStatusMessage?.Invoke($"✅ Model loaded successfully!");
+                    OnStatusMessage?.Invoke($"📊 Elements: {_pendingModel.Elements.Count}, Types: {_pendingModel.GetElementTypes().Count}");
+                    OnStatusMessage?.Invoke($"🔺 Vertices: {_pendingModel.GetTotalVertexCount():N0}, Triangles: {_pendingModel.GetTotalTriangleCount():N0}");
+
+                    // Don't clear _pendingModel yet - let renderer handle it
+                    // _isLoadingModel will be cleared by renderer when GPU upload completes
+                    _uiManager?.ShowNotification($"Model loaded: {_pendingModel.Elements.Count} elements", UI.NotificationType.Success);
+
+                    // Record tutorial action
+                    _tutorialSystem?.RecordAction("model_loaded");
+
+                    // Show contextual hint for large models
+                    if (_pendingModel.Elements.Count > 1000)
+                    {
+                        _contextualHints?.AddHint("💡 Large model! Use element list to toggle types for better performance.");
+                    }
+
+                    // Don't focus yet - renderer will do it when upload completes
+                    // FocusOnModel();
+                }
+                catch (Exception ex)
+                {
+                    OnStatusMessage?.Invoke($"❌ Error loading model geometry: {ex.Message}");
+                    _isLoadingModel = false;
+                    _pendingModel = null;
+                    _uiManager?.ShowNotification($"Error loading geometry: {ex.Message}", UI.NotificationType.Error);
+                }
+                // Don't use finally - let renderer complete loading
+            }
+        }
+
+        // Monitor renderer loading status
+        if (_isLoadingModel && !_renderer.IsLoadingModel)
+        {
+            // Renderer finished loading!
+            _isLoadingModel = false;
+            _pendingModel = null;
+            OnStatusMessage?.Invoke($"✅ GPU upload complete! {_renderer.LoadedGeometryCount} geometries");
+        }
+
         // Update VR/AR
         _vrManager.Update(_deltaTime);
-        
+
         // Update VR navigation if in VR mode
         if (_vrManager.IsVREnabled && _vrNavigation != null)
         {
@@ -304,7 +384,7 @@ public class IfcViewer : IDisposable
                 _deltaTime
             );
             _renderer.Camera.Position = newPos;
-            
+
             // Update VR gestures
             _vrGestures?.Update(
                 _vrManager.LeftControllerPosition,
@@ -313,10 +393,10 @@ public class IfcViewer : IDisposable
                 false
             );
         }
-        
+
         // Update interaction feedback
         _interactionFeedback?.Update(_deltaTime);
-        
+
         // Update minimap/compass
         if (_currentModel != null)
         {
@@ -327,7 +407,7 @@ public class IfcViewer : IDisposable
                 _currentModel.ModelSize
             );
         }
-        
+
         // Update contextual hints
         _contextualHints?.Update();
 
@@ -352,21 +432,66 @@ public class IfcViewer : IDisposable
         var keyboard = _inputContext.Keyboards[0];
         var camera = _renderer.Camera;
 
-        // Camera movement
-        if (keyboard.IsKeyPressed(Key.W))
-            camera.ProcessKeyboard(CameraMovement.Forward, _deltaTime);
-        if (keyboard.IsKeyPressed(Key.S))
-            camera.ProcessKeyboard(CameraMovement.Backward, _deltaTime);
-        if (keyboard.IsKeyPressed(Key.A))
-            camera.ProcessKeyboard(CameraMovement.Left, _deltaTime);
-        if (keyboard.IsKeyPressed(Key.D))
-            camera.ProcessKeyboard(CameraMovement.Right, _deltaTime);
-        if (keyboard.IsKeyPressed(Key.Space))
-            camera.ProcessKeyboard(CameraMovement.Up, _deltaTime);
-        if (keyboard.IsKeyPressed(Key.ShiftLeft))
-            camera.ProcessKeyboard(CameraMovement.Down, _deltaTime);
+        // CS-style movement controls
+        bool isMoving = false;
 
-        // Speed control
+        // Sprint (Shift) and Crouch (Ctrl)
+        camera.IsSprinting = keyboard.IsKeyPressed(Key.ShiftLeft) || keyboard.IsKeyPressed(Key.ShiftRight);
+        camera.IsCrouching = keyboard.IsKeyPressed(Key.ControlLeft) || keyboard.IsKeyPressed(Key.ControlRight);
+
+        // Determine speed multiplier (only when not sprinting/crouching)
+        float speedMultiplier = 1.0f;
+        if (!camera.IsSprinting && !camera.IsCrouching)
+        {
+            // Alt for even slower precision movement
+            if (keyboard.IsKeyPressed(Key.AltLeft) || keyboard.IsKeyPressed(Key.AltRight))
+                speedMultiplier = 0.5f;
+        }
+
+        // Camera movement (WASD)
+        if (keyboard.IsKeyPressed(Key.W))
+        {
+            camera.ProcessKeyboard(CameraMovement.Forward, _deltaTime, speedMultiplier);
+            isMoving = true;
+        }
+        if (keyboard.IsKeyPressed(Key.S))
+        {
+            camera.ProcessKeyboard(CameraMovement.Backward, _deltaTime, speedMultiplier);
+            isMoving = true;
+        }
+        if (keyboard.IsKeyPressed(Key.A))
+        {
+            camera.ProcessKeyboard(CameraMovement.Left, _deltaTime, speedMultiplier);
+            isMoving = true;
+        }
+        if (keyboard.IsKeyPressed(Key.D))
+        {
+            camera.ProcessKeyboard(CameraMovement.Right, _deltaTime, speedMultiplier);
+            isMoving = true;
+        }
+
+        // Vertical movement (Space/E for up, C for down)
+        if (keyboard.IsKeyPressed(Key.Space) || keyboard.IsKeyPressed(Key.E))
+        {
+            camera.ProcessKeyboard(CameraMovement.Up, _deltaTime, speedMultiplier);
+            isMoving = true;
+        }
+        if (keyboard.IsKeyPressed(Key.C))
+        {
+            camera.ProcessKeyboard(CameraMovement.Down, _deltaTime, speedMultiplier);
+            isMoving = true;
+        }
+
+        // Apply deceleration when no movement keys are pressed
+        if (!isMoving)
+        {
+            camera.ApplyDeceleration(_deltaTime);
+        }
+
+        // Update smooth zoom
+        camera.UpdateSmoothZoom(_deltaTime);
+
+        // Speed control with +/- keys
         if (keyboard.IsKeyPressed(Key.Equal) || keyboard.IsKeyPressed(Key.KeypadAdd))
             camera.MovementSpeed += 10.0f * _deltaTime;
         if (keyboard.IsKeyPressed(Key.Minus) || keyboard.IsKeyPressed(Key.KeypadSubtract))
@@ -376,13 +501,13 @@ public class IfcViewer : IDisposable
     private void OnRender(double deltaTime)
     {
         _renderer.Render();
-        
+
         // Render grid and axes
         if (_gridRenderer != null)
         {
             _gridRenderer.Render(_renderer.Camera);
         }
-        
+
         // Render interaction feedback
         if (_interactionFeedback != null && _selectionManager != null)
         {
@@ -395,7 +520,7 @@ public class IfcViewer : IDisposable
             {
                 _interactionFeedback.SetHoverPosition(null);
             }
-            
+
             // Set selection position
             if (_selectionManager.SelectedElement != null && _selectionManager.SelectedElement.Geometry != null)
             {
@@ -405,7 +530,7 @@ public class IfcViewer : IDisposable
             {
                 _interactionFeedback.SetSelectionPosition(null);
             }
-            
+
             _interactionFeedback.Render(_renderer.Camera);
         }
 
@@ -458,27 +583,30 @@ public class IfcViewer : IDisposable
                 );
             }
         }
-        
+
         // Render minimap and compass
         _minimapCompass?.Render();
+
+        // Render geographic overlay (must be after ImGui context is ready)
+        _minimapCompass?.RenderGeographicOverlay();
 
         // Render UI
         if (_uiManager != null && _imguiController != null)
         {
             _uiManager.Render(_renderer.Camera, _vrManager, FPS);
-            
+
             // Render tutorial overlay if active
             if (_tutorialSystem?.IsActive == true)
             {
                 RenderTutorialOverlay();
             }
-            
+
             // Render contextual hints
             if (_contextualHints?.HasHint == true)
             {
                 RenderContextualHint();
             }
-            
+
             _imguiController.Render();
         }
     }
@@ -590,7 +718,7 @@ public class IfcViewer : IDisposable
                 if (_selectionManager != null)
                     _selectionManager.ClearSelection();
                 break;
-                
+
             case Key.G:
                 // Toggle grid
                 if (_gridRenderer != null)
@@ -599,7 +727,7 @@ public class IfcViewer : IDisposable
                     OnStatusMessage?.Invoke($"Grid: {(_gridRenderer.ShowGrid ? "ON" : "OFF")}");
                 }
                 break;
-                
+
             case Key.H:
                 // Toggle axes
                 if (_gridRenderer != null)
@@ -608,13 +736,13 @@ public class IfcViewer : IDisposable
                     OnStatusMessage?.Invoke($"Axes: {(_gridRenderer.ShowAxes ? "ON" : "OFF")}");
                 }
                 break;
-                
+
             case Key.O:
                 // Toggle orbit/FPS mode
                 _renderer.Camera.IsOrbitMode = !_renderer.Camera.IsOrbitMode;
                 OnStatusMessage?.Invoke($"Camera mode: {(_renderer.Camera.IsOrbitMode ? "ORBIT" : "FPS")}");
                 break;
-                
+
             // Camera presets
             case Key.Keypad1:
                 if (_currentModel != null)
@@ -623,7 +751,7 @@ public class IfcViewer : IDisposable
                     OnStatusMessage?.Invoke("Camera: Front view");
                 }
                 break;
-                
+
             case Key.Keypad3:
                 if (_currentModel != null)
                 {
@@ -631,7 +759,24 @@ public class IfcViewer : IDisposable
                     OnStatusMessage?.Invoke("Camera: Right view");
                 }
                 break;
-                
+
+            // Arrow keys for camera rotation
+            case Key.Left:
+                _renderer.Camera.Yaw -= 2.0f; // Rotate left
+                break;
+
+            case Key.Right:
+                _renderer.Camera.Yaw += 2.0f; // Rotate right
+                break;
+
+            case Key.Up:
+                _renderer.Camera.Pitch += 2.0f; // Look up
+                break;
+
+            case Key.Down:
+                _renderer.Camera.Pitch -= 2.0f; // Look down
+                break;
+
             case Key.Keypad7:
                 if (_currentModel != null)
                 {
@@ -639,7 +784,7 @@ public class IfcViewer : IDisposable
                     OnStatusMessage?.Invoke("Camera: Top view");
                 }
                 break;
-                
+
             case Key.Keypad0:
                 if (_currentModel != null)
                 {
@@ -648,7 +793,25 @@ public class IfcViewer : IDisposable
                     _tutorialSystem?.RecordAction("preset_used");
                 }
                 break;
-                
+
+            case Key.PageUp:
+                // Level camera (remove pitch) - useful when stuck upside down
+                _renderer.Camera.LevelCamera();
+                OnStatusMessage?.Invoke("Camera leveled (pitch reset)");
+                break;
+
+            case Key.Home:
+                // Full orientation reset
+                _renderer.Camera.ResetOrientation();
+                OnStatusMessage?.Invoke("Camera orientation reset");
+                break;
+
+            case Key.End:
+                // Correct upside down camera
+                _renderer.Camera.CorrectUpsideDown();
+                OnStatusMessage?.Invoke("Camera corrected");
+                break;
+
             case Key.T:
                 // Toggle tutorial
                 if (_tutorialSystem != null)
@@ -659,7 +822,7 @@ public class IfcViewer : IDisposable
                         _tutorialSystem.Start();
                 }
                 break;
-                
+
             case Key.N:
                 // Toggle minimap
                 if (_minimapCompass != null)
@@ -668,7 +831,7 @@ public class IfcViewer : IDisposable
                     OnStatusMessage?.Invoke($"Minimap: {(_minimapCompass.ShowMinimap ? "ON" : "OFF")}");
                 }
                 break;
-                
+
             case Key.B:
                 // Toggle compass
                 if (_minimapCompass != null)
@@ -687,7 +850,7 @@ public class IfcViewer : IDisposable
         {
             var screenSize = new Vector2(_window.Size.X, _window.Size.Y);
             _selectionManager.UpdateSelection(position, screenSize, _renderer.Camera, _currentModel);
-            
+
             // Show contextual hint on first hover
             if (_selectionManager.HoveredElement != null && !_tutorialSystem!.HasCompletedAction("first_hover"))
             {
@@ -732,6 +895,29 @@ public class IfcViewer : IDisposable
 
         if (button == MouseButton.Left)
         {
+            // Detect double click
+            var now = DateTime.Now;
+            var timeSinceLastClick = (now - _lastClickTime).TotalSeconds;
+            bool isDoubleClick = timeSinceLastClick < DoubleClickThreshold;
+            _lastClickTime = now;
+
+            // Double click to focus on element
+            if (isDoubleClick && _selectionManager?.HoveredElement != null)
+            {
+                var element = _selectionManager.HoveredElement;
+                if (element.Geometry != null)
+                {
+                    var center = element.Geometry.GetCenter();
+                    var size = element.Geometry.GetSize();
+                    var distance = Math.Max(size * 2.0f, 5.0f);
+
+                    _renderer.Camera.FocusOnPoint(center, distance);
+                    _uiManager?.ShowNotification($"Focused on {element.Type}", UI.NotificationType.Info);
+                    _tutorialSystem?.RecordAction("element_focused");
+                }
+                return;
+            }
+
             // Check if measurement tool is active
             if (_measurementTool?.IsActive == true && _selectionManager?.HoveredElement != null)
             {
@@ -771,7 +957,7 @@ public class IfcViewer : IDisposable
             _firstMouseMove = true;
         }
     }
-    
+
     private void OnMouseUp(IMouse mouse, MouseButton button)
     {
         if (button == MouseButton.Middle)
@@ -828,37 +1014,55 @@ public class IfcViewer : IDisposable
 
     public async Task LoadIfcFileAsync(string filePath)
     {
-        OnStatusMessage?.Invoke($"Loading IFC file: {Path.GetFileName(filePath)}");
-
-        var model = await _parser.ParseFileAsync(filePath);
-
-        if (model != null && model.Elements.Count > 0)
+        // Check if already loading
+        lock (_loadLock)
         {
-            _currentModel = model;
-            _renderer.LoadModel(model);
-
-            if (_uiManager != null)
+            if (_isLoadingModel)
             {
-                _uiManager.SetModel(model);
+                OnStatusMessage?.Invoke("⚠️ Already loading a model. Please wait...");
+                _uiManager?.ShowNotification("Already loading a model", UI.NotificationType.Warning);
+                return;
             }
+            _isLoadingModel = true;
+        }
 
-            OnModelLoaded?.Invoke(model);
-            OnStatusMessage?.Invoke($"Model loaded successfully!");
-            OnStatusMessage?.Invoke($"Elements: {model.Elements.Count}, Types: {model.GetElementTypes().Count}");
-            OnStatusMessage?.Invoke($"Vertices: {model.GetTotalVertexCount():N0}, Triangles: {model.GetTotalTriangleCount():N0}");
-            
-            // Record tutorial action
-            _tutorialSystem?.RecordAction("model_loaded");
-            
-            // Show contextual hint for large models
-            if (model.Elements.Count > 1000)
+        try
+        {
+            OnStatusMessage?.Invoke($"📂 Loading IFC file: {Path.GetFileName(filePath)}");
+            _uiManager?.ShowNotification($"Loading {Path.GetFileName(filePath)}...", UI.NotificationType.Info);
+
+            // Parse file in background thread (safe)
+            var model = await _parser.ParseFileAsync(filePath);
+
+            if (model != null && model.Elements.Count > 0)
             {
-                _contextualHints?.AddHint("💡 Large model detected! Use the element list panel to show/hide element types for better performance.");
+                // Queue model for loading on main thread
+                lock (_loadLock)
+                {
+                    _pendingModel = model;
+                    // _isLoadingModel will be reset in OnUpdate after loading
+                }
+            }
+            else
+            {
+                OnStatusMessage?.Invoke("❌ Failed to load model or model is empty.");
+                _uiManager?.ShowNotification("Failed to load model", UI.NotificationType.Error);
+
+                lock (_loadLock)
+                {
+                    _isLoadingModel = false;
+                }
             }
         }
-        else
+        catch (Exception ex)
         {
-            OnStatusMessage?.Invoke("Failed to load model or model is empty.");
+            OnStatusMessage?.Invoke($"❌ Error loading IFC file: {ex.Message}");
+            _uiManager?.ShowNotification($"Error: {ex.Message}", UI.NotificationType.Error);
+
+            lock (_loadLock)
+            {
+                _isLoadingModel = false;
+            }
         }
     }
 
@@ -873,9 +1077,19 @@ public class IfcViewer : IDisposable
 
     private void ResetCamera()
     {
-        _renderer.Camera.Position = new Vector3(0, 5, 10);
-        _renderer.Camera.Yaw = -90.0f;
-        _renderer.Camera.Pitch = 0.0f;
+        if (_currentModel != null)
+        {
+            // Reset to view the model
+            _renderer.Camera.Position = _currentModel.ModelCenter + new Vector3(0, _currentModel.ModelSize * 0.5f, _currentModel.ModelSize * 1.5f);
+            _renderer.Camera.TargetPoint = _currentModel.ModelCenter;
+        }
+        else
+        {
+            _renderer.Camera.Position = new Vector3(0, 5, 10);
+            _renderer.Camera.TargetPoint = Vector3.Zero;
+        }
+
+        _renderer.Camera.ResetOrientation();
         _renderer.Camera.Fov = 45.0f;
         OnStatusMessage?.Invoke("Camera reset.");
     }
@@ -924,7 +1138,7 @@ public class IfcViewer : IDisposable
         OnStatusMessage?.Invoke("  Ctrl+O: Open IFC file");
         OnStatusMessage?.Invoke("  Drag & Drop: Load IFC file");
     }
-    
+
     private void HandleVRGesture(GestureType gesture)
     {
         switch (gesture)
@@ -947,7 +1161,7 @@ public class IfcViewer : IDisposable
                 break;
         }
     }
-    
+
     private void RenderTutorialOverlay()
     {
         var step = _tutorialSystem?.CurrentStep;
@@ -955,66 +1169,76 @@ public class IfcViewer : IDisposable
 
         ImGui.SetNextWindowPos(new Vector2(ImGui.GetIO().DisplaySize.X / 2 - 250, 50));
         ImGui.SetNextWindowSize(new Vector2(500, 200));
-        
+
         if (ImGui.Begin("Tutorial", ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize))
         {
             ImGui.TextColored(new Vector4(1, 0.8f, 0, 1), $"{step.Icon} {step.Title}");
             ImGui.Separator();
-            
+
             ImGui.TextWrapped(step.Description);
             ImGui.Spacing();
-            
+
             ImGui.TextColored(new Vector4(0.5f, 0.8f, 1, 1), $"💡 {step.Hint}");
             ImGui.Spacing();
-            
+
             var progress = _tutorialSystem!.GetProgress();
-            ImGui.ProgressBar((float)progress.CurrentStep / progress.TotalSteps, 
-                            new Vector2(-1, 0), 
+            ImGui.ProgressBar((float)progress.CurrentStep / progress.TotalSteps,
+                            new Vector2(-1, 0),
                             $"Step {progress.CurrentStep} / {progress.TotalSteps}");
-            
+
             ImGui.Spacing();
-            
+
             if (ImGui.Button("Previous"))
                 _tutorialSystem.PreviousStep();
-            
+
             ImGui.SameLine();
             if (ImGui.Button("Skip"))
                 _tutorialSystem.SkipStep();
-            
+
             ImGui.SameLine();
             if (ImGui.Button("Next"))
                 _tutorialSystem.NextStep();
-            
+
             ImGui.SameLine();
             if (ImGui.Button("Close Tutorial"))
                 _tutorialSystem.Stop();
         }
         ImGui.End();
     }
-    
+
     private void RenderContextualHint()
     {
         var hint = _contextualHints?.CurrentHint;
         if (string.IsNullOrEmpty(hint)) return;
 
-        ImGui.SetNextWindowPos(new Vector2(ImGui.GetIO().DisplaySize.X / 2 - 200, 
+        ImGui.SetNextWindowPos(new Vector2(ImGui.GetIO().DisplaySize.X / 2 - 200,
                                           ImGui.GetIO().DisplaySize.Y - 100));
         ImGui.SetNextWindowSize(new Vector2(400, 60));
-        
+
         ImGui.PushStyleColor(ImGuiCol.WindowBg, new Vector4(0.1f, 0.1f, 0.15f, 0.95f));
-        
+
         if (ImGui.Begin("Hint", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove))
         {
             ImGui.TextWrapped(hint);
         }
         ImGui.End();
-        
+
         ImGui.PopStyleColor();
     }
 
     private void OnClosing()
     {
         Dispose();
+    }
+
+    private string GetCardinalDirection(float bearing)
+    {
+        var directions = new[] { "North", "North-Northeast", "Northeast", "East-Northeast",
+                                "East", "East-Southeast", "Southeast", "South-Southeast",
+                                "South", "South-Southwest", "Southwest", "West-Southwest",
+                                "West", "West-Northwest", "Northwest", "North-Northwest" };
+        int index = (int)Math.Round(bearing / 22.5f) % 16;
+        return directions[index];
     }
 
     public void Dispose()
