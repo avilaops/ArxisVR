@@ -1,8 +1,8 @@
-# Sistema Completo de Navegação 3D e VR - Vizzio
+# Sistema Completo de Navegação 3D e VR - ArxisVR
 
 ## 🎉 Resumo da Implementação Completa
 
-Este documento detalha TODAS as melhorias implementadas no sistema de navegação 3D e VR do Vizzio IFC Viewer, tornando-o profissional e intuitivo.
+Este documento detalha TODAS as melhorias implementadas no sistema de navegação 3D e VR do ArxisVR IFC Viewer, tornando-o profissional e intuitivo.
 
 ---
 
@@ -226,7 +226,7 @@ IfcViewer (Main)
 
 ### Sequência de Passos
 
-1. **Welcome** - Introdução ao Vizzio
+1. **Welcome** - Introdução ao ArxisVR
 2. **Load Model** - Como carregar arquivos IFC
 3. **Camera Orbit** - Rotação orbital
 4. **Camera Pan** - Movimento lateral
@@ -532,7 +532,7 @@ if (isValid && controller.ButtonPressed)
 
 ## 🎓 Conclusão
 
-O sistema de navegação 3D e VR do Vizzio está agora **completo e profissional**, com:
+O sistema de navegação 3D e VR do ArxisVR está agora **completo e profissional**, com:
 
 ✅ **8 sistemas principais** implementados
 ✅ **5 arquivos novos** criados
@@ -562,9 +562,9 @@ O sistema de navegação 3D e VR do Vizzio está agora **completo e profissional
 ## 📞 Suporte
 
 Para dúvidas ou sugestões:
-- GitHub Issues: [vizzio/issues](https://github.com/avilaops/vizzio2/issues)
+- GitHub Issues: [ArxisVR/issues](https://github.com/avilaops/ArxisVR2/issues)
 - Documentação: `/docs/*`
 - Desenvolvedor: Nícolas Ávila
 - Press `F1` in-app para ajuda
 
-🎉 **Aproveite o Vizzio!** 🎉
+🎉 **Aproveite o ArxisVR!** 🎉

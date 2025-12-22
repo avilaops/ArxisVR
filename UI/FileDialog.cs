@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Vizzio.UI;
+namespace ArxisVR.UI;
 
 /// <summary>
 /// Cross-platform file dialog using native system dialogs

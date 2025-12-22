@@ -1,7 +1,7 @@
 using System.Numerics;
 using Silk.NET.OpenGL;
 
-namespace Vizzio.Rendering;
+namespace ArxisVR.Rendering;
 
 /// <summary>
 /// Renders a 3D grid and orientation axes for better spatial awareness

@@ -1,9 +1,9 @@
 using System.Numerics;
 using ImGuiNET;
 using Silk.NET.OpenGL;
-using Vizzio.Models;
+using ArxisVR.Models;
 
-namespace Vizzio.UI;
+namespace ArxisVR.UI;
 
 /// <summary>
 /// ImGui renderer for OpenGL

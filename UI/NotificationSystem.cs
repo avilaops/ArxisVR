@@ -1,7 +1,7 @@
 using System.Numerics;
 using ImGuiNET;
 
-namespace Vizzio.UI;
+namespace ArxisVR.UI;
 
 /// <summary>
 /// Beautiful toast notification system

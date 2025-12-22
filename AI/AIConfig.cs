@@ -1,4 +1,4 @@
-namespace Vizzio.AI;
+namespace ArxisVR.AI;
 
 /// <summary>
 /// Configuration for AI services

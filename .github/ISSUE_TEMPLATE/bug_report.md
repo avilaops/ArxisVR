@@ -26,7 +26,7 @@ If applicable, add screenshots to help explain your problem.
 **Environment (please complete the following information):**
  - OS: [e.g. Windows 11]
  - .NET Version: [e.g. 10.0]
- - Vizzio Version: [e.g. 3.0.0]
+ - ArxisVR Version: [e.g. 3.0.0]
  - GPU: [e.g. NVIDIA RTX 3060]
  - VR Headset (if applicable): [e.g. Quest 2]
 

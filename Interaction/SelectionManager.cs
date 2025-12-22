@@ -1,8 +1,8 @@
 using System.Numerics;
-using Vizzio.Models;
-using Vizzio.Rendering;
+using ArxisVR.Models;
+using ArxisVR.Rendering;
 
-namespace Vizzio.Interaction;
+namespace ArxisVR.Interaction;
 
 /// <summary>
 /// Handles element selection using ray casting

@@ -53,7 +53,7 @@ jobs:
       if: success()
       uses: actions/upload-artifact@v4
       with:
-        name: vizzio-${{ matrix.os }}-${{ github.sha }}
+        name: ArxisVR-${{ matrix.os }}-${{ github.sha }}
         path: |
           bin/Release/net10.0/
           !bin/Release/net10.0/*.pdb

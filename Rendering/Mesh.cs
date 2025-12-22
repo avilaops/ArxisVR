@@ -1,7 +1,7 @@
 using System.Numerics;
-using Vizzio.Models;
+using ArxisVR.Models;
 
-namespace Vizzio.Rendering;
+namespace ArxisVR.Rendering;
 
 /// <summary>
 /// Represents a renderable mesh with OpenGL buffer data

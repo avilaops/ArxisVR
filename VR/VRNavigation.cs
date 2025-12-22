@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Vizzio.VR;
+namespace ArxisVR.VR;
 
 /// <summary>
 /// Navigation system for VR with teleportation and smooth locomotion

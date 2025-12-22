@@ -1,7 +1,7 @@
 using System.Numerics;
 using ImGuiNET;
 
-namespace Vizzio.UI;
+namespace ArxisVR.UI;
 
 /// <summary>
 /// Stunning welcome screen for first-time users
@@ -50,9 +50,9 @@ public class WelcomeScreen
             var titleColor = new Vector4(0.30f, 0.60f, 0.98f, 1.0f);
             ImGui.PushStyleColor(ImGuiCol.Text, titleColor);
 
-            ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize("✦ VIZZIO").X) * 0.5f);
+            ImGui.SetCursorPosX((ImGui.GetWindowWidth() - ImGui.CalcTextSize("✦ ArxisVR").X) * 0.5f);
             ImGui.SetWindowFontScale(3.0f);
-            ImGui.Text("✦ VIZZIO");
+            ImGui.Text("✦ ArxisVR");
             ImGui.SetWindowFontScale(1.0f);
 
             ImGui.PopStyleColor();

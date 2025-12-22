@@ -14,21 +14,12 @@ public class Renderer3D : IDisposable
     private uint _shaderProgram;
     private readonly MeshManager _meshManager = new();
     private readonly Dictionary<string, uint> _meshBuffers = new();
-    private readonly GpuBufferManager _gpuBufferManager = new();
-    private IfcModel? _pendingModel;
-    private bool _isLoadingModel = false;
-    private int _totalElementsToLoad = 0;
-    private int _elementsLoaded = 0;
 
     public Camera Camera { get; private set; }
     public bool IsInitialized { get; private set; }
     public Vector3 BackgroundColor { get; set; } = new Vector3(0.1f, 0.1f, 0.15f);
     public bool EnableLighting { get; set; } = true;
     public Vector3 LightDirection { get; set; } = Vector3.Normalize(new Vector3(1, -1, 1));
-
-    public bool IsLoadingModel => _isLoadingModel;
-    public int LoadedGeometryCount => _gpuBufferManager.LoadedCount;
-    public int PendingGeometryCount => _gpuBufferManager.PendingCount;
 
     public Renderer3D()
     {
@@ -38,8 +29,6 @@ public class Renderer3D : IDisposable
     public void Initialize(GL gl, int width, int height)
     {
         _gl = gl;
-
-        _gpuBufferManager.Initialize(gl);
 
         _gl.Enable(EnableCap.DepthTest);
         _gl.Enable(EnableCap.CullFace);
@@ -157,36 +146,43 @@ public class Renderer3D : IDisposable
             throw new InvalidOperationException("Renderer not initialized");
         }
 
-        Console.WriteLine($"🔄 LoadModel() called: Queueing {model.Elements.Count} elements for GPU upload...");
-        Console.WriteLine($"   GL initialized: {_gl != null}, IsInitialized: {IsInitialized}");
+        Console.WriteLine($"🔄 Loading {model.Elements.Count} elements into GPU...");
 
-        _pendingModel = model;
-        _isLoadingModel = true;
-        _totalElementsToLoad = model.Elements.Count;
-        _elementsLoaded = 0;
+        ClearModel();
 
-        Console.WriteLine($"   _isLoadingModel set to: {_isLoadingModel}");
+        int loadedCount = 0;
+        int errorCount = 0;
 
-        // Queue all geometry for upload (thread-safe)
         foreach (var element in model.Elements)
         {
             if (element.Geometry != null && element.Geometry.Vertices.Count > 0)
             {
                 try
                 {
-                    var vertexData = MeshConverter.ToVertexArray(element.Geometry, element.Color);
-                    var indexData = MeshConverter.ToIndexArray(element.Geometry);
+                    LoadElementGeometry(element);
+                    loadedCount++;
 
-                    _gpuBufferManager.QueueGeometryUpload(element.GlobalId, vertexData, indexData, element.Color);
+                    if (loadedCount % 500 == 0)
+                    {
+                        Console.WriteLine($"  Loaded {loadedCount}/{model.Elements.Count} geometries...");
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"⚠️ Error queueing {element.Type}: {ex.Message}");
+                    Console.WriteLine($"⚠️ Error loading {element.Type} [{element.GlobalId}]: {ex.Message}");
+                    errorCount++;
                 }
             }
         }
 
-        Console.WriteLine($"✅ {_gpuBufferManager.PendingCount} geometries queued for GPU upload");
+        Console.WriteLine($"✅ GPU loading complete: {loadedCount} OK, {errorCount} errors");
+
+        // Focus camera on model
+        if (model.Elements.Count > 0)
+        {
+            Camera.FocusOn(model.ModelCenter, model.ModelSize * 1.5f);
+            Camera.LookAt(model.ModelCenter, Vector3.UnitY);
+        }
     }
 
     private void LoadElementGeometry(IfcElement element)
@@ -251,35 +247,6 @@ public class Renderer3D : IDisposable
     {
         if (_gl == null || !IsInitialized) return;
 
-        // Process pending GPU uploads (thread-safe, render thread only)
-        if (_isLoadingModel)
-        {
-            Console.WriteLine($"🔄 Render() - Loading mode active!");
-            Console.WriteLine($"   Pending={_gpuBufferManager.PendingCount}, Loaded={_gpuBufferManager.LoadedCount}");
-
-            int processed = _gpuBufferManager.ProcessPendingUploads(50); // 50 per frame
-            Console.WriteLine($"   Processed {processed} geometries this frame");
-
-            _elementsLoaded += processed;
-
-            if (_gpuBufferManager.PendingCount == 0 && _pendingModel != null)
-            {
-                // Loading complete
-                _isLoadingModel = false;
-                Console.WriteLine($"✅ GPU loading complete: {_gpuBufferManager.LoadedCount} geometries");
-
-                // Focus camera
-                Camera.FocusOn(_pendingModel.ModelCenter, _pendingModel.ModelSize * 1.5f);
-                Camera.LookAt(_pendingModel.ModelCenter, Vector3.UnitY);
-
-                _pendingModel = null;
-            }
-            else if (processed > 0 && _elementsLoaded % 250 == 0)
-            {
-                Console.WriteLine($"  GPU upload progress: {_elementsLoaded}/{_totalElementsToLoad} ({_gpuBufferManager.PendingCount} pending)");
-            }
-        }
-
         _gl.ClearColor(BackgroundColor.X, BackgroundColor.Y, BackgroundColor.Z, 1.0f);
         _gl.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -296,15 +263,15 @@ public class Renderer3D : IDisposable
         SetUniformVector3("lightDir", LightDirection);
         SetUniformBool("enableLighting", EnableLighting);
 
-        // Render all meshes from GPU buffer manager
+        // Render all meshes
         unsafe
         {
-            foreach (var (id, buffer) in _gpuBufferManager.GetAllBuffers())
+            foreach (var mesh in _meshManager.GetAllMeshes())
             {
-                if (buffer.IsVisible)
+                if (mesh.IsVisible)
                 {
-                    _gl.BindVertexArray(buffer.VAO);
-                    _gl.DrawElements(PrimitiveType.Triangles, (uint)buffer.IndexCount, DrawElementsType.UnsignedInt, null);
+                    _gl.BindVertexArray(mesh.VertexArrayObject);
+                    _gl.DrawElements(PrimitiveType.Triangles, (uint)mesh.IndexCount, DrawElementsType.UnsignedInt, null);
                 }
             }
         }
@@ -351,8 +318,14 @@ public class Renderer3D : IDisposable
     {
         if (_gl == null) return;
 
-        _gpuBufferManager.Clear();
-        _meshManager.ClearAll();
+        foreach (var mesh in _meshManager.GetAllMeshes())
+        {
+            _gl.DeleteVertexArray(mesh.VertexArrayObject);
+            _gl.DeleteBuffer(mesh.VertexBufferObject);
+            _gl.DeleteBuffer(mesh.ElementBufferObject);
+        }
+
+        _meshManager.Clear();
     }
 
     public void Dispose()

@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Vizzio.Tools;
+namespace ArxisVR.Tools;
 
 /// <summary>
 /// 3D annotation system for adding notes to the model
@@ -71,7 +71,7 @@ public class AnnotationSystem
     {
         using var writer = new StreamWriter(filePath);
         
-        writer.WriteLine("=== VIZZIO ANNOTATIONS ===");
+        writer.WriteLine("=== ArxisVR ANNOTATIONS ===");
         writer.WriteLine($"Date: {DateTime.Now}");
         writer.WriteLine($"Total: {_annotations.Count}");
         writer.WriteLine();

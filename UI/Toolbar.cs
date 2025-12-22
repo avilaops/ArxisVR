@@ -1,7 +1,7 @@
 using System.Numerics;
 using ImGuiNET;
 
-namespace Vizzio.UI;
+namespace ArxisVR.UI;
 
 /// <summary>
 /// Modern toolbar with beautiful icon buttons
@@ -33,17 +33,29 @@ public class Toolbar
     // Tool events
     public event Action? OnOpenFile;
     public event Action? OnSaveScreenshot;
+    public event Action? OnExportModel;
     public event Action? OnMeasureDistance;
     public event Action? OnMeasureArea;
     public event Action? OnMeasureAngle;
+    public event Action? OnAnnotate;
     public event Action? OnSelectMode;
     public event Action? OnPanMode;
     public event Action? OnOrbitMode;
     public event Action? OnFocusModel;
     public event Action? OnResetCamera;
+    public event Action? OnIsolateSelection;
+    public event Action? OnHideSelection;
+    public event Action? OnShowAll;
+    public event Action? OnSectionBox;
+    public event Action? OnTransparencyMode;
+    public event Action? OnWireframeMode;
     public event Action? OnToggleLighting;
+    public event Action? OnToggleGrid;
+    public event Action? OnToggleAxes;
+    public event Action? OnToggleShadows;
     public event Action? OnToggleVR;
     public event Action? OnSettings;
+    public event Action? OnHelp;
 
     public void Render(int windowWidth, int windowHeight)
     {
@@ -106,32 +118,43 @@ public class Toolbar
             OnOpenFile?.Invoke();
         NextItem(isVertical);
 
+        if (IconButton("�", "Export Model\n(Ctrl+E)", false))
+            OnExportModel?.Invoke();
+        NextItem(isVertical);
+
         if (IconButton("📸", "Take Screenshot\n(F12)", false))
             OnSaveScreenshot?.Invoke();
         NextItem(isVertical);
 
         RenderSeparator(isVertical);
 
-        // Tools Section
-        SectionLabel("TOOLS", isVertical);
-        if (IconButton("🎯", "Select Mode\n(S)", _currentTool == ToolMode.Select))
+        // Navigation Section
+        SectionLabel("NAVIGATE", isVertical);
+        if (IconButton("🎯", "Select Mode\n(1)", _currentTool == ToolMode.Select))
         {
             _currentTool = ToolMode.Select;
             OnSelectMode?.Invoke();
         }
         NextItem(isVertical);
 
-        if (IconButton("✋", "Pan Mode\n(P)", _currentTool == ToolMode.Pan))
+        if (IconButton("🔄", "Orbit Mode\n(2)", _currentTool == ToolMode.Orbit))
+        {
+            _currentTool = ToolMode.Orbit;
+            OnOrbitMode?.Invoke();
+        }
+        NextItem(isVertical);
+
+        if (IconButton("✋", "Pan Mode\n(3)", _currentTool == ToolMode.Pan))
         {
             _currentTool = ToolMode.Pan;
             OnPanMode?.Invoke();
         }
         NextItem(isVertical);
 
-        if (IconButton("🔄", "Orbit Mode\n(O)", _currentTool == ToolMode.Orbit))
+        if (IconButton("🚶", "Walk Mode\n(4)", _currentTool == ToolMode.Walk))
         {
-            _currentTool = ToolMode.Orbit;
-            OnOrbitMode?.Invoke();
+            _currentTool = ToolMode.Walk;
+            OnPanMode?.Invoke(); // Reuse pan for now
         }
         NextItem(isVertical);
 
@@ -146,47 +169,101 @@ public class Toolbar
         }
         NextItem(isVertical);
 
-        if (IconButton("📐", "Measure Area\n(A)", _currentTool == ToolMode.MeasureArea))
+        if (IconButton("📐", "Measure Area\n(Shift+M)", _currentTool == ToolMode.MeasureArea))
         {
             _currentTool = ToolMode.MeasureArea;
             OnMeasureArea?.Invoke();
         }
         NextItem(isVertical);
 
-        if (IconButton("📊", "Measure Angle", _currentTool == ToolMode.MeasureAngle))
+        if (IconButton("∠", "Measure Angle\n(Ctrl+M)", _currentTool == ToolMode.MeasureAngle))
         {
             _currentTool = ToolMode.MeasureAngle;
             OnMeasureAngle?.Invoke();
         }
         NextItem(isVertical);
 
+        if (IconButton("📝", "Annotate\n(N)", _currentTool == ToolMode.Annotate))
+        {
+            _currentTool = ToolMode.Annotate;
+            OnAnnotate?.Invoke();
+        }
+        NextItem(isVertical);
+
         RenderSeparator(isVertical);
 
-        // View Section
+        // Selection Tools
+        SectionLabel("SELECT", isVertical);
+        if (IconButton("🎯", "Isolate Selection\n(I)", false))
+            OnIsolateSelection?.Invoke();
+        NextItem(isVertical);
+
+        if (IconButton("👁️", "Hide Selection\n(H)", false))
+            OnHideSelection?.Invoke();
+        NextItem(isVertical);
+
+        if (IconButton("👁️‍🗨️", "Show All\n(Shift+H)", false))
+            OnShowAll?.Invoke();
+        NextItem(isVertical);
+
+        RenderSeparator(isVertical);
+
+        // View Tools
         SectionLabel("VIEW", isVertical);
+        if (IconButton("📦", "Section Box\n(B)", _currentTool == ToolMode.SectionBox))
+        {
+            _currentTool = ToolMode.SectionBox;
+            OnSectionBox?.Invoke();
+        }
+        NextItem(isVertical);
+
         if (IconButton("🎬", "Focus on Model\n(F)", false))
             OnFocusModel?.Invoke();
         NextItem(isVertical);
 
-        if (IconButton("↺", "Reset Camera\n(R)", false))
+        if (IconButton("↺", "Reset Camera\n(Home)", false))
             OnResetCamera?.Invoke();
         NextItem(isVertical);
 
         RenderSeparator(isVertical);
 
-        // Display Section
+        // Display Modes
         SectionLabel("DISPLAY", isVertical);
+        if (IconButton("🔲", "Wireframe\n(W)", false))
+            OnWireframeMode?.Invoke();
+        NextItem(isVertical);
+
+        if (IconButton("💎", "Transparency\n(T)", false))
+            OnTransparencyMode?.Invoke();
+        NextItem(isVertical);
+
         if (IconButton("💡", "Toggle Lighting\n(L)", false))
             OnToggleLighting?.Invoke();
         NextItem(isVertical);
 
-        if (IconButton("🥽", "VR Mode\n(F2)", false))
-            OnToggleVR?.Invoke();
+        if (IconButton("🌓", "Toggle Shadows\n(Shift+L)", false))
+            OnToggleShadows?.Invoke();
+        NextItem(isVertical);
+
+        if (IconButton("#", "Toggle Grid\n(G)", false))
+            OnToggleGrid?.Invoke();
+        NextItem(isVertical);
+
+        if (IconButton("📐", "Toggle Axes\n(X)", false))
+            OnToggleAxes?.Invoke();
         NextItem(isVertical);
 
         RenderSeparator(isVertical);
 
-        // Settings
+        // VR & Settings
+        if (IconButton("🥽", "VR Mode\n(F2)", false))
+            OnToggleVR?.Invoke();
+        NextItem(isVertical);
+
+        if (IconButton("❓", "Help\n(F1)", false))
+            OnHelp?.Invoke();
+        NextItem(isVertical);
+
         if (IconButton("⚙️", "Settings", false))
             OnSettings?.Invoke();
     }
@@ -267,13 +344,4 @@ public enum ToolbarPosition
     Bottom
 }
 
-public enum ToolMode
-{
-    Select,
-    Pan,
-    Orbit,
-    MeasureDistance,
-    MeasureArea,
-    MeasureAngle,
-    Annotate
-}
+// ToolMode moved to ModernToolbar.cs to avoid conflict

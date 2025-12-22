@@ -3,7 +3,7 @@
     <Platform Name="Any CPU" />
     <Platform Name="x64" />
   </Configurations>
-  <Project Path="Vizzio.csproj">
+  <Project Path="ArxisVR.csproj">
     <BuildType Solution="Debug|Any CPU" Project="Release" />
     <Platform Solution="*|x64" Project="x64" />
   </Project>

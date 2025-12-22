@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Vizzio.Models;
+namespace ArxisVR.Models;
 
 /// <summary>
 /// Represents a vertex in 3D space with position and normal

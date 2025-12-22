@@ -5,7 +5,7 @@ using Silk.NET.OpenGL;
 using GLPixelFormat = Silk.NET.OpenGL.PixelFormat;
 using DrawingPixelFormat = System.Drawing.Imaging.PixelFormat;
 
-namespace Vizzio.Tools;
+namespace ArxisVR.Tools;
 
 /// <summary>
 /// Captures screenshots of the 3D viewport
@@ -182,9 +182,9 @@ public class ScreenshotCapture
 
     private string GenerateScreenshotPath(string extension = ".png")
     {
-        var screenshotsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "Vizzio");
+        var screenshotsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures), "ArxisVR");
         var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-        var filename = $"vizzio_screenshot_{timestamp}{extension}";
+        var filename = $"ArxisVR_screenshot_{timestamp}{extension}";
 
         return Path.Combine(screenshotsDir, filename);
     }

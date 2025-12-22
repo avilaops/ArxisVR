@@ -1,7 +1,7 @@
 using System.Numerics;
-using Vizzio.Models;
+using ArxisVR.Models;
 
-namespace Vizzio.Tools;
+namespace ArxisVR.Tools;
 
 /// <summary>
 /// Undo/Redo system for user actions

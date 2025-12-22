@@ -1,4 +1,4 @@
-# 📚 Documentação Vizzio IFC Viewer
+# 📚 Documentação ArxisVR IFC Viewer
 
 **Versão**: 3.0 - Complete 3D/VR System  
 **Desenvolvedor**: Nícolas Ávila  
@@ -8,7 +8,7 @@
 
 ## 🚀 Início Rápido
 
-Novo no Vizzio? Comece aqui:
+Novo no ArxisVR? Comece aqui:
 
 1. **[Quick Start Guide](QUICK_START.md)** ⚡
    - Instalar e executar em 2 minutos
@@ -193,8 +193,8 @@ Novo no Vizzio? Comece aqui:
 - **Console**: Mensagens de ajuda aparecem no console
 
 ### Documentação Online
-- **GitHub**: [github.com/avilaops/vizzio2](https://github.com/avilaops/vizzio2)
-- **Issues**: [GitHub Issues](https://github.com/avilaops/vizzio2/issues)
+- **GitHub**: [github.com/avilaops/ArxisVR2](https://github.com/avilaops/ArxisVR2)
+- **Issues**: [GitHub Issues](https://github.com/avilaops/ArxisVR2/issues)
 - **Docs**: Pasta `/docs/` do repositório
 
 ### Contato
@@ -207,7 +207,7 @@ Novo no Vizzio? Comece aqui:
 ## 🗺️ Mapa de Navegação
 
 ```
-Vizzio Documentation
+ArxisVR Documentation
 │
 ├── 🚀 Início Rápido
 │   ├── Quick Start Guide
@@ -313,11 +313,11 @@ Para testers:
 
 Sua opinião é importante! Se encontrar algo que precise ser melhorado na documentação:
 
-1. Abra um [GitHub Issue](https://github.com/avilaops/vizzio2/issues)
+1. Abra um [GitHub Issue](https://github.com/avilaops/ArxisVR2/issues)
 2. Use a tag `documentation`
 3. Sugira melhorias específicas
 
-Obrigado por usar o Vizzio! 🙏
+Obrigado por usar o ArxisVR! 🙏
 
 ---
 

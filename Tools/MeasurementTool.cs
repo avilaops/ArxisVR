@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Vizzio.Tools;
+namespace ArxisVR.Tools;
 
 /// <summary>
 /// Tool for measuring distances and areas in 3D space

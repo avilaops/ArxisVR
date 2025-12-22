@@ -1,7 +1,7 @@
 using System.Numerics;
-using Vizzio.Rendering;
+using ArxisVR.Rendering;
 
-namespace Vizzio.VR;
+namespace ArxisVR.VR;
 
 /// <summary>
 /// Manages VR/AR integration and stereoscopic rendering

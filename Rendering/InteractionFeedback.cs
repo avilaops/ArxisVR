@@ -1,7 +1,7 @@
 using System.Numerics;
 using Silk.NET.OpenGL;
 
-namespace Vizzio.Rendering;
+namespace ArxisVR.Rendering;
 
 /// <summary>
 /// Provides visual feedback for user interactions (hover, selection, navigation)
@@ -14,15 +14,14 @@ public class InteractionFeedback : IDisposable
     private uint _cursorVBO;
     private uint _selectionRingVAO;
     private uint _selectionRingVBO;
-    private uint _navigationPathVAO;
-    private uint _navigationPathVBO;
-    
+    // Navigation path removed - not needed for current implementation
+
     // Animation state
     private float _hoverPulseTime;
     private float _selectionGlowTime;
     private Vector3? _hoverPosition;
     private Vector3? _selectionPosition;
-    
+
     // Settings
     public bool ShowHoverIndicator { get; set; } = true;
     public bool ShowSelectionRing { get; set; } = true;
@@ -48,15 +47,15 @@ public class InteractionFeedback : IDisposable
             #version 330 core
             layout (location = 0) in vec3 aPosition;
             layout (location = 1) in vec3 aColor;
-            
+
             out vec3 Color;
             out float Distance;
-            
+
             uniform mat4 view;
             uniform mat4 projection;
             uniform mat4 model;
             uniform vec3 cameraPos;
-            
+
             void main()
             {
                 vec4 worldPos = model * vec4(aPosition, 1.0);
@@ -71,18 +70,18 @@ public class InteractionFeedback : IDisposable
             in vec3 Color;
             in float Distance;
             out vec4 FragColor;
-            
+
             uniform float alpha;
             uniform float pulse;
-            
+
             void main()
             {
                 // Fade based on distance
                 float distanceFade = 1.0 - smoothstep(10.0, 50.0, Distance);
-                
+
                 // Pulsing animation
                 float pulseEffect = 0.7 + 0.3 * pulse;
-                
+
                 FragColor = vec4(Color, alpha * distanceFade * pulseEffect);
             }
         ";
@@ -131,13 +130,13 @@ public class InteractionFeedback : IDisposable
         // Create a circle for hover cursor
         int segments = 32;
         var vertices = new List<float>();
-        
+
         for (int i = 0; i <= segments; i++)
         {
             float angle = (float)i / segments * MathF.PI * 2.0f;
             float x = MathF.Cos(angle) * 0.5f;
             float z = MathF.Sin(angle) * 0.5f;
-            
+
             vertices.Add(x);
             vertices.Add(0.0f);
             vertices.Add(z);
@@ -151,7 +150,7 @@ public class InteractionFeedback : IDisposable
 
         _gl.BindVertexArray(_cursorVAO);
         _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _cursorVBO);
-        
+
         var vertexArray = vertices.ToArray();
         unsafe
         {
@@ -180,14 +179,14 @@ public class InteractionFeedback : IDisposable
         // Create a ring for selection
         int segments = 64;
         var vertices = new List<float>();
-        
+
         // Outer ring
         for (int i = 0; i <= segments; i++)
         {
             float angle = (float)i / segments * MathF.PI * 2.0f;
             float x = MathF.Cos(angle);
             float z = MathF.Sin(angle);
-            
+
             vertices.Add(x);
             vertices.Add(0.0f);
             vertices.Add(z);
@@ -201,7 +200,7 @@ public class InteractionFeedback : IDisposable
 
         _gl.BindVertexArray(_selectionRingVAO);
         _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _selectionRingVBO);
-        
+
         var vertexArray = vertices.ToArray();
         unsafe
         {
@@ -258,7 +257,7 @@ public class InteractionFeedback : IDisposable
         {
             var model = Matrix4x4.CreateScale(HoverIndicatorSize) *
                        Matrix4x4.CreateTranslation(_hoverPosition.Value);
-            
+
             SetUniformMatrix4("model", model);
             SetUniform1("alpha", 0.6f);
             SetUniform1("pulse", MathF.Sin(_hoverPulseTime));
@@ -273,7 +272,7 @@ public class InteractionFeedback : IDisposable
         {
             var model = Matrix4x4.CreateScale(SelectionRingSize) *
                        Matrix4x4.CreateTranslation(_selectionPosition.Value);
-            
+
             SetUniformMatrix4("model", model);
             SetUniform1("alpha", 0.8f);
             SetUniform1("pulse", MathF.Sin(_selectionGlowTime));
@@ -292,7 +291,7 @@ public class InteractionFeedback : IDisposable
     private void SetUniformMatrix4(string name, Matrix4x4 matrix)
     {
         if (_gl == null) return;
-        
+
         var location = _gl.GetUniformLocation(_shaderProgram, name);
         unsafe
         {
@@ -303,7 +302,7 @@ public class InteractionFeedback : IDisposable
     private void SetUniformVector3(string name, Vector3 vector)
     {
         if (_gl == null) return;
-        
+
         var location = _gl.GetUniformLocation(_shaderProgram, name);
         _gl.Uniform3(location, vector.X, vector.Y, vector.Z);
     }
@@ -311,7 +310,7 @@ public class InteractionFeedback : IDisposable
     private void SetUniform1(string name, float value)
     {
         if (_gl == null) return;
-        
+
         var location = _gl.GetUniformLocation(_shaderProgram, name);
         _gl.Uniform1(location, value);
     }

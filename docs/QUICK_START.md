@@ -1,4 +1,4 @@
-# 🚀 Guia Rápido - Vizzio 3D/VR Viewer
+# 🚀 Guia Rápido - ArxisVR 3D/VR Viewer
 
 **Desenvolvido por**: Nícolas Ávila  
 **Versão**: 3.0  
@@ -288,7 +288,7 @@ T   → Tutorial interativo
 
 ### Contato
 - **Desenvolvedor**: Nícolas Ávila
-- **GitHub**: [vizzio/issues](https://github.com/avilaops/vizzio2/issues)
+- **GitHub**: [ArxisVR/issues](https://github.com/avilaops/ArxisVR2/issues)
 - **Email**: Suporte via GitHub Issues
 
 ---
@@ -300,7 +300,7 @@ T   → Tutorial interativo
 3. Pressione **T** para tutorial
 4. Pressione **F1** se precisar de ajuda
 
-**Aproveite o Vizzio!** 🚀
+**Aproveite o ArxisVR!** 🚀
 
 ---
 

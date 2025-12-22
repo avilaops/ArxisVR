@@ -1,4 +1,4 @@
-# Changelog - Vizzio IFC Viewer
+# Changelog - ArxisVR IFC Viewer
 
 ## [3.0.0] - 2025-12-21 - SISTEMA 3D/VR COMPLETO 🎉
 
@@ -7,7 +7,7 @@
 ### 🎯 Major Release: Complete 3D/VR Navigation System
 
 Esta versão representa uma transformação completa do sistema de navegação 3D e VR, 
-tornando o Vizzio um visualizador IFC profissional e intuitivo.
+tornando o ArxisVR um visualizador IFC profissional e intuitivo.
 
 ### ✨ Added - Navegação 3D
 

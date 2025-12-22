@@ -1,6 +1,6 @@
-# Contributing to Vizzio IFC Viewer
+# Contributing to ArxisVR IFC Viewer
 
-First off, thank you for considering contributing to Vizzio! 🎉
+First off, thank you for considering contributing to ArxisVR! 🎉
 
 ## 🌟 How Can I Contribute?
 
@@ -28,7 +28,7 @@ If applicable, add screenshots.
 **Environment:**
  - OS: [e.g. Windows 11]
  - .NET Version: [e.g. 10.0]
- - Vizzio Version: [e.g. 3.0.0]
+ - ArxisVR Version: [e.g. 3.0.0]
  - GPU: [e.g. NVIDIA RTX 3060]
 
 **Additional context**
@@ -80,7 +80,7 @@ public async Task<IfcModel?> LoadIfcFileAsync(string filePath)
 ### Project Structure
 
 ```
-Vizzio/
+ArxisVR/
 ├── AI/              # AI Assistant components
 ├── Application/     # Main application
 ├── Interaction/     # User interaction
@@ -144,8 +144,8 @@ Vizzio/
 ### Setup Steps
 ```bash
 # Clone repository
-git clone https://github.com/avilaops/vizzio2.git
-cd vizzio2
+git clone https://github.com/avilaops/ArxisVR2.git
+cd ArxisVR2
 
 # Restore packages
 dotnet restore
@@ -333,13 +333,13 @@ Contributors are recognized in:
 
 If you have questions, please:
 1. Check existing [documentation](docs/)
-2. Search [closed issues](https://github.com/avilaops/vizzio2/issues?q=is%3Aissue+is%3Aclosed)
-3. Open a [new issue](https://github.com/avilaops/vizzio2/issues/new)
+2. Search [closed issues](https://github.com/avilaops/ArxisVR2/issues?q=is%3Aissue+is%3Aclosed)
+3. Open a [new issue](https://github.com/avilaops/ArxisVR2/issues/new)
 
 ---
 
-**Thank you for contributing to Vizzio!** 🙏
+**Thank you for contributing to ArxisVR!** 🙏
 
 Every contribution, no matter how small, makes a difference.
 
-**Developed with ❤️ by the Vizzio community**
+**Developed with ❤️ by the ArxisVR community**

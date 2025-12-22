@@ -1,10 +1,10 @@
 using ImGuiNET;
 using System.Numerics;
 
-namespace Vizzio.UI;
+namespace ArxisVR.UI;
 
 /// <summary>
-/// Modern theme for VIZZIO with professional colors and styling
+/// Modern theme for ArxisVR with professional colors and styling
 /// </summary>
 public static class ModernTheme
 {

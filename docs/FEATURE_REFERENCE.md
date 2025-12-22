@@ -1,4 +1,4 @@
-# 🎯 Feature Reference Guide - Vizzio IFC Viewer
+# 🎯 Feature Reference Guide - ArxisVR IFC Viewer
 
 **Version**: 3.0  
 **Developer**: Nícolas Ávila  

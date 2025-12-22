@@ -1,10 +1,10 @@
-﻿using Vizzio.Application;
-using Vizzio.AI;
+using ArxisVR.Application;
+using ArxisVR.AI;
 
 // Load environment variables
 DotNetEnv.Env.Load();
 
-Console.WriteLine("=== VIZZIO - IFC Viewer with 3D Visualization and VR/AR Support ===");
+Console.WriteLine("=== ArxisVR - IFC Viewer with 3D Visualization and VR/AR Support ===");
 Console.WriteLine("Initializing application...");
 Console.WriteLine();
 

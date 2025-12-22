@@ -2,7 +2,7 @@ using System.Numerics;
 using Silk.NET.OpenGL;
 using ImGuiNET;
 
-namespace Vizzio.UI;
+namespace ArxisVR.UI;
 
 /// <summary>
 /// 2D minimap and 3D compass for navigation orientation

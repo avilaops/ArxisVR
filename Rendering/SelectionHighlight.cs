@@ -1,8 +1,8 @@
 using System.Numerics;
 using Silk.NET.OpenGL;
-using Vizzio.Models;
+using ArxisVR.Models;
 
-namespace Vizzio.Rendering;
+namespace ArxisVR.Rendering;
 
 /// <summary>
 /// Renders selection highlight with outline effect

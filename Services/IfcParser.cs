@@ -1,12 +1,12 @@
 using System.Numerics;
-using Vizzio.Models;
+using ArxisVR.Models;
 using Xbim.Common;
 using Xbim.Common.Geometry;
 using Xbim.Ifc;
 using Xbim.Ifc4.Interfaces;
 using Xbim.Geometry.Engine.Interop;
 
-namespace Vizzio.Services;
+namespace ArxisVR.Services;
 
 /// <summary>
 /// Service for parsing IFC files and extracting geometry

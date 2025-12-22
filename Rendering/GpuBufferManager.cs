@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using Silk.NET.OpenGL;
 
-namespace Vizzio.Rendering;
+namespace ArxisVR.Rendering;
 
 /// <summary>
 /// Thread-safe GPU buffer manager inspired by Arxis architecture

@@ -1,4 +1,4 @@
-namespace Vizzio.AI;
+namespace ArxisVR.AI;
 
 /// <summary>
 /// AI Assistant for IFC viewer - provides context-aware help and analysis
@@ -7,7 +7,7 @@ public class IfcAIAssistant
 {
     private readonly OllamaService _ollama;
     private readonly List<ChatMessage> _conversationHistory;
-    private const string SystemPrompt = @"You are an expert AI assistant for an IFC (Industry Foundation Classes) 3D viewer application called VIZZIO.
+    private const string SystemPrompt = @"You are an expert AI assistant for an IFC (Industry Foundation Classes) 3D viewer application called ArxisVR.
 
 You help users with:
 - Understanding IFC models and BIM concepts
@@ -83,7 +83,7 @@ Provide a brief analysis covering:
         string featureName, 
         CancellationToken cancellationToken = default)
     {
-        var prompt = $"Explain how to use the '{featureName}' feature in the VIZZIO IFC viewer. Keep it practical and step-by-step.";
+        var prompt = $"Explain how to use the '{featureName}' feature in the ArxisVR IFC viewer. Keep it practical and step-by-step.";
         return await _ollama.GenerateAsync(prompt, cancellationToken);
     }
 

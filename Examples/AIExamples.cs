@@ -1,6 +1,6 @@
-using Vizzio.AI;
+using ArxisVR.AI;
 
-namespace Vizzio.Examples;
+namespace ArxisVR.Examples;
 
 /// <summary>
 /// Examples of using the AI Assistant
@@ -29,7 +29,7 @@ public static class AIExamples
         var questions = new[]
         {
             "What is an IFC file?",
-            "How do I use VR mode in VIZZIO?",
+            "How do I use VR mode in ArxisVR?",
             "What are the best practices for viewing large models?"
         };
         
@@ -217,7 +217,7 @@ public static class AIExamples
     public static async Task RunAllExamplesAsync()
     {
         Console.WriteLine("╔════════════════════════════════════════════════╗");
-        Console.WriteLine("║      VIZZIO AI Assistant - Examples            ║");
+        Console.WriteLine("║      ArxisVR AI Assistant - Examples            ║");
         Console.WriteLine("╚════════════════════════════════════════════════╝");
         Console.WriteLine();
 

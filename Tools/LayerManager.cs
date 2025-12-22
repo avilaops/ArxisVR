@@ -1,6 +1,6 @@
-using Vizzio.Models;
+using ArxisVR.Models;
 
-namespace Vizzio.Tools;
+namespace ArxisVR.Tools;
 
 /// <summary>
 /// Layer management system for organizing elements by floors/levels

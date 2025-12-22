@@ -1,4 +1,4 @@
-# Vizzio - IFC Viewer with 3D/VR/AI 🏗️
+# ArxisVR - IFC Viewer with 3D/VR/AI 🏗️
 
 <div align="center">
 
@@ -10,7 +10,7 @@
 
 **Professional IFC Viewer with Intuitive 3D Navigation, VR Support, and AI Assistant**
 
-[🚀 Download](https://github.com/avilaops/vizzio2/releases/latest) • [📚 Documentation](docs/INDEX.md) • [🤖 AI Setup](AI_README.md) • [🐛 Report Bug](https://github.com/avilaops/vizzio2/issues)
+[🚀 Download](https://github.com/avilaops/ArxisVR2/releases/latest) • [📚 Documentation](docs/INDEX.md) • [🤖 AI Setup](AI_README.md) • [🐛 Report Bug](https://github.com/avilaops/ArxisVR2/issues)
 
 </div>
 
@@ -122,7 +122,7 @@
    ollama pull llama3.2:3b
    ```
 
-3. **Run VIZZIO**
+3. **Run ArxisVR**
    ```bash
    .\run.bat
    ```
@@ -267,7 +267,7 @@ For complete 3D/VR documentation, see:
 
 ### Project Structure
 ```
-Vizzio/
+ArxisVR/
 ├── AI/                     # 🤖 AI Assistant
 │   ├── AIConfig.cs         # AI configuration
 │   ├── OllamaService.cs    # Ollama client
@@ -435,9 +435,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 ## 📧 Contact
 
 For questions or support:
-- **GitHub Issues**: [https://github.com/avilaops/vizzio2/issues](https://github.com/avilaops/vizzio2/issues)
+- **GitHub Issues**: [https://github.com/avilaops/ArxisVR2/issues](https://github.com/avilaops/ArxisVR2/issues)
 - **Developer**: Nícolas Ávila
-- **Project**: Vizzio IFC Viewer v3.0
+- **Project**: ArxisVR IFC Viewer v3.0
 
 ### Documentation Links
 - **AI Setup**: [AI_README.md](AI_README.md) 🤖

@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Vizzio.Models;
+namespace ArxisVR.Models;
 
 /// <summary>
 /// Represents an IFC element with its geometry and properties

@@ -1,4 +1,4 @@
-# 🎉 VIZZIO 3D/VR - PROJETO COMPLETO
+# 🎉 ArxisVR 3D/VR - PROJETO COMPLETO
 
 **Desenvolvido por**: Nícolas Ávila  
 **Data de Conclusão**: 2025-12-21  
@@ -9,7 +9,7 @@
 
 ## 📊 Resumo Executivo
 
-O Vizzio IFC Viewer recebeu um **upgrade completo** no sistema de navegação 3D e VR, transformando-o em uma solução **profissional e intuitiva** para visualização de modelos BIM.
+O ArxisVR IFC Viewer recebeu um **upgrade completo** no sistema de navegação 3D e VR, transformando-o em uma solução **profissional e intuitiva** para visualização de modelos BIM.
 
 ### Estatísticas do Projeto
 - **Arquivos Criados**: 8 novos arquivos
@@ -466,8 +466,8 @@ OUTROS:
 
 ### Desenvolvedor
 **Nome**: Nícolas Ávila  
-**Projeto**: Vizzio IFC Viewer  
-**GitHub**: [avilaops/vizzio2](https://github.com/avilaops/vizzio2)  
+**Projeto**: ArxisVR IFC Viewer  
+**GitHub**: [avilaops/ArxisVR2](https://github.com/avilaops/ArxisVR2)  
 **Versão**: 3.0 - Complete 3D/VR System  
 **Data**: 2025-12-21
 
@@ -481,7 +481,7 @@ OUTROS:
 
 ## 🎉 Agradecimentos
 
-Obrigado por acompanhar o desenvolvimento! O Vizzio agora é um visualizador IFC profissional e intuitivo, pronto para uso em ambientes de produção.
+Obrigado por acompanhar o desenvolvimento! O ArxisVR agora é um visualizador IFC profissional e intuitivo, pronto para uso em ambientes de produção.
 
 ### Recursos Principais
 🏗️ **Visualização BIM profissional**  
@@ -520,7 +520,7 @@ Obrigado por acompanhar o desenvolvimento! O Vizzio agora é um visualizador IFC
 **🎉 PROJETO 100% CONCLUÍDO! 🎉**
 
 **Desenvolvido com ❤️ por Nícolas Ávila**  
-**Vizzio 3.0 - Complete 3D/VR System**  
+**ArxisVR 3.0 - Complete 3D/VR System**  
 **Status**: ✅ **Production Ready**  
 **Data**: 2025-12-21
 

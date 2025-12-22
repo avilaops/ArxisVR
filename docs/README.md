@@ -1,6 +1,6 @@
-# Vizzio Landing Page
+# ArxisVR Landing Page
 
-This directory contains the GitHub Pages website for Vizzio.
+This directory contains the GitHub Pages website for ArxisVR.
 
 ## 🌐 Live Site
 Visit: [vr.avila.inc](https://vr.avila.inc)
@@ -22,4 +22,4 @@ This site is automatically deployed via GitHub Pages when changes are pushed to 
 Open `index.html` in your browser for local preview.
 
 ---
-Part of the [Vizzio](https://github.com/avilaops/vizzio2) project - The Future of BIM Visualization
+Part of the [ArxisVR](https://github.com/avilaops/ArxisVR2) project - The Future of BIM Visualization

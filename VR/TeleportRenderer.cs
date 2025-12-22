@@ -1,8 +1,8 @@
 using System.Numerics;
 using Silk.NET.OpenGL;
-using Vizzio.Rendering;
+using ArxisVR.Rendering;
 
-namespace Vizzio.VR;
+namespace ArxisVR.VR;
 
 /// <summary>
 /// Renders teleport arc and target indicator for VR navigation

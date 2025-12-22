@@ -1,8 +1,8 @@
 using System.Numerics;
 using Silk.NET.OpenGL;
-using Vizzio.Tools;
+using ArxisVR.Tools;
 
-namespace Vizzio.Rendering;
+namespace ArxisVR.Rendering;
 
 /// <summary>
 /// Renders 3D annotations with markers and labels

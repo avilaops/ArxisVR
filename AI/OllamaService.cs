@@ -2,7 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Vizzio.AI;
+namespace ArxisVR.AI;
 
 /// <summary>
 /// Service for interacting with Ollama AI models

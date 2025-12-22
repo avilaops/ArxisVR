@@ -367,7 +367,7 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# VIZZIO specific
+# ArxisVR specific
 build.log
 *.ifc
 screenshots/

@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Vizzio.UI;
+namespace ArxisVR.UI;
 
 /// <summary>
 /// Interactive tutorial system with contextual hints
@@ -37,7 +37,7 @@ public class TutorialSystem
             new TutorialStep
             {
                 Id = "welcome",
-                Title = "Welcome to Vizzio",
+                Title = "Welcome to ArxisVR",
                 Description = "Learn the basics of navigating and viewing IFC models in 3D.",
                 Hint = "Press F1 anytime to see all available controls",
                 RequiredAction = "acknowledge",
@@ -137,7 +137,7 @@ public class TutorialSystem
             {
                 Id = "completed",
                 Title = "Tutorial Completed!",
-                Description = "You've learned the basics of Vizzio. Explore more features on your own!",
+                Description = "You've learned the basics of ArxisVR. Explore more features on your own!",
                 Hint = "Press F1 anytime to review all controls",
                 RequiredAction = "finished",
                 Icon = "🎉"

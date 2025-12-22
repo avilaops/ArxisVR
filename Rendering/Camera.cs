@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace Vizzio.Rendering;
+namespace ArxisVR.Rendering;
 
 /// <summary>
 /// Represents a 3D camera with FPS-style and orbital controls
@@ -86,16 +86,15 @@ public class Camera
     public float NearPlane { get; set; } = 0.1f;
     public float FarPlane { get; set; } = 10000.0f;
 
-    // Movement speeds
+    // Movement speeds (adjusted for Google Maps/Earth style)
     public float MovementSpeed { get; set; } = 10.0f;
-    public float MouseSensitivity { get; set; } = 0.1f;
-    public float ZoomSpeed { get; set; } = 2.0f;
+    public float MouseSensitivity { get; set; } = 0.2f; // Smoother rotation
+    public float ZoomSpeed { get; set; } = 1.5f; // Smoother zoom
     public float OrbitSpeed { get; set; } = 0.3f;
-    public float PanSpeed { get; set; } = 0.01f;
+    public float PanSpeed { get; set; } = 0.03f; // More responsive panning
 
-    // Smooth navigation (CS-inspired)
+    // Smooth navigation
     private Vector3 _velocity = Vector3.Zero;
-    private float _currentSpeed = 0f;
     private float _targetFov = 45.0f;
     private float _fovVelocity = 0f;
     public float Acceleration { get; set; } = 25.0f;
@@ -105,17 +104,15 @@ public class Camera
     public float SpeedMultiplierSlow { get; set; } = 0.3f;
     public bool SmoothMovement { get; set; } = true;
 
-    // CS-style movement
+    // Head bob for immersion (when walking)
     private float _bobTimer = 0f;
-    private float _bobAmount = 0f;
-    public bool EnableHeadBob { get; set; } = true;
+    public bool EnableHeadBob { get; set; } = false; // Disabled by default for Google Maps style
     public float BobFrequency { get; set; } = 12.0f;
     public float BobAmplitude { get; set; } = 0.05f;
     public float SprintSpeed { get; set; } = 1.8f;
     public float CrouchSpeed { get; set; } = 0.5f;
     public bool IsSprinting { get; set; } = false;
     public bool IsCrouching { get; set; } = false;
-    private float _crouchTransition = 0f;
     private float _sprintFovBoost = 0f;
 
     // Advanced physics

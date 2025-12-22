@@ -54,14 +54,6 @@ public class IfcViewer : IDisposable
     private DateTime _lastClickTime = DateTime.MinValue;
     private const double DoubleClickThreshold = 0.3; // seconds
 
-    private float _deltaTime;
-    private DateTime _lastFrameTime = DateTime.Now;
-
-    // Statistics
-    public int FrameCount { get; private set; }
-    public float FPS { get; private set; }
-    private DateTime _lastFpsUpdate = DateTime.Now;
-
     // Safe loading system
     private bool _isLoadingModel = false;
     private IfcModel? _pendingModel = null;
@@ -150,12 +142,6 @@ public class IfcViewer : IDisposable
         // Initialize minimap and compass
         _minimapCompass = new MinimapCompass();
         _minimapCompass.Initialize(_gl);
-        _minimapCompass.OnCompassClicked += (bearing) =>
-        {
-            // Rotate camera to face the clicked direction
-            _renderer.Camera.Yaw = -bearing; // Negative because yaw is CCW
-            OnStatusMessage?.Invoke($"Camera oriented to {GetCardinalDirection(bearing)} ({bearing:F0}°)");
-        };
 
         // Initialize tutorial system
         _tutorialSystem = new TutorialSystem();
@@ -335,8 +321,6 @@ public class IfcViewer : IDisposable
                     OnStatusMessage?.Invoke($"📊 Elements: {_pendingModel.Elements.Count}, Types: {_pendingModel.GetElementTypes().Count}");
                     OnStatusMessage?.Invoke($"🔺 Vertices: {_pendingModel.GetTotalVertexCount():N0}, Triangles: {_pendingModel.GetTotalTriangleCount():N0}");
 
-                    // Don't clear _pendingModel yet - let renderer handle it
-                    // _isLoadingModel will be cleared by renderer when GPU upload completes
                     _uiManager?.ShowNotification($"Model loaded: {_pendingModel.Elements.Count} elements", UI.NotificationType.Success);
 
                     // Record tutorial action
@@ -348,27 +332,20 @@ public class IfcViewer : IDisposable
                         _contextualHints?.AddHint("💡 Large model! Use element list to toggle types for better performance.");
                     }
 
-                    // Don't focus yet - renderer will do it when upload completes
-                    // FocusOnModel();
+                    // Focus camera on model
+                    FocusOnModel();
                 }
                 catch (Exception ex)
                 {
                     OnStatusMessage?.Invoke($"❌ Error loading model geometry: {ex.Message}");
-                    _isLoadingModel = false;
-                    _pendingModel = null;
                     _uiManager?.ShowNotification($"Error loading geometry: {ex.Message}", UI.NotificationType.Error);
                 }
-                // Don't use finally - let renderer complete loading
+                finally
+                {
+                    _pendingModel = null;
+                    _isLoadingModel = false;
+                }
             }
-        }
-
-        // Monitor renderer loading status
-        if (_isLoadingModel && !_renderer.IsLoadingModel)
-        {
-            // Renderer finished loading!
-            _isLoadingModel = false;
-            _pendingModel = null;
-            OnStatusMessage?.Invoke($"✅ GPU upload complete! {_renderer.LoadedGeometryCount} geometries");
         }
 
         // Update VR/AR
@@ -587,9 +564,6 @@ public class IfcViewer : IDisposable
         // Render minimap and compass
         _minimapCompass?.Render();
 
-        // Render geographic overlay (must be after ImGui context is ready)
-        _minimapCompass?.RenderGeographicOverlay();
-
         // Render UI
         if (_uiManager != null && _imguiController != null)
         {
@@ -760,23 +734,6 @@ public class IfcViewer : IDisposable
                 }
                 break;
 
-            // Arrow keys for camera rotation
-            case Key.Left:
-                _renderer.Camera.Yaw -= 2.0f; // Rotate left
-                break;
-
-            case Key.Right:
-                _renderer.Camera.Yaw += 2.0f; // Rotate right
-                break;
-
-            case Key.Up:
-                _renderer.Camera.Pitch += 2.0f; // Look up
-                break;
-
-            case Key.Down:
-                _renderer.Camera.Pitch -= 2.0f; // Look down
-                break;
-
             case Key.Keypad7:
                 if (_currentModel != null)
                 {
@@ -792,24 +749,6 @@ public class IfcViewer : IDisposable
                     OnStatusMessage?.Invoke("Camera: Isometric view");
                     _tutorialSystem?.RecordAction("preset_used");
                 }
-                break;
-
-            case Key.PageUp:
-                // Level camera (remove pitch) - useful when stuck upside down
-                _renderer.Camera.LevelCamera();
-                OnStatusMessage?.Invoke("Camera leveled (pitch reset)");
-                break;
-
-            case Key.Home:
-                // Full orientation reset
-                _renderer.Camera.ResetOrientation();
-                OnStatusMessage?.Invoke("Camera orientation reset");
-                break;
-
-            case Key.End:
-                // Correct upside down camera
-                _renderer.Camera.CorrectUpsideDown();
-                OnStatusMessage?.Invoke("Camera corrected");
                 break;
 
             case Key.T:
@@ -1077,19 +1016,9 @@ public class IfcViewer : IDisposable
 
     private void ResetCamera()
     {
-        if (_currentModel != null)
-        {
-            // Reset to view the model
-            _renderer.Camera.Position = _currentModel.ModelCenter + new Vector3(0, _currentModel.ModelSize * 0.5f, _currentModel.ModelSize * 1.5f);
-            _renderer.Camera.TargetPoint = _currentModel.ModelCenter;
-        }
-        else
-        {
-            _renderer.Camera.Position = new Vector3(0, 5, 10);
-            _renderer.Camera.TargetPoint = Vector3.Zero;
-        }
-
-        _renderer.Camera.ResetOrientation();
+        _renderer.Camera.Position = new Vector3(0, 5, 10);
+        _renderer.Camera.Yaw = -90.0f;
+        _renderer.Camera.Pitch = 0.0f;
         _renderer.Camera.Fov = 45.0f;
         OnStatusMessage?.Invoke("Camera reset.");
     }
@@ -1229,16 +1158,6 @@ public class IfcViewer : IDisposable
     private void OnClosing()
     {
         Dispose();
-    }
-
-    private string GetCardinalDirection(float bearing)
-    {
-        var directions = new[] { "North", "North-Northeast", "Northeast", "East-Northeast",
-                                "East", "East-Southeast", "Southeast", "South-Southeast",
-                                "South", "South-Southwest", "Southwest", "West-Southwest",
-                                "West", "West-Northwest", "Northwest", "North-Northwest" };
-        int index = (int)Math.Round(bearing / 22.5f) % 16;
-        return directions[index];
     }
 
     public void Dispose()

@@ -1,8 +1,8 @@
 using ImGuiNET;
 using System.Numerics;
-using Vizzio.AI;
+using ArxisVR.AI;
 
-namespace Vizzio.UI;
+namespace ArxisVR.UI;
 
 /// <summary>
 /// Modern AI chat panel
@@ -25,7 +25,7 @@ public class AIChatPanel
             _messages.Add(new ChatMessageUI
             {
                 Role = "assistant",
-                Content = "👋 Hi! I'm your AI assistant for IFC/BIM. Ask me anything about your model, IFC standards, or how to use VIZZIO!",
+                Content = "👋 Hi! I'm your AI assistant for IFC/BIM. Ask me anything about your model, IFC standards, or how to use ArxisVR!",
                 Timestamp = DateTime.Now
             });
         }

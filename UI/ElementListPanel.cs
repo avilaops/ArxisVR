@@ -1,8 +1,8 @@
 using ImGuiNET;
 using System.Numerics;
-using Vizzio.Models;
+using ArxisVR.Models;
 
-namespace Vizzio.UI;
+namespace ArxisVR.UI;
 
 /// <summary>
 /// Modern element list panel with search and filters

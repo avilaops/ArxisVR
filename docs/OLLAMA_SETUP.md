@@ -1,4 +1,4 @@
-# VIZZIO - Ollama AI Integration Guide
+# ArxisVR - Ollama AI Integration Guide
 
 ## 📋 Pré-requisitos
 
@@ -49,7 +49,7 @@ OLLAMA_MODEL=llama3.2:3b
 ### 3. Usar no código
 
 ```csharp
-using Vizzio.AI;
+using ArxisVR.AI;
 
 // Carregar configuração
 var config = AIConfig.LoadFromEnvironment();

@@ -1,8 +1,8 @@
-# Melhorias de Navegação 3D e VR - Vizzio
+# Melhorias de Navegação 3D e VR - ArxisVR
 
 ## 🎯 Resumo das Melhorias
 
-Este documento descreve as melhorias implementadas para tornar a navegação 3D e VR mais intuitiva e profissional no Vizzio IFC Viewer.
+Este documento descreve as melhorias implementadas para tornar a navegação 3D e VR mais intuitiva e profissional no ArxisVR IFC Viewer.
 
 ---
 

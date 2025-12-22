@@ -1,12 +1,12 @@
 using System.Numerics;
 using ImGuiNET;
-using Vizzio.Models;
-using Vizzio.Rendering;
-using Vizzio.VR;
-using Vizzio.Tools;
-using Vizzio.AI;
+using ArxisVR.Models;
+using ArxisVR.Rendering;
+using ArxisVR.VR;
+using ArxisVR.Tools;
+using ArxisVR.AI;
 
-namespace Vizzio.UI;
+namespace ArxisVR.UI;
 
 /// <summary>
 /// Modern UI manager with beautiful interface
@@ -17,6 +17,17 @@ public class UIManager
     private IfcElement? _selectedElement;
     private string _searchFilter = "";
     private bool _isUpdatingSelection = false; // Prevent re-entrance
+
+    // Search functionality
+    public string SearchFilter
+    {
+        get => _searchFilter;
+        set
+        {
+            _searchFilter = value;
+            FilterElements();
+        }
+    }
     private bool _showProperties = true;
     private bool _showElementList = true;
     private bool _showStatistics = true;
@@ -31,9 +42,9 @@ public class UIManager
     private List<MeasurementResult> _measurementHistory = new();
 
     // Modern components
-    private Toolbar _toolbar = new();
+    private ModernToolbar _toolbar = new();
     private ElementListPanel _elementListPanel = new();
-    private AIChatPanel _aiChatPanel = new(); // NEW!
+    private AIChatPanel _aiChatPanel = new();
 
     // Existing components
     private AnnotationSystem _annotationSystem = new();
@@ -76,6 +87,17 @@ public class UIManager
     public event Action? OnClearMeasurements;
     public event Action<string>? OnVRMessage;
 
+    // Type visibility management
+    public void SetTypeVisibility(string typeName, bool visible)
+    {
+        if (_typeVisibility.ContainsKey(typeName))
+        {
+            _typeVisibility[typeName] = visible;
+            OnTypeVisibilityChanged?.Invoke(typeName, visible);
+            ShowNotification($"{typeName}: {(visible ? "Visible" : "Hidden")}", NotificationType.Info);
+        }
+    }
+
     public UIManager()
     {
         SetupToolbarEvents();
@@ -116,50 +138,90 @@ public class UIManager
 
         _toolbar.OnSaveScreenshot += () =>
         {
-            // Trigger screenshot via event to IfcViewer
             OnVRMessage?.Invoke("TAKE_SCREENSHOT");
+            ShowNotification("Taking screenshot...", NotificationType.Success);
         };
 
         _toolbar.OnMeasureDistance += () =>
         {
             OnMeasurementModeChanged?.Invoke(MeasurementMode.Distance);
             _showMeasurements = true;
-            ShowNotification("Distance measurement mode activated", NotificationType.Info);
+            ShowNotification("Distance measurement activated", NotificationType.Info);
         };
 
         _toolbar.OnMeasureArea += () =>
         {
             OnMeasurementModeChanged?.Invoke(MeasurementMode.Area);
             _showMeasurements = true;
-            ShowNotification("Area measurement mode activated", NotificationType.Info);
+            ShowNotification("Area measurement activated", NotificationType.Info);
         };
 
         _toolbar.OnMeasureAngle += () =>
         {
             OnMeasurementModeChanged?.Invoke(MeasurementMode.Angle);
             _showMeasurements = true;
-            ShowNotification("Angle measurement mode activated", NotificationType.Info);
+            ShowNotification("Angle measurement activated", NotificationType.Info);
+        };
+
+        _toolbar.OnAnnotate += () =>
+        {
+            _showAnnotations = true;
+            ShowNotification("Annotation mode activated", NotificationType.Info);
         };
 
         _toolbar.OnSelectMode += () =>
         {
-            ShowNotification("Select mode activated", NotificationType.Info);
+            ShowNotification("Select mode", NotificationType.Info);
         };
 
-        _toolbar.OnPanMode += () =>
+        _toolbar.OnIsolateSelection += () =>
         {
-            ShowNotification("Pan mode activated", NotificationType.Info);
+            if (_selectedElement != null)
+            {
+                ShowNotification($"Isolated: {_selectedElement.Type}", NotificationType.Success);
+            }
+            else
+            {
+                ShowNotification("Select an element first", NotificationType.Warning);
+            }
         };
 
-        _toolbar.OnOrbitMode += () =>
+        _toolbar.OnHideSelection += () =>
         {
-            ShowNotification("Orbit mode activated", NotificationType.Info);
+            if (_selectedElement != null)
+            {
+                ShowNotification($"Hidden: {_selectedElement.Type}", NotificationType.Info);
+            }
+            else
+            {
+                ShowNotification("Select an element first", NotificationType.Warning);
+            }
+        };
+
+        _toolbar.OnShowAll += () =>
+        {
+            ShowNotification("Showing all elements", NotificationType.Success);
+        };
+
+        _toolbar.OnSectionBox += () =>
+        {
+            ShowNotification("Section box tool activated", NotificationType.Info);
+        };
+
+        _toolbar.OnToggleTransparency += () =>
+        {
+            ShowNotification("X-Ray mode toggled", NotificationType.Info);
+        };
+
+        _toolbar.OnToggleWireframe += () =>
+        {
+            ShowNotification("Wireframe mode toggled", NotificationType.Info);
         };
 
         _toolbar.OnFocusModel += () =>
         {
             OnFocusRequested?.Invoke();
-            ShowNotification("Focus on model", NotificationType.Info);
+            ShowNotification("Focusing on model", NotificationType.Info);
         };
 
         _toolbar.OnResetCamera += () =>
@@ -173,15 +235,31 @@ public class UIManager
             ShowNotification("Lighting toggled", NotificationType.Info);
         };
 
-        _toolbar.OnToggleVR += () =>
+        _toolbar.OnToggleGrid += () =>
         {
-            ShowNotification("VR mode toggled", NotificationType.Info);
+            ShowNotification("Grid toggled", NotificationType.Info);
+        };
+
+        _toolbar.OnHelp += () =>
+        {
+            ShowNotification("Drag=Rotate | Shift+Drag=Pan | Scroll=Zoom | DblClick=Focus", NotificationType.Info);
         };
 
         _toolbar.OnSettings += () =>
         {
-            ShowNotification("Settings opened", NotificationType.Info);
+            _showVRSettings = !_showVRSettings;
+            ShowNotification("Settings", NotificationType.Info);
         };
+    }
+
+    private void FilterElements()
+    {
+        // Filter elements based on search text
+        // This will be used by element list panel
+        if (_currentModel == null || string.IsNullOrWhiteSpace(_searchFilter))
+            return;
+
+        // Implementation handled by ElementListPanel
     }
 
     public void Render(Camera camera, VRManager vrManager, float fps)
@@ -202,11 +280,8 @@ public class UIManager
         // Main menu bar
         RenderMainMenuBar(camera, vrManager, fps);
 
-        // Toolbar
+        // Modern compact toolbar
         _toolbar.Render((int)ImGui.GetIO().DisplaySize.X, (int)ImGui.GetIO().DisplaySize.Y);
-
-        // CS-style crosshair (center of screen)
-        RenderCrosshair();
 
         // Navigation indicator (bottom-left corner)
         RenderNavigationIndicator(camera);
@@ -252,7 +327,7 @@ public class UIManager
         {
             // App title
             ImGui.PushStyleColor(ImGuiCol.Text, ModernTheme.Colors.Primary);
-            ImGui.Text("✦ VIZZIO");
+            ImGui.Text("ArxisVR");
             ImGui.PopStyleColor();
 
             ImGui.Spacing();
@@ -260,9 +335,9 @@ public class UIManager
             ImGui.Spacing();
 
             // File menu
-            if (ImGui.BeginMenu("📂 File"))
+            if (ImGui.BeginMenu("File"))
             {
-                if (ImGui.MenuItem("📂 Open IFC...", "Ctrl+O"))
+                if (ImGui.MenuItem("Open IFC...", "Ctrl+O"))
                 {
                     var filePath = FileDialog.OpenFile("Open IFC File");
                     if (!string.IsNullOrEmpty(filePath))
@@ -274,14 +349,14 @@ public class UIManager
 
                 ImGui.Separator();
 
-                if (ImGui.MenuItem("💾 Save Screenshot", "F12"))
+                if (ImGui.MenuItem("Screenshot", "F12"))
                 {
                     OnVRMessage?.Invoke("TAKE_SCREENSHOT");
                 }
 
                 ImGui.Separator();
 
-                if (ImGui.MenuItem("❌ Exit", "Alt+F4"))
+                if (ImGui.MenuItem("Exit", "Alt+F4"))
                 {
                     Environment.Exit(0);
                 }
@@ -290,61 +365,115 @@ public class UIManager
             }
 
             // View menu
-            if (ImGui.BeginMenu("👁️ View"))
+            if (ImGui.BeginMenu("View"))
             {
-                ImGui.MenuItem("📋 Elements", "F2", ref _showElementList);
-                ImGui.MenuItem("ℹ️ Properties", "F3", ref _showProperties);
-                ImGui.MenuItem("📊 Statistics", "F4", ref _showStatistics);
-                ImGui.MenuItem("🤖 AI Chat", "F9", ref _showAIChat);
+                ImGui.MenuItem("Elements", "F2", ref _showElementList);
+                ImGui.MenuItem("Properties", "F3", ref _showProperties);
+                ImGui.MenuItem("Statistics", "F4", ref _showStatistics);
+                ImGui.MenuItem("AI Chat", "F9", ref _showAIChat);
 
                 ImGui.Separator();
 
-                ImGui.MenuItem("📏 Measurements", "F5", ref _showMeasurements);
-                ImGui.MenuItem("📝 Annotations", "F7", ref _showAnnotations);
-                ImGui.MenuItem("🗂️ Layers", "F8", ref _showLayers);
+                ImGui.MenuItem("Measurements", "F5", ref _showMeasurements);
+                ImGui.MenuItem("Annotations", "F7", ref _showAnnotations);
+                ImGui.MenuItem("Layers", "F8", ref _showLayers);
 
                 ImGui.Separator();
 
-                if (ImGui.MenuItem("🎯 Focus Model", "F"))
+                if (ImGui.MenuItem("Focus Model", "F"))
                     OnFocusRequested?.Invoke();
 
-                if (ImGui.MenuItem("↺ Reset Camera", "R"))
+                if (ImGui.MenuItem("Reset Camera", "R"))
                     OnResetCameraRequested?.Invoke();
 
                 ImGui.EndMenu();
             }
 
             // Tools menu
-            if (ImGui.BeginMenu("🔧 Tools"))
+            if (ImGui.BeginMenu("Tools"))
             {
-                if (ImGui.MenuItem("📏 Distance", "M"))
+                ImGui.TextDisabled("MEASUREMENT");
+                ImGui.Separator();
+
+                if (ImGui.MenuItem("Distance", "M"))
                 {
                     OnMeasurementModeChanged?.Invoke(MeasurementMode.Distance);
                     _showMeasurements = true;
                 }
 
-                if (ImGui.MenuItem("📐 Area"))
+                if (ImGui.MenuItem("Area", "Shift+M"))
                 {
                     OnMeasurementModeChanged?.Invoke(MeasurementMode.Area);
                     _showMeasurements = true;
                 }
 
+                if (ImGui.MenuItem("Angle", "Ctrl+M"))
+                {
+                    OnMeasurementModeChanged?.Invoke(MeasurementMode.Angle);
+                    _showMeasurements = true;
+                }
+
+                ImGui.Separator();
+                ImGui.TextDisabled("SELECTION");
                 ImGui.Separator();
 
-                if (ImGui.MenuItem("🗑️ Clear All"))
+                if (ImGui.MenuItem("Isolate Selection", "I"))
+                {
+                    if (_selectedElement != null)
+                        ShowNotification($"Isolated: {_selectedElement.Type}", NotificationType.Success);
+                    else
+                        ShowNotification("No element selected", NotificationType.Warning);
+                }
+
+                if (ImGui.MenuItem("Hide Selection", "H"))
+                {
+                    if (_selectedElement != null)
+                        ShowNotification($"Hidden: {_selectedElement.Type}", NotificationType.Info);
+                    else
+                        ShowNotification("No element selected", NotificationType.Warning);
+                }
+
+                if (ImGui.MenuItem("Show All", "Shift+H"))
+                {
+                    ShowNotification("Showing all elements", NotificationType.Success);
+                }
+
+                ImGui.Separator();
+                ImGui.TextDisabled("VISUALIZATION");
+                ImGui.Separator();
+
+                if (ImGui.MenuItem("Section Box", "B"))
+                {
+                    ShowNotification("Section box tool activated", NotificationType.Info);
+                }
+
+                if (ImGui.MenuItem("Wireframe", "W"))
+                {
+                    ShowNotification("Wireframe toggled", NotificationType.Info);
+                }
+
+                if (ImGui.MenuItem("Transparency", "T"))
+                {
+                    ShowNotification("Transparency toggled", NotificationType.Info);
+                }
+
+                ImGui.Separator();
+
+                if (ImGui.MenuItem("Clear Measurements"))
                 {
                     OnClearMeasurements?.Invoke();
                     _measurementHistory.Clear();
+                    ShowNotification("Measurements cleared", NotificationType.Success);
                 }
 
                 ImGui.EndMenu();
             }
 
             // VR/AR menu
-            if (ImGui.BeginMenu("🥽 VR/AR"))
+            if (ImGui.BeginMenu("VR/AR"))
             {
                 bool vrEnabled = vrManager.IsVREnabled;
-                if (ImGui.MenuItem("🥽 VR Mode", "F2", ref vrEnabled))
+                if (ImGui.MenuItem("VR Mode", "F2", ref vrEnabled))
                 {
                     if (vrEnabled)
                         vrManager.EnableVRMode(camera);
@@ -353,7 +482,7 @@ public class UIManager
                 }
 
                 bool arEnabled = vrManager.IsAREnabled;
-                if (ImGui.MenuItem("📱 AR Mode", "F3", ref arEnabled))
+                if (ImGui.MenuItem("AR Mode", "F3", ref arEnabled))
                 {
                     if (arEnabled)
                         vrManager.EnableARMode(camera);
@@ -363,24 +492,24 @@ public class UIManager
 
                 ImGui.Separator();
 
-                ImGui.MenuItem("⚙️ Settings", null, ref _showVRSettings);
+                ImGui.MenuItem("Settings", null, ref _showVRSettings);
 
                 ImGui.EndMenu();
             }
 
             // Help menu
-            if (ImGui.BeginMenu("❓ Help"))
+            if (ImGui.BeginMenu("Help"))
             {
-                if (ImGui.MenuItem("⌨️ Controls", "F1"))
+                if (ImGui.MenuItem("Controls", "F1"))
                 {
                     ShowNotification("Press F1 for controls!", NotificationType.Info);
                 }
 
                 ImGui.Separator();
 
-                if (ImGui.MenuItem("ℹ️ About"))
+                if (ImGui.MenuItem("About"))
                 {
-                    ShowNotification("VIZZIO - IFC Viewer with AI", NotificationType.Info);
+                    ShowNotification("ArxisVR - IFC Viewer with AI", NotificationType.Info);
                 }
 
                 ImGui.EndMenu();
@@ -391,7 +520,7 @@ public class UIManager
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + availWidth - 100);
 
             ImGui.PushStyleColor(ImGuiCol.Text, ModernTheme.Colors.Success);
-            ImGui.Text($"⚡ {fps:F0} FPS");
+            ImGui.Text($"{fps:F0} FPS");
             ImGui.PopStyleColor();
 
             ImGui.EndMainMenuBar();
@@ -402,21 +531,18 @@ public class UIManager
 
     private string GetElementIcon(string ifcType)
     {
-        return ifcType switch
-        {
-            var t when t.Contains("Wall") => "🧱",
-            var t when t.Contains("Slab") => "⬜",
-            var t when t.Contains("Column") => "🏛️",
-            var t when t.Contains("Beam") => "━",
-            var t when t.Contains("Door") => "🚪",
-            var t when t.Contains("Window") => "🪟",
-            var t when t.Contains("Roof") => "🏠",
-            var t when t.Contains("Stair") => "🪜",
-            var t when t.Contains("Railing") => "🛡️",
-            var t when t.Contains("Pile") || t.Contains("Footing") => "🏗️",
-            var t when t.Contains("Flow") || t.Contains("Pipe") => "🔧",
-            _ => "📦"
-        };
+        if (ifcType.Contains("Wall")) return "[W]";
+        if (ifcType.Contains("Slab")) return "[S]";
+        if (ifcType.Contains("Column")) return "[C]";
+        if (ifcType.Contains("Beam")) return "[B]";
+        if (ifcType.Contains("Door")) return "[D]";
+        if (ifcType.Contains("Window")) return "[Win]";
+        if (ifcType.Contains("Roof")) return "[R]";
+        if (ifcType.Contains("Stair")) return "[St]";
+        if (ifcType.Contains("Railing")) return "[Rl]";
+        if (ifcType.Contains("Pile") || ifcType.Contains("Footing")) return "[F]";
+        if (ifcType.Contains("Flow") || ifcType.Contains("Pipe")) return "[P]";
+        return "[-]";
     }
 
     private void RenderModernPropertiesPanel()

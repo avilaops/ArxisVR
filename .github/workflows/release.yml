@@ -47,7 +47,7 @@ jobs:
       id: release_notes
       run: |
         cat > release_notes.md << 'EOF'
-        ## 🎉 Vizzio ${{ steps.get_version.outputs.version }}
+        ## 🎉 ArxisVR ${{ steps.get_version.outputs.version }}
         
         ### ✨ Highlights
         - 🎮 Intuitive 3D Navigation with orbital camera
@@ -61,9 +61,9 @@ jobs:
         Choose your platform below or build from source.
         
         ### 📚 Documentation
-        - [Quick Start Guide](https://github.com/avilaops/vizzio2/blob/main/docs/QUICK_START.md)
-        - [Complete Documentation](https://github.com/avilaops/vizzio2/blob/main/docs/INDEX.md)
-        - [AI Setup Guide](https://github.com/avilaops/vizzio2/blob/main/AI_README.md)
+        - [Quick Start Guide](https://github.com/avilaops/ArxisVR2/blob/main/docs/QUICK_START.md)
+        - [Complete Documentation](https://github.com/avilaops/ArxisVR2/blob/main/docs/INDEX.md)
+        - [AI Setup Guide](https://github.com/avilaops/ArxisVR2/blob/main/AI_README.md)
         
         ### 🙏 Credits
         Developed with ❤️ by [Nícolas Ávila](https://github.com/avilaops)
@@ -77,7 +77,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ steps.get_version.outputs.version }}
-        release_name: Vizzio ${{ steps.get_version.outputs.version }}
+        release_name: ArxisVR ${{ steps.get_version.outputs.version }}
         body_path: release_notes.md
         draft: false
         prerelease: false
@@ -92,24 +92,24 @@ jobs:
         config:
           - name: Windows
             os: windows-latest
-            artifact: vizzio-windows-x64.zip
+            artifact: ArxisVR-windows-x64.zip
             build_script: |
               dotnet publish -c Release -r win-x64 --self-contained false -o publish/windows
-              Compress-Archive -Path publish/windows/* -DestinationPath vizzio-windows-x64.zip
+              Compress-Archive -Path publish/windows/* -DestinationPath ArxisVR-windows-x64.zip
           
           - name: Linux
             os: ubuntu-latest
-            artifact: vizzio-linux-x64.tar.gz
+            artifact: ArxisVR-linux-x64.tar.gz
             build_script: |
               dotnet publish -c Release -r linux-x64 --self-contained false -o publish/linux
-              tar -czf vizzio-linux-x64.tar.gz -C publish/linux .
+              tar -czf ArxisVR-linux-x64.tar.gz -C publish/linux .
           
           - name: macOS
             os: macos-latest
-            artifact: vizzio-macos-x64.zip
+            artifact: ArxisVR-macos-x64.zip
             build_script: |
               dotnet publish -c Release -r osx-x64 --self-contained false -o publish/macos
-              cd publish/macos && zip -r ../../vizzio-macos-x64.zip . && cd ../..
+              cd publish/macos && zip -r ../../ArxisVR-macos-x64.zip . && cd ../..
     
     steps:
     - name: 📥 Checkout code
