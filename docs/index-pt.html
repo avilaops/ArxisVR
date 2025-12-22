@@ -1,33 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ArxisVR - The future of BIM visualization. Professional IFC viewer with revolutionary 3D navigation, immersive VR, and AI-powered insights. Transform how you experience building models.">
-    <meta name="keywords" content="BIM, IFC Viewer, 3D Visualization, Virtual Reality, AI Assistant, Construction Technology, Architecture Software, Engineering Tools">
+    <meta name="description" content="ArxisVR - O futuro da visualização BIM. Visualizador IFC profissional com navegação 3D revolucionária, VR imersivo e insights com IA. Transforme como experiencia modelos de construção.">
+    <meta name="keywords" content="BIM, Visualizador IFC, Visualização 3D, Realidade Virtual, Assistente IA, Tecnologia Construção, Software Arquitetura, Ferramentas Engenharia">
     <meta name="author" content="Nícolas Ávila">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://vr.avila.inc">
-    <meta property="og:title" content="ArxisVR - The Future of BIM Visualization">
-    <meta property="og:description" content="Revolutionary IFC viewer with 3D navigation, VR, and AI. Transform how you experience building models.">
+    <meta property="og:url" content="https://vr.avila.inc/pt">
+    <meta property="og:title" content="ArxisVR - O Futuro da Visualização BIM">
+    <meta property="og:description" content="Visualizador IFC revolucionário com navegação 3D, VR e IA. Transforme como experiencia modelos de construção.">
     <meta property="og:image" content="https://vr.avila.inc/og-image.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://vr.avila.inc">
-    <meta property="twitter:title" content="ArxisVR - The Future of BIM Visualization">
-    <meta property="twitter:description" content="Revolutionary IFC viewer with 3D navigation, VR, and AI">
+    <meta property="twitter:url" content="https://vr.avila.inc/pt">
+    <meta property="twitter:title" content="ArxisVR - O Futuro da Visualização BIM">
+    <meta property="twitter:description" content="Visualizador IFC revolucionário com navegação 3D, VR e IA">
     <meta property="twitter:image" content="https://vr.avila.inc/og-image.png">
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏗️</text></svg>">
 
-    <title>ArxisVR - The Future of BIM Visualization</title>
+    <title>ArxisVR - O Futuro da Visualização BIM em Portugal</title>
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://vr.avila.inc">
+    <link rel="canonical" href="https://vr.avila.inc/pt">
+    <link rel="alternate" hreflang="en" href="https://vr.avila.inc">
+    <link rel="alternate" hreflang="pt-PT" href="https://vr.avila.inc/pt">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,19 +44,19 @@
         }
 
         :root {
-            --primary: #FF6B35;
-            --primary-dark: #E85D2B;
-            --primary-light: #FF8C5A;
-            --secondary: #FFB800;
-            --accent: #FFC107;
+            --primary: #046A38;
+            --primary-dark: #024D28;
+            --primary-light: #068547;
+            --secondary: #D7141A;
+            --accent: #FFD700;
             --dark: #1A1A1A;
             --darker: #0A0A0A;
             --gray: #64748B;
-            --light: #FFF8F0;
+            --light: #F5F9F7;
             --white: #FFFFFF;
-            --gradient-1: linear-gradient(135deg, #FF6B35 0%, #FFB800 100%);
-            --gradient-2: linear-gradient(135deg, #FFB800 0%, #FFC107 100%);
-            --gradient-3: linear-gradient(135deg, #FF8C5A 0%, #FFD54F 100%);
+            --gradient-1: linear-gradient(135deg, #046A38 0%, #D7141A 100%);
+            --gradient-2: linear-gradient(135deg, #D7141A 0%, #FFD700 100%);
+            --gradient-3: linear-gradient(135deg, #068547 0%, #046A38 100%);
         }
 
         body {
@@ -67,6 +69,35 @@
 
         html {
             scroll-behavior: smooth;
+        }
+
+        /* Language Selector */
+        .language-selector {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .language-btn {
+            background: none;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 0.3rem;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .language-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .language-btn.active {
+            border-color: var(--primary);
+            background: rgba(4, 106, 56, 0.1);
         }
 
         /* Navigation - Apple Style */
@@ -114,35 +145,6 @@
             align-items: center;
         }
 
-        /* Language Selector */
-        .language-selector {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .language-btn {
-            background: none;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            padding: 0.3rem;
-            cursor: pointer;
-            font-size: 1.5rem;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .language-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .language-btn.active {
-            border-color: var(--primary);
-            background: rgba(255, 107, 53, 0.1);
-        }
-
         .nav-links a {
             text-decoration: none;
             color: var(--dark);
@@ -165,13 +167,13 @@
             font-weight: 600;
             font-size: 0.9rem;
             transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 2px 8px rgba(4, 106, 56, 0.2);
         }
 
         .cta-button:hover {
             background: var(--primary-dark);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 4px 12px rgba(4, 106, 56, 0.3);
         }
 
         /* Mobile Menu */
@@ -248,7 +250,7 @@
             color: var(--primary);
         }
 
-        /* Hero Section - Steve Jobs Style */
+        /* Hero Section */
         .hero {
             min-height: 100vh;
             display: flex;
@@ -268,7 +270,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.05) 0%, transparent 70%);
+            background: radial-gradient(circle at 50% 0%, rgba(4, 106, 56, 0.05) 0%, transparent 70%);
             pointer-events: none;
         }
 
@@ -295,7 +297,7 @@
             align-items: center;
             gap: 0.5rem;
             background: var(--light);
-            border: 1px solid rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(4, 106, 56, 0.1);
             padding: 0.5rem 1.2rem;
             border-radius: 100px;
             font-size: 0.9rem;
@@ -316,7 +318,7 @@
         }
 
         .hero h1 .gradient-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -352,7 +354,7 @@
             font-weight: 600;
             font-size: 1.1rem;
             transition: all 0.3s;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 4px 14px rgba(4, 106, 56, 0.3);
             border: none;
             cursor: pointer;
         }
@@ -360,7 +362,7 @@
         .btn-primary:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            box-shadow: 0 6px 20px rgba(4, 106, 56, 0.4);
         }
 
         .btn-secondary {
@@ -392,16 +394,10 @@
             position: relative;
         }
 
-        .device-mockup img {
-            width: 100%;
-            border-radius: 20px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
-        }
-
         .video-placeholder {
             width: 100%;
             aspect-ratio: 16/9;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient-1);
             border-radius: 20px;
             display: flex;
             align-items: center;
@@ -446,46 +442,60 @@
             font-size: 2rem;
         }
 
-        /* Social Proof */
-        .social-proof {
-            padding: 3rem 2rem;
+        /* Portugal Locations Section */
+        .portugal-section {
+            padding: 8rem 2rem;
             background: var(--light);
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        .social-proof-content {
+        .locations-grid {
             max-width: 1200px;
-            margin: 0 auto;
-            text-align: center;
+            margin: 3rem auto 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
         }
 
-        .social-proof-title {
-            font-size: 0.9rem;
-            color: var(--gray);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 2rem;
-            font-weight: 600;
+        .location-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 2px solid rgba(4, 106, 56, 0.1);
+            transition: all 0.3s;
         }
 
-        .tech-logos {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 4rem;
-            flex-wrap: wrap;
-            opacity: 0.6;
+        .location-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
         }
 
-        .tech-logo {
-            font-size: 1.2rem;
+        .location-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .location-title {
+            font-size: 1.5rem;
             font-weight: 700;
-            color: var(--dark);
-            letter-spacing: -0.02em;
+            color: var(--darker);
+            margin-bottom: 0.5rem;
         }
 
-        /* Features Section - Apple Cards Style */
+        .location-subtitle {
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .location-description {
+            font-size: 1rem;
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        /* Features Section */
         .features {
             padding: 8rem 2rem;
             background: var(--white);
@@ -597,7 +607,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: radial-gradient(circle at 30% 50%, rgba(37, 99, 235, 0.15) 0%, transparent 60%);
+            background: radial-gradient(circle at 30% 50%, rgba(4, 106, 56, 0.15) 0%, transparent 60%);
             pointer-events: none;
         }
 
@@ -635,7 +645,7 @@
         /* CTA Section */
         .cta-section {
             padding: 8rem 2rem;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: var(--white);
             text-align: center;
             position: relative;
@@ -804,7 +814,8 @@
                 font-size: 1.2rem;
             }
 
-            .features-grid {
+            .features-grid,
+            .locations-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -816,6 +827,17 @@
             .footer-content {
                 grid-template-columns: 1fr;
                 gap: 2rem;
+            }
+
+            .language-selector {
+                position: fixed;
+                bottom: 2rem;
+                right: 2rem;
+                z-index: 1000;
+                background: white;
+                padding: 0.5rem;
+                border-radius: 50px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             }
         }
     </style>
@@ -829,21 +851,21 @@
                 ArxisVR
             </a>
             <ul class="nav-links">
-                <li><a href="#features">Features</a></li>
-                <li><a href="#demo">Demo</a></li>
-                <li><a href="https://github.com/avilaops/ArxisVR/blob/main/docs/INDEX.md" target="_blank">Docs</a></li>
+                <li><a href="#features">Funcionalidades</a></li>
+                <li><a href="#locations">Em Portugal</a></li>
+                <li><a href="https://github.com/avilaops/ArxisVR/blob/main/docs/INDEX.md" target="_blank">Documentação</a></li>
                 <li><a href="https://github.com/avilaops/ArxisVR" target="_blank">GitHub</a></li>
                 <li class="language-selector">
-                    <button class="language-btn active" title="English" aria-label="English">
+                    <button class="language-btn" onclick="window.location.href='index.html'" title="English" aria-label="Switch to English">
                         🇺🇸
                     </button>
-                    <button class="language-btn" onclick="window.location.href='index-pt.html'" title="Português de Portugal" aria-label="Switch to Portuguese">
+                    <button class="language-btn active" title="Português" aria-label="Português de Portugal">
                         🇵🇹
                     </button>
                 </li>
-                <li><a href="#download" class="cta-button">Get Started</a></li>
+                <li><a href="#download" class="cta-button">Começar</a></li>
             </ul>
-            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle mobile menu">
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menu">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -854,11 +876,11 @@
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
         <ul>
-            <li><a href="#features" onclick="closeMobileMenu()">Features</a></li>
-            <li><a href="#demo" onclick="closeMobileMenu()">Demo</a></li>
-            <li><a href="https://github.com/avilaops/ArxisVR2/blob/main/docs/INDEX.md" target="_blank">Docs</a></li>
-            <li><a href="https://github.com/avilaops/ArxisVR2" target="_blank">GitHub</a></li>
-            <li><a href="#download" onclick="closeMobileMenu()" style="color: var(--primary);">Get Started</a></li>
+            <li><a href="#features" onclick="closeMobileMenu()">Funcionalidades</a></li>
+            <li><a href="#locations" onclick="closeMobileMenu()">Em Portugal</a></li>
+            <li><a href="https://github.com/avilaops/ArxisVR/blob/main/docs/INDEX.md" target="_blank">Documentação</a></li>
+            <li><a href="https://github.com/avilaops/ArxisVR" target="_blank">GitHub</a></li>
+            <li><a href="#download" onclick="closeMobileMenu()" style="color: var(--primary);">Começar</a></li>
         </ul>
     </div>
 
@@ -867,28 +889,28 @@
         <div class="hero-content">
             <div class="hero-badge">
                 <span>✨</span>
-                <span>Introducing ArxisVR v3.0</span>
+                <span>Apresentamos o ArxisVR v3.0</span>
             </div>
 
             <h1>
-                The Future of<br>
-                <span class="gradient-text">BIM Visualization</span>
+                O Futuro da<br>
+                <span class="gradient-text">Visualização BIM</span>
             </h1>
 
             <p class="hero-subtitle">
-                Experience building models like never before. Intuitive 3D navigation,
-                immersive VR, and AI-powered insights. Built for architects, engineers,
-                and construction professionals who demand excellence.
+                Experiencie modelos de construção como nunca antes. Navegação 3D intuitiva,
+                VR imersivo e insights com inteligência artificial. Desenvolvido para arquitetos,
+                engenheiros e profissionais de construção que exigem excelência.
             </p>
 
             <div class="hero-buttons">
-                <a href="#download" class="btn-primary">Download Free</a>
-                <a href="#demo" class="btn-secondary">Watch Demo</a>
+                <a href="#download" class="btn-primary">Download Gratuito</a>
+                <a href="#demo" class="btn-secondary">Ver Demonstração</a>
             </div>
 
             <div class="hero-visual">
                 <div class="device-mockup">
-                    <div class="video-placeholder" id="demoVideo" onclick="showDemoInfo()" role="button" tabindex="0" aria-label="Watch demo video">
+                    <div class="video-placeholder" id="demoVideo" onclick="showDemoInfo()" role="button" tabindex="0" aria-label="Ver vídeo de demonstração">
                         <div class="play-icon">▶</div>
                     </div>
                 </div>
@@ -896,16 +918,75 @@
         </div>
     </section>
 
-    <!-- Social Proof -->
-    <section class="social-proof">
-        <div class="social-proof-content">
-            <div class="social-proof-title">Built with industry-leading technology</div>
-            <div class="tech-logos">
-                <div class="tech-logo">.NET 10</div>
-                <div class="tech-logo">OpenGL</div>
-                <div class="tech-logo">OpenXR</div>
-                <div class="tech-logo">ImGui</div>
-                <div class="tech-logo">Ollama AI</div>
+    <!-- Portugal Locations Section -->
+    <section id="locations" class="portugal-section">
+        <div class="section-header">
+            <div class="section-eyebrow">ArxisVR em Portugal</div>
+            <h2 class="section-title">Onde pode usar o ArxisVR</h2>
+            <p class="section-description">
+                Desde Lisboa ao Porto, do Algarve aos Açores - transforme projetos BIM em toda Portugal
+            </p>
+        </div>
+
+        <div class="locations-grid">
+            <div class="location-card">
+                <div class="location-icon">🏛️</div>
+                <h3 class="location-title">Lisboa</h3>
+                <div class="location-subtitle">Grande Lisboa e Área Metropolitana</div>
+                <p class="location-description">
+                    Reabilitação urbana, novos empreendimentos e projetos de infraestrutura. 
+                    Visualize antes de construir em plena capital portuguesa.
+                </p>
+            </div>
+
+            <div class="location-card">
+                <div class="location-icon">🌉</div>
+                <h3 class="location-title">Porto</h3>
+                <div class="location-subtitle">Região Norte e Vale do Douro</div>
+                <p class="location-description">
+                    Projetos de renovação no centro histórico (Património Mundial) e 
+                    desenvolvimento de novas zonas empresariais e residenciais.
+                </p>
+            </div>
+
+            <div class="location-card">
+                <div class="location-icon">🏖️</div>
+                <h3 class="location-title">Algarve</h3>
+                <div class="location-subtitle">Turismo e Desenvolvimento Costeiro</div>
+                <p class="location-description">
+                    Resorts, hotéis e empreendimentos turísticos. Visualização de 
+                    projetos antes da aprovação e construção em zonas sensíveis.
+                </p>
+            </div>
+
+            <div class="location-card">
+                <div class="location-icon">🏔️</div>
+                <h3 class="location-title">Coimbra</h3>
+                <div class="location-subtitle">Centro de Portugal</div>
+                <p class="location-description">
+                    Projetos universitários, hospitalares e infraestruturas públicas. 
+                    Combine património histórico com arquitetura contemporânea.
+                </p>
+            </div>
+
+            <div class="location-card">
+                <div class="location-icon">🌋</div>
+                <h3 class="location-title">Açores e Madeira</h3>
+                <div class="location-subtitle">Regiões Autónomas</div>
+                <p class="location-description">
+                    Projetos insulares respeitando condicionantes geográficas únicas. 
+                    Planeamento de infraestruturas e turismo sustentável.
+                </p>
+            </div>
+
+            <div class="location-card">
+                <div class="location-icon">🏗️</div>
+                <h3 class="location-title">Braga e Guimarães</h3>
+                <div class="location-subtitle">Minho - Berço da Nação</div>
+                <p class="location-description">
+                    Crescimento industrial e tecnológico. Visualização de fábricas, 
+                    centros logísticos e projetos de regeneração urbana.
+                </p>
             </div>
         </div>
     </section>
@@ -913,65 +994,65 @@
     <!-- Features Section -->
     <section id="features" class="features">
         <div class="section-header">
-            <div class="section-eyebrow">Why ArxisVR</div>
-            <h2 class="section-title">Designed for perfection</h2>
+            <div class="section-eyebrow">Porquê ArxisVR</div>
+            <h2 class="section-title">Desenhado para a perfeição</h2>
             <p class="section-description">
-                Every detail crafted to deliver an unparalleled BIM visualization experience
+                Cada detalhe pensado para entregar uma experiência inigualável de visualização BIM
             </p>
         </div>
 
         <div class="features-grid">
             <div class="feature-card">
                 <span class="feature-icon">🎮</span>
-                <h3 class="feature-title">Intuitive Navigation</h3>
+                <h3 class="feature-title">Navegação Intuitiva</h3>
                 <p class="feature-description">
-                    Orbital camera with professional CAD-style controls. Navigate your models
-                    naturally with one-click view presets and 30+ keyboard shortcuts.
+                    Câmara orbital com controlos estilo CAD profissional. Navegue pelos seus modelos
+                    naturalmente com vistas predefinidas e mais de 30 atalhos de teclado.
                 </p>
             </div>
 
             <div class="feature-card">
                 <span class="feature-icon">🥽</span>
-                <h3 class="feature-title">Immersive VR</h3>
+                <h3 class="feature-title">VR Imersivo</h3>
                 <p class="feature-description">
-                    Walk through your buildings before they're built. Physics-based teleportation
-                    and gesture recognition for the ultimate VR experience.
+                    Caminhe pelos seus edifícios antes de serem construídos. Teletransporte com física
+                    e reconhecimento de gestos para a melhor experiência VR.
                 </p>
             </div>
 
             <div class="feature-card">
                 <span class="feature-icon">🤖</span>
-                <h3 class="feature-title">AI-Powered</h3>
+                <h3 class="feature-title">Inteligência Artificial</h3>
                 <p class="feature-description">
-                    Local AI assistant that understands IFC. Ask questions, get insights,
-                    and analyze your models—all while keeping your data 100% private.
+                    Assistente IA local que compreende IFC. Faça perguntas, obtenha insights
+                    e analise os seus modelos—mantendo os seus dados 100% privados.
                 </p>
             </div>
 
             <div class="feature-card">
                 <span class="feature-icon">⚡</span>
-                <h3 class="feature-title">Lightning Fast</h3>
+                <h3 class="feature-title">Ultra Rápido</h3>
                 <p class="feature-description">
-                    60+ FPS on desktop, 90 FPS in VR. Optimized rendering handles even
-                    the largest models smoothly with <3ms overhead.
+                    Mais de 60 FPS no desktop, 90 FPS em VR. Renderização otimizada gere mesmo
+                    os maiores modelos suavemente com menos de 3ms de overhead.
                 </p>
             </div>
 
             <div class="feature-card">
                 <span class="feature-icon">📐</span>
-                <h3 class="feature-title">Professional Tools</h3>
+                <h3 class="feature-title">Ferramentas Profissionais</h3>
                 <p class="feature-description">
-                    3D grid, color-coded axes, mini-map, and compass. All the spatial
-                    reference tools professionals need, beautifully integrated.
+                    Grelha 3D, eixos com código de cores, mini-mapa e bússola. Todas as
+                    ferramentas de referência espacial que profissionais necessitam.
                 </p>
             </div>
 
             <div class="feature-card">
                 <span class="feature-icon">🎯</span>
-                <h3 class="feature-title">Precision Selection</h3>
+                <h3 class="feature-title">Seleção de Precisão</h3>
                 <p class="feature-description">
-                    Ray-picking technology for accurate element selection. Hover to preview,
-                    click to select, with instant property inspection.
+                    Tecnologia ray-picking para seleção precisa de elementos. Passe o rato para pré-visualizar,
+                    clique para selecionar, com inspeção instantânea de propriedades.
                 </p>
             </div>
         </div>
@@ -983,19 +1064,19 @@
             <div class="stats-grid">
                 <div class="stat">
                     <div class="stat-number">60+</div>
-                    <div class="stat-label">FPS Performance</div>
+                    <div class="stat-label">FPS em Desktop</div>
                 </div>
                 <div class="stat">
-                    <div class="stat-number">9</div>
-                    <div class="stat-label">Major Systems</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-number">30+</div>
-                    <div class="stat-label">Shortcuts</div>
+                    <div class="stat-number">90</div>
+                    <div class="stat-label">FPS em VR</div>
                 </div>
                 <div class="stat">
                     <div class="stat-number">100%</div>
-                    <div class="stat-label">Open Source</div>
+                    <div class="stat-label">Privacidade IA Local</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">30+</div>
+                    <div class="stat-label">Atalhos de Teclado</div>
                 </div>
             </div>
         </div>
@@ -1004,14 +1085,16 @@
     <!-- CTA Section -->
     <section id="download" class="cta-section">
         <div class="cta-content">
-            <h2>Ready to transform your workflow</h2>
-            <p>Join the future of BIM visualization. Free, powerful, and built for professionals.</p>
+            <h2>Pronto para transformar o seu fluxo de trabalho?</h2>
+            <p>Junte-se ao futuro da visualização BIM. Gratuito, poderoso e feito para profissionais.</p>
             <div class="cta-buttons">
-                <a href="https://github.com/avilaops/ArxisVR2/releases/latest" class="btn-light" target="_blank">
-                    Download for Free
+                <a href="https://github.com/avilaops/ArxisVR/releases/latest" class="btn-light" target="_blank">
+                    <span style="margin-right: 0.5rem;">📦</span>
+                    Download Gratuito
                 </a>
-                <a href="https://github.com/avilaops/ArxisVR2" class="btn-secondary" target="_blank">
-                    View on GitHub
+                <a href="https://github.com/avilaops/ArxisVR" class="btn-secondary" target="_blank">
+                    <span style="margin-right: 0.5rem;">⭐</span>
+                    Ver no GitHub
                 </a>
             </div>
         </div>
@@ -1026,54 +1109,72 @@
                     ArxisVR
                 </a>
                 <p>
-                    The future of BIM visualization. Professional IFC viewer with 3D navigation,
-                    VR support, and AI assistance.
+                    O visualizador IFC profissional do futuro. Open source, gratuito e
+                    desenvolvido por profissionais para profissionais.
                 </p>
-                <p style="font-weight: 600; margin-top: 1rem;">
-                    Made with ❤️ by <a href="https://github.com/avilaops" style="color: var(--primary);">Nícolas Ávila</a>
-                </p>
+                <div class="language-selector">
+                    <button class="language-btn" onclick="window.location.href='index.html'" title="English">
+                        🇺🇸
+                    </button>
+                    <button class="language-btn active" title="Português">
+                        🇵🇹
+                    </button>
+                </div>
             </div>
 
             <div class="footer-section">
-                <h4>Product</h4>
+                <h4>Produto</h4>
                 <ul>
-                    <li><a href="#features">Features</a></li>
-                    <li><a href="https://github.com/avilaops/ArxisVR2/releases" target="_blank">Download</a></li>
-                    <li><a href="https://github.com/avilaops/ArxisVR2/blob/main/docs/INDEX.md" target="_blank">Documentation</a></li>
-                    <li><a href="https://github.com/avilaops/ArxisVR2/blob/main/CHANGELOG.md" target="_blank">Changelog</a></li>
+                    <li><a href="#features">Funcionalidades</a></li>
+                    <li><a href="#locations">Em Portugal</a></li>
+                    <li><a href="https://github.com/avilaops/ArxisVR/releases">Versões</a></li>
+                    <li><a href="https://github.com/avilaops/ArxisVR/blob/main/CHANGELOG.md">Novidades</a></li>
                 </ul>
             </div>
 
             <div class="footer-section">
-                <h4>Resources</h4>
+                <h4>Recursos</h4>
                 <ul>
-                    <li><a href="https://github.com/avilaops/ArxisVR2/blob/main/docs/QUICK_START.md" target="_blank">Quick Start</a></li>
-                    <li><a href="https://github.com/avilaops/ArxisVR2/blob/main/AI_README.md" target="_blank">AI Setup</a></li>
-                    <li><a href="https://github.com/avilaops/ArxisVR2/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a></li>
-                    <li><a href="https://github.com/avilaops/ArxisVR2/issues" target="_blank">Support</a></li>
+                    <li><a href="https://github.com/avilaops/ArxisVR/blob/main/docs/INDEX.md">Documentação</a></li>
+                    <li><a href="https://github.com/avilaops/ArxisVR/blob/main/docs/QUICK_START.md">Guia Rápido</a></li>
+                    <li><a href="https://github.com/avilaops/ArxisVR/issues">Suporte</a></li>
+                    <li><a href="https://github.com/avilaops/ArxisVR/blob/main/CONTRIBUTING.md">Contribuir</a></li>
                 </ul>
             </div>
 
             <div class="footer-section">
-                <h4>Community</h4>
+                <h4>Legal</h4>
                 <ul>
-                    <li><a href="https://github.com/avilaops/ArxisVR2" target="_blank">GitHub</a></li>
-                    <li><a href="https://github.com/avilaops/ArxisVR2/discussions" target="_blank">Discussions</a></li>
-                    <li><a href="https://github.com/avilaops/ArxisVR2/issues" target="_blank">Issues</a></li>
-                    <li><a href="https://github.com/avilaops" target="_blank">Developer</a></li>
+                    <li><a href="https://github.com/avilaops/ArxisVR/blob/main/LICENSE">Licença</a></li>
+                    <li><a href="#">Privacidade</a></li>
+                    <li><a href="#">Termos</a></li>
+                    <li><a href="https://github.com/avilaops">Sobre</a></li>
                 </ul>
             </div>
         </div>
 
         <div class="footer-bottom">
-            <p>&copy; 2025 ArxisVR by Nícolas Ávila. Licensed under MIT License.</p>
-            <p style="margin-top: 0.5rem;">v3.0 - Complete 3D/VR System with AI Assistant</p>
+            <p>&copy; 2025 ArxisVR por Nícolas Ávila. Licença MIT. Feito com ❤️ para a comunidade BIM.</p>
         </div>
     </footer>
 
-    <!-- Enhanced scripts -->
+    <!-- Scripts -->
     <script>
-        // Navbar scroll effect
+        // Mobile menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+
+        function closeMobileMenu() {
+            mobileMenuBtn.classList.remove('active');
+            mobileMenu.classList.remove('active');
+        }
+
+        // Scroll navigation
         window.addEventListener('scroll', () => {
             const nav = document.getElementById('nav');
             if (window.scrollY > 50) {
@@ -1083,43 +1184,12 @@
             }
         });
 
-        // Mobile menu toggle
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileMenu = document.getElementById('mobileMenu');
-
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenuBtn.classList.toggle('active');
-            mobileMenu.classList.toggle('active');
-            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
-        });
-
-        function closeMobileMenu() {
-            mobileMenuBtn.classList.remove('active');
-            mobileMenu.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        // Close mobile menu on resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                closeMobileMenu();
-            }
-        });
-
-        // Demo video info
+        // Demo video
         function showDemoInfo() {
-            const message = `🎥 Demo Video\n\n` +
-                `ArxisVR features:\n` +
-                `• Real-time 3D IFC model visualization\n` +
-                `• Immersive VR mode with Meta Quest support\n` +
-                `• AI-powered assistant with Ollama\n` +
-                `• Professional navigation controls\n\n` +
-                `📦 Download the latest release from GitHub to try it yourself!\n\n` +
-                `Visit: github.com/avilaops/ArxisVR2`;
-            alert(message);
+            alert('🎥 Vídeo de demonstração em breve!\n\nEnquanto isso, visite o nosso GitHub para ver screenshots e mais informações.');
         }
 
-        // Smooth scroll
+        // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 const href = this.getAttribute('href');
@@ -1131,34 +1201,9 @@
                             behavior: 'smooth',
                             block: 'start'
                         });
+                        closeMobileMenu();
                     }
                 }
-            });
-        });
-
-        // Feature cards animation on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        // Observe feature cards
-        document.addEventListener('DOMContentLoaded', () => {
-            const cards = document.querySelectorAll('.feature-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(30px)';
-                card.style.transition = `all 0.6s ease ${index * 0.1}s`;
-                observer.observe(card);
             });
         });
     </script>
