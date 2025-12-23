@@ -92,6 +92,9 @@ public class ModernToolbar
                 ImGui.SameLine();
                 if (ToolButton("Hide", "Hide Selected", false, new Vector2(40, 32)))
                     OnHideSelection?.Invoke();
+                ImGui.SameLine();
+                if (ToolButton("Show", "Show All", false, new Vector2(40, 32)))
+                    OnShowAll?.Invoke();
             });
 
             ImGui.SameLine();
@@ -117,6 +120,12 @@ public class ModernToolbar
                 {
                     _currentTool = ToolMode.MeasureAngle;
                     OnMeasureAngle?.Invoke();
+                }
+                ImGui.SameLine();
+                if (ToolButton("Anno", "Annotate", _currentTool == ToolMode.Annotate, new Vector2(45, 32)))
+                {
+                    _currentTool = ToolMode.Annotate;
+                    OnAnnotate?.Invoke();
                 }
             });
 

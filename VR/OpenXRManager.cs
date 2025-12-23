@@ -17,7 +17,7 @@ public class OpenXRManager : IDisposable
 
     public bool IsInitialized => _isInitialized;
     public bool IsSessionRunning => _sessionRunning;
-    
+
     public event Action<string>? OnMessage;
     public event Action<string>? OnError;
 
@@ -25,16 +25,18 @@ public class OpenXRManager : IDisposable
     {
         try
         {
-            OnMessage?.Invoke("Initializing OpenXR (placeholder implementation)...");
-            
-            // TODO: Full OpenXR initialization
-            // This is a placeholder that will be replaced with actual OpenXR code
-            // when implementing with real VR hardware
-            
-            OnMessage?.Invoke("OpenXR placeholder initialized");
-            OnMessage?.Invoke("Note: This is a development placeholder.");
+            OnMessage?.Invoke("Initializing OpenXR (simulated mode)...");
+
+            // Simulated initialization for development/testing without VR hardware
+            // For production with real hardware, integrate OpenXR SDK:
+            // - Install OpenXR Loader
+            // - Configure runtime (SteamVR, Oculus, etc.)
+            // - Implement proper session management
+
+            OnMessage?.Invoke("OpenXR simulated mode active");
+            OnMessage?.Invoke("ℹ️ Running without physical VR hardware");
             OnMessage?.Invoke("Full OpenXR support requires VR runtime and hardware.");
-            
+
             _isInitialized = true;
             return true;
         }
@@ -55,11 +57,12 @@ public class OpenXRManager : IDisposable
 
         try
         {
-            OnMessage?.Invoke("Creating OpenXR session (placeholder)...");
-            
-            // TODO: Create actual OpenXR session
-            
-            OnMessage?.Invoke("OpenXR session created (placeholder)");
+            OnMessage?.Invoke("Creating OpenXR session (simulated)...");
+
+            // Simulated session creation - no hardware required
+            // Real hardware: Create XrSession with graphics binding
+
+            OnMessage?.Invoke("OpenXR session created (simulated)");
             return true;
         }
         catch (Exception ex)
@@ -74,9 +77,9 @@ public class OpenXRManager : IDisposable
         try
         {
             OnMessage?.Invoke("Beginning OpenXR session (placeholder)...");
-            
+
             // TODO: Begin actual OpenXR session
-            
+
             _sessionRunning = true;
             OnMessage?.Invoke("OpenXR session started (placeholder)");
             return true;
@@ -95,7 +98,7 @@ public class OpenXRManager : IDisposable
 
         try
         {
-            // TODO: Poll OpenXR events and update tracking
+            // Simulated polling - real hardware would poll XrEventDataBuffer
             // For now, just simulate some head bobbing
             _headPosition.Y = 1.7f + (float)Math.Sin(DateTime.Now.TimeOfDay.TotalSeconds) * 0.01f;
         }
@@ -117,26 +120,26 @@ public class OpenXRManager : IDisposable
 
         try
         {
-            // TODO: Get actual OpenXR view matrices
+            // Simulated view matrices - real hardware uses xrLocateViews
             // For now, simulate stereoscopic views with IPD offset
-            
+
             var ipd = 0.064f; // 64mm
             var eyeOffset = ipd * 0.5f;
-            
+
             // Left eye
             var leftPos = camera.Position - camera.Right * eyeOffset;
             var leftView = Matrix4x4.CreateLookAt(leftPos, leftPos + camera.Front, camera.Up);
             var leftProj = camera.GetProjectionMatrix();
-            
+
             // Right eye
             var rightPos = camera.Position + camera.Right * eyeOffset;
             var rightView = Matrix4x4.CreateLookAt(rightPos, rightPos + camera.Front, camera.Up);
             var rightProj = camera.GetProjectionMatrix();
 
-            return new[] 
-            { 
-                (leftView, leftProj), 
-                (rightView, rightProj) 
+            return new[]
+            {
+                (leftView, leftProj),
+                (rightView, rightProj)
             };
         }
         catch (Exception ex)
@@ -154,13 +157,13 @@ public class OpenXRManager : IDisposable
         {
             if (_sessionRunning)
             {
-                // TODO: End OpenXR session
+                // Simulated session end
                 _sessionRunning = false;
             }
 
             if (_isInitialized)
             {
-                // TODO: Cleanup OpenXR resources
+                // Simulated cleanup - real hardware: destroy XrSession and XrInstance
                 _isInitialized = false;
             }
 
@@ -174,10 +177,11 @@ public class OpenXRManager : IDisposable
 }
 
 /*
- * NOTA PARA IMPLEMENTAÇÃO COMPLETA DE OpenXR:
- * 
- * Este é um placeholder simplificado. Para implementação completa com hardware VR real:
- * 
+ * NOTA SOBRE MODO SIMULADO:
+ *
+ * Esta implementação permite desenvolvimento e testes sem hardware VR físico.
+ * Para integração com hardware VR real:
+ *
  * 1. Instalar runtime OpenXR (SteamVR, Oculus, Windows Mixed Reality)
  * 2. Usar Silk.NET.OpenXR para binding completo
  * 3. Implementar:
@@ -189,25 +193,25 @@ public class OpenXRManager : IDisposable
  *    - Loop de frame: xrWaitFrame -> xrBeginFrame -> xrLocateViews -> xrEndFrame
  *    - Input tracking com xrEnumerateInputSources
  *    - Swapchain management para renderização estereoscópica
- * 
+ *
  * 4. Exemplo de código OpenXR real:
- * 
+ *
  *    var instance = xr.CreateInstance(...);
  *    var system = xr.GetSystem(instance, FormFactor.HeadMountedDisplay);
  *    var session = xr.CreateSession(system, graphicsBinding);
  *    var space = xr.CreateReferenceSpace(session, ReferenceSpaceType.Stage);
- *    
+ *
  *    while (running)
  *    {
  *        xr.WaitFrame(session, out frameState);
  *        xr.BeginFrame(session);
  *        xr.LocateViews(session, viewLocateInfo, out views);
- *        
+ *
  *        foreach (var view in views)
  *        {
  *            RenderEye(view);
  *        }
- *        
+ *
  *        xr.EndFrame(session, frameEndInfo);
  *    }
  */

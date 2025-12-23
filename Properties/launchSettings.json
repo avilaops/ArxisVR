@@ -1,11 +1,67 @@
 {
   "profiles": {
-    "ArxisVR": {
-      "commandName": "Project"
+    "ArxisVR - Development": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "ARXISVR_LOG_LEVEL": "Debug",
+        "ARXISVR_ENABLE_PROFILING": "true",
+        "ARXISVR_CACHE_DIR": "./cache"
+      }
     },
-    "WSL": {
+    "ArxisVR - Performance": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Production",
+        "ARXISVR_LOG_LEVEL": "Warning",
+        "ARXISVR_ENABLE_PROFILING": "false",
+        "ARXISVR_VSYNC": "true",
+        "ARXISVR_MAX_FPS": "144"
+      }
+    },
+    "ArxisVR - VR Mode": {
+      "commandName": "Project",
+      "commandLineArgs": "--vr --skip-welcome",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Production",
+        "ARXISVR_VR_ENABLED": "true",
+        "ARXISVR_LOG_LEVEL": "Info"
+      }
+    },
+    "ArxisVR - Testing": {
+      "commandName": "Project",
+      "commandLineArgs": "--test-mode",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Testing",
+        "ARXISVR_LOG_LEVEL": "Debug",
+        "ARXISVR_ENABLE_TESTS": "true",
+        "ARXISVR_MOCK_VR": "true"
+      }
+    },
+    "ArxisVR - Load Sample": {
+      "commandName": "Project",
+      "commandLineArgs": "\"EDUARDO SAMPA.ifc\"",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "ARXISVR_AUTO_LOAD": "true"
+      }
+    },
+    "ArxisVR - Benchmark": {
+      "commandName": "Project",
+      "commandLineArgs": "--benchmark",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Production",
+        "ARXISVR_LOG_LEVEL": "Warning",
+        "ARXISVR_ENABLE_PROFILING": "true",
+        "ARXISVR_BENCHMARK_MODE": "true"
+      }
+    },
+    "WSL - Ubuntu": {
       "commandName": "WSL2",
-      "distributionName": ""
+      "distributionName": "Ubuntu",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
     }
   }
 }

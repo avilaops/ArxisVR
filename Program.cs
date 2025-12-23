@@ -48,6 +48,10 @@ try
     Console.WriteLine("Press F1 in the viewer window for controls help.\n");
 
     var viewer = new SimpleIfcViewer();
+    if (assistant != null)
+    {
+        viewer.SetAssistant(assistant);
+    }
     viewer.Run();
 }
 catch (Exception ex)

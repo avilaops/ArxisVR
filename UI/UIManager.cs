@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 using ArxisVR.Models;
@@ -192,11 +193,7 @@ public class UIManager
 
         _toolbar.OnIsolateSelection += () =>
         {
-            if (_selectedElement != null)
-            {
-                ShowNotification($"Isolated: {_selectedElement.Type}", NotificationType.Success);
-            }
-            else
+            if (!IsolateSelectedElement())
             {
                 ShowNotification("Select an element first", NotificationType.Warning);
             }
@@ -204,11 +201,7 @@ public class UIManager
 
         _toolbar.OnHideSelection += () =>
         {
-            if (_selectedElement != null)
-            {
-                ShowNotification($"Hidden: {_selectedElement.Type}", NotificationType.Info);
-            }
-            else
+            if (!HideSelectedElement())
             {
                 ShowNotification("Select an element first", NotificationType.Warning);
             }
@@ -216,7 +209,10 @@ public class UIManager
 
         _toolbar.OnShowAll += () =>
         {
-            ShowNotification("Showing all elements", NotificationType.Success);
+            if (!ShowAllElements())
+            {
+                ShowNotification("Load a model to manage visibility", NotificationType.Warning);
+            }
         };
 
         _toolbar.OnSectionBox += () =>
@@ -266,6 +262,75 @@ public class UIManager
             _showVRSettings = !_showVRSettings;
             ShowNotification("Settings", NotificationType.Info);
         };
+    }
+
+    private bool HideSelectedElement()
+    {
+        if (_currentModel == null || _selectedElement == null)
+        {
+            return false;
+        }
+
+        _selectedElement.IsVisible = false;
+        ShowNotification($"Hidden: {_selectedElement.Type ?? _selectedElement.Name}", NotificationType.Info);
+        return true;
+    }
+
+    private bool ShowAllElements()
+    {
+        if (_currentModel == null)
+        {
+            return false;
+        }
+
+        foreach (var element in _currentModel.Elements)
+        {
+            element.IsVisible = true;
+        }
+
+        if (_typeVisibility.Count > 0)
+        {
+            foreach (var key in _typeVisibility.Keys.ToList())
+            {
+                if (!_typeVisibility[key])
+                {
+                    _typeVisibility[key] = true;
+                    OnTypeVisibilityChanged?.Invoke(key, true);
+                }
+            }
+        }
+
+        ShowNotification($"Showing all {_currentModel.Elements.Count:N0} elements", NotificationType.Success);
+        return true;
+    }
+
+    private bool IsolateSelectedElement()
+    {
+        if (_currentModel == null || _selectedElement == null)
+        {
+            return false;
+        }
+
+        foreach (var element in _currentModel.Elements)
+        {
+            element.IsVisible = ReferenceEquals(element, _selectedElement);
+        }
+
+        if (_typeVisibility.Count > 0)
+        {
+            foreach (var key in _typeVisibility.Keys.ToList())
+            {
+                var visible = string.Equals(key, _selectedElement.Type ?? _selectedElement.IfcType, StringComparison.OrdinalIgnoreCase);
+                if (_typeVisibility[key] != visible)
+                {
+                    _typeVisibility[key] = visible;
+                    OnTypeVisibilityChanged?.Invoke(key, visible);
+                }
+            }
+        }
+
+        ShowNotification($"Isolated: {_selectedElement.Type ?? _selectedElement.Name}", NotificationType.Success);
+        return true;
     }
 
     private void FilterElements()

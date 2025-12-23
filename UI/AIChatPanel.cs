@@ -44,6 +44,7 @@ public class AIChatPanel
                 Content = "👋 Hi! I'm your AI assistant for IFC/BIM. Ask me anything about your model, IFC standards, or how to use ArxisVR!",
                 Timestamp = DateTime.Now
             });
+            _scrollToBottom = true;
         }
     }
 
@@ -91,6 +92,7 @@ public class AIChatPanel
                 Content = "Chat cleared. How can I help you?",
                 Timestamp = DateTime.Now
             });
+            _scrollToBottom = true;
         }
 
         ImGui.SameLine();
@@ -145,15 +147,26 @@ public class AIChatPanel
             ImGui.PopStyleColor();
         }
 
+        var currentScrollY = ImGui.GetScrollY();
+        var currentScrollMaxY = ImGui.GetScrollMaxY();
+
         // Auto-scroll to bottom when new messages arrive
         if (_autoScroll)
         {
-            if (_lastRenderedCount != _messages.Count || ImGui.GetScrollY() >= ImGui.GetScrollMaxY() - 10)
+            if (_lastRenderedCount != _messages.Count || currentScrollY >= currentScrollMaxY - 10 || _scrollToBottom)
             {
                 ImGui.SetScrollHereY(1.0f);
-                _lastRenderedCount = _messages.Count;
+                _scrollToBottom = false;
             }
         }
+        else if (_scrollToBottom && currentScrollMaxY > _lastScrollMaxY)
+        {
+            ImGui.SetScrollHereY(1.0f);
+            _scrollToBottom = false;
+        }
+
+        _lastRenderedCount = _messages.Count;
+        _lastScrollMaxY = currentScrollMaxY;
 
         ImGui.EndChild();
     }
@@ -263,6 +276,7 @@ public class AIChatPanel
             Content = userMessage,
             Timestamp = DateTime.Now
         });
+        _scrollToBottom = true;
 
         _isLoading = true;
 
@@ -278,6 +292,7 @@ public class AIChatPanel
                 Content = response,
                 Timestamp = DateTime.Now
             });
+            _scrollToBottom = true;
 
             // Cleanup old messages if too many
             if (_messages.Count > MAX_MESSAGES_CACHE)
@@ -293,6 +308,7 @@ public class AIChatPanel
                 Content = $"❌ Error: {ex.Message}\n\nPlease check if Ollama is running.",
                 Timestamp = DateTime.Now
             });
+            _scrollToBottom = true;
         }
         finally
         {
@@ -309,6 +325,7 @@ public class AIChatPanel
             Content = message,
             Timestamp = DateTime.Now
         });
+        _scrollToBottom = true;
     }
 
     public async Task AnalyzeElement(string elementType, Dictionary<string, string> properties)
@@ -328,6 +345,7 @@ public class AIChatPanel
                 Content = $"📊 Element Analysis:\n\n{analysis}",
                 Timestamp = DateTime.Now
             });
+            _scrollToBottom = true;
         }
         catch (Exception ex)
         {
@@ -337,6 +355,7 @@ public class AIChatPanel
                 Content = $"❌ Failed to analyze element: {ex.Message}",
                 Timestamp = DateTime.Now
             });
+            _scrollToBottom = true;
         }
         finally
         {
