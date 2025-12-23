@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>ArxisVR.Tests</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Command Tests -->
+    <Compile Include="Commands\CommandTests.cs" />
+
+    <!-- Backend Tests -->
+    <Compile Include="Backend\BackendTests.cs" />
+
+    <!-- Frontend Tests -->
+    <Compile Include="Frontend\FrontendTests.cs" />
+
+    <!-- Complete Test Runner -->
+    <Compile Include="CompleteTestRunner.cs" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,48 @@
+{
+    "projects" : [
+        {
+            "asset" : {
+                "version" : 1
+            },
+            "sites" : [
+                {
+                    "reference_placement" : {
+                        "guid" : "3T0bPZxRr1Q8jv7DzPmSVp",
+                        "reference" : "Exterior",
+                        "placement" : {
+                            "x" : 0.0,
+                            "y" : 0.0,
+                            "z" : 0.0,
+                            "Ux" : 1.0,
+                            "Uy" : 0.0,
+                            "Uz" : 0.0,
+                            "Vx" : 0.0,
+                            "Vy" : 1.0,
+                            "Vz" : 0.0
+                        }
+                    }
+                }
+            ],
+            "models" : [
+                {
+                    "reference_placement" : {
+                        "guid" : "32RSZYFV5BPeZuue8YT2Zm",
+                        "reference" : "",
+                        "placement" : {
+                            "x" : 0.0,
+                            "y" : 0.0,
+                            "z" : 0.0,
+                            "Ux" : 1.0,
+                            "Uy" : 0.0,
+                            "Uz" : 0.0,
+                            "Vx" : 0.0,
+                            "Vy" : 1.0,
+                            "Vz" : 0.0
+                        }
+                    },
+                    "site_index" : 0
+                }
+            ]
+        }
+    ]
+}

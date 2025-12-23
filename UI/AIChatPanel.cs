@@ -5,20 +5,36 @@ using ArxisVR.AI;
 namespace ArxisVR.UI;
 
 /// <summary>
-/// Modern AI chat panel
+/// Modern AI chat panel with performance optimizations
 /// </summary>
 public class AIChatPanel
 {
+    // Layout constants
+    private const float PANEL_WIDTH = 400f;
+    private const float PANEL_HEIGHT = 600f;
+    private const float INPUT_HEIGHT = 50f;
+    private const float BUTTON_WIDTH = 60f;
+    private const float MESSAGE_WIDTH_RATIO = 0.85f;
+    private const float MESSAGE_OFFSET_RATIO = 0.15f;
+    private const float MESSAGE_ROUNDING = 8.0f;
+    private const int MAX_INPUT_LENGTH = 2000;
+    private const int MAX_MESSAGES_CACHE = 100;
+
     private readonly List<ChatMessageUI> _messages = new();
     private string _inputText = "";
     private bool _isLoading = false;
     private IfcAIAssistant? _assistant;
     private bool _autoScroll = true;
+    private bool _scrollToBottom = false;
+    private float _lastScrollMaxY = 0;
+
+    // Performance optimization
+    private int _lastRenderedCount = 0;
 
     public void SetAssistant(IfcAIAssistant assistant)
     {
         _assistant = assistant;
-        
+
         // Add welcome message
         if (_messages.Count == 0)
         {
@@ -33,8 +49,9 @@ public class AIChatPanel
 
     public void Render()
     {
-        ImGui.SetNextWindowSize(new Vector2(400, 600), ImGuiCond.FirstUseEver);
-        ImGui.SetNextWindowPos(new Vector2(ImGui.GetIO().DisplaySize.X - 420, 120), ImGuiCond.FirstUseEver);
+        var displaySize = ImGui.GetIO().DisplaySize;
+        ImGui.SetNextWindowSize(new Vector2(PANEL_WIDTH, PANEL_HEIGHT), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowPos(new Vector2(displaySize.X - PANEL_WIDTH - 20, 120), ImGuiCond.FirstUseEver);
 
         if (ImGui.Begin("🤖 AI Assistant", ImGuiWindowFlags.None))
         {
@@ -48,10 +65,10 @@ public class AIChatPanel
                 ImGui.Spacing();
                 ImGui.Separator();
                 ImGui.Spacing();
-                
+
                 RenderMessages();
                 ImGui.Spacing();
-                
+
                 RenderInput();
             }
         }
@@ -61,9 +78,9 @@ public class AIChatPanel
     private void RenderHeader()
     {
         ImGui.PushStyleColor(ImGuiCol.Text, ModernTheme.Colors.AIAssistant);
-        ImGui.Text("💬 Chat with AI");
+        ImGui.Text($"💬 Chat with AI ({_messages.Count} messages)");
         ImGui.PopStyleColor();
-        
+
         ImGui.SameLine(ImGui.GetWindowWidth() - 120);
         if (ImGui.SmallButton("🗑️ Clear"))
         {
@@ -75,7 +92,7 @@ public class AIChatPanel
                 Timestamp = DateTime.Now
             });
         }
-        
+
         ImGui.SameLine();
         if (ImGui.SmallButton(_autoScroll ? "📜 Auto" : "📜 Manual"))
         {
@@ -100,10 +117,25 @@ public class AIChatPanel
     {
         ImGui.BeginChild("##messages", new Vector2(0, -60), ImGuiChildFlags.Borders);
 
-        foreach (var msg in _messages)
+        // Render messages (optimize for large message lists)
+        if (_messages.Count > 50)
         {
-            RenderMessage(msg);
-            ImGui.Spacing();
+            // For large lists, only render visible messages
+            var startIdx = Math.Max(0, _messages.Count - 50);
+            for (int i = startIdx; i < _messages.Count; i++)
+            {
+                RenderMessage(_messages[i]);
+                ImGui.Spacing();
+            }
+        }
+        else
+        {
+            // For small lists, render all
+            foreach (var msg in _messages)
+            {
+                RenderMessage(msg);
+                ImGui.Spacing();
+            }
         }
 
         if (_isLoading)
@@ -113,9 +145,14 @@ public class AIChatPanel
             ImGui.PopStyleColor();
         }
 
-        if (_autoScroll && ImGui.GetScrollY() >= ImGui.GetScrollMaxY())
+        // Auto-scroll to bottom when new messages arrive
+        if (_autoScroll)
         {
-            ImGui.SetScrollHereY(1.0f);
+            if (_lastRenderedCount != _messages.Count || ImGui.GetScrollY() >= ImGui.GetScrollMaxY() - 10)
+            {
+                ImGui.SetScrollHereY(1.0f);
+                _lastRenderedCount = _messages.Count;
+            }
         }
 
         ImGui.EndChild();
@@ -124,24 +161,28 @@ public class AIChatPanel
     private void RenderMessage(ChatMessageUI msg)
     {
         var isUser = msg.Role == "user";
-        var color = isUser ? ModernTheme.Colors.AIUser : ModernTheme.Colors.AIAssistant;
-        var icon = isUser ? "👤" : "🤖";
+        var isSystem = msg.Role == "system";
+        var color = isUser ? ModernTheme.Colors.AIUser :
+                    isSystem ? ModernTheme.Colors.Warning :
+                    ModernTheme.Colors.AIAssistant;
+        var icon = isUser ? "👤" : isSystem ? "⚙️" : "🤖";
+        var name = isUser ? "You" : isSystem ? "System" : "AI Assistant";
 
         // Message bubble
         ImGui.PushStyleColor(ImGuiCol.ChildBg, color with { W = 0.15f });
-        ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 8.0f);
-        
-        var width = ImGui.GetContentRegionAvail().X * 0.85f;
+        ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, MESSAGE_ROUNDING);
+
+        var width = ImGui.GetContentRegionAvail().X * MESSAGE_WIDTH_RATIO;
         if (isUser)
-            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X * 0.15f);
+            ImGui.SetCursorPosX(ImGui.GetCursorPosX() + ImGui.GetContentRegionAvail().X * MESSAGE_OFFSET_RATIO);
 
         ImGui.BeginChild($"##msg{msg.Timestamp.Ticks}", new Vector2(width, 0), ImGuiChildFlags.Borders | ImGuiChildFlags.AutoResizeY);
 
         // Header
         ImGui.PushStyleColor(ImGuiCol.Text, color);
-        ImGui.Text($"{icon} {(isUser ? "You" : "AI Assistant")}");
+        ImGui.Text($"{icon} {name}");
         ImGui.PopStyleColor();
-        
+
         ImGui.SameLine(ImGui.GetWindowWidth() - 60);
         ImGui.PushStyleColor(ImGuiCol.Text, ModernTheme.Colors.TextDim);
         ImGui.TextUnformatted(msg.Timestamp.ToString("HH:mm"));
@@ -161,22 +202,34 @@ public class AIChatPanel
 
     private void RenderInput()
     {
-        ImGui.PushItemWidth(-70);
-        
-        var enterPressed = ImGui.InputTextMultiline("##input", ref _inputText, 1000, 
-            new Vector2(-1, 50), 
+        ImGui.PushItemWidth(-BUTTON_WIDTH - 10);
+
+        var enterPressed = ImGui.InputTextMultiline("##input", ref _inputText, MAX_INPUT_LENGTH,
+            new Vector2(-1, INPUT_HEIGHT),
             ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.CtrlEnterForNewLine);
-        
+
         ImGui.PopItemWidth();
+
+        // Character counter
+        if (_inputText.Length > 0)
+        {
+            ImGui.SameLine();
+            var counterColor = _inputText.Length > MAX_INPUT_LENGTH * 0.9f
+                ? ModernTheme.Colors.Warning
+                : ModernTheme.Colors.TextDim;
+            ImGui.PushStyleColor(ImGuiCol.Text, counterColor);
+            ImGui.Text($"{_inputText.Length}/{MAX_INPUT_LENGTH}");
+            ImGui.PopStyleColor();
+        }
 
         ImGui.SameLine();
         ImGui.BeginGroup();
-        
+
         var canSend = !string.IsNullOrWhiteSpace(_inputText) && !_isLoading;
         if (!canSend)
             ImGui.BeginDisabled();
 
-        if (ModernTheme.StyledButton("Send\n📤", new Vector2(60, 50), ModernTheme.Colors.Primary) || enterPressed)
+        if (ModernTheme.StyledButton("Send\n📤", new Vector2(BUTTON_WIDTH, INPUT_HEIGHT), ModernTheme.Colors.Primary) || enterPressed)
         {
             if (canSend)
             {
@@ -186,7 +239,7 @@ public class AIChatPanel
 
         if (!canSend)
             ImGui.EndDisabled();
-        
+
         ImGui.EndGroup();
 
         if (ImGui.IsItemHovered() && canSend)
@@ -225,6 +278,12 @@ public class AIChatPanel
                 Content = response,
                 Timestamp = DateTime.Now
             });
+
+            // Cleanup old messages if too many
+            if (_messages.Count > MAX_MESSAGES_CACHE)
+            {
+                _messages.RemoveRange(0, _messages.Count - MAX_MESSAGES_CACHE);
+            }
         }
         catch (Exception ex)
         {
@@ -238,6 +297,7 @@ public class AIChatPanel
         finally
         {
             _isLoading = false;
+            _autoScroll = true; // Force scroll to show response
         }
     }
 

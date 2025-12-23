@@ -1,0 +1,67 @@
+[package]
+name = "avx-mobile"
+version = "0.1.0"
+edition = "2021"
+authors = ["Vizzio Team"]
+description = "Mobile rendering engine - 100% Rust, zero external deps"
+
+[lib]
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+# ============================================================================
+# DEPENDÊNCIAS INTERNAS APENAS (path = "../../backend/avx-*")
+# ============================================================================
+
+# Core geometry
+avx-geometry = { path = "../../backend/avx-geometry" }
+avx-geometry-core = { path = "../../backend/avx-geometry-core" }
+avx-linalg = { path = "../../backend/avx-linalg" }
+avx-math = { path = "../../backend/avx-math" }
+avx-math-core = { path = "../../backend/avx-math-core" }
+avx-primitives = { path = "../../backend/avx-primitives" }
+avx-numeric = { path = "../../backend/avx-numeric" }
+
+# Spatial indexing
+avx-spatial = { path = "../../backend/avx-spatial" }
+avx-topology = { path = "../../backend/avx-topology" }
+
+# IFC (apenas structs de geometria processada)
+avx-ifc-core = { path = "../../backend/avx-ifc-core" }
+
+# Serialização (binária, não JSON)
+avx-serde = { path = "../../backend/avx-serde" }
+
+# Error handling
+avx-error = { path = "../../backend/avx-error" }
+
+# Memory management
+avx-avx-alloc = { path = "../../backend/avx-avx-alloc" }
+
+[target.'cfg(target_os = "ios")'.dependencies]
+# iOS Metal bindings (via avx-gpu)
+avx-gpu = { path = "../../backend/avx-gpu", features = ["metal"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+# Android Vulkan bindings (via avx-gpu)
+avx-gpu = { path = "../../backend/avx-gpu", features = ["vulkan"] }
+
+[features]
+default = ["std"]
+std = []
+no-std = []
+metal = []
+vulkan = []
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+strip = true
+panic = "abort"
+
+[profile.release-mobile]
+inherits = "release"
+opt-level = "z"  # Minimize size for mobile
+
+

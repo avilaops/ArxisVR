@@ -7,7 +7,7 @@ namespace ArxisVR.UI;
 /// </summary>
 public static class FileDialog
 {
-    public static string? OpenFile(string title, string filter = "IFC Files (*.ifc)|*.ifc|All Files (*.*)|*.*")
+    public static string? OpenFile(string title, string filter = "IFC Files (*.ifc)|*.ifc|BsCollab Files (*.bscollab)|*.bscollab|DWG Files (*.dwg)|*.dwg|All CAD Files|*.ifc;*.bscollab;*.dwg|All Files (*.*)|*.*")
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
@@ -33,7 +33,7 @@ public static class FileDialog
             var psi = new System.Diagnostics.ProcessStartInfo
             {
                 FileName = "powershell.exe",
-                Arguments = @$"-Command ""Add-Type -AssemblyName System.Windows.Forms; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Title = '{title}'; $f.Filter = 'IFC Files (*.ifc)|*.ifc|All Files (*.*)|*.*'; $f.ShowDialog() | Out-Null; $f.FileName""",
+            Arguments = @$"-Command ""Add-Type -AssemblyName System.Windows.Forms; $f = New-Object System.Windows.Forms.OpenFileDialog; $f.Title = '{title}'; $f.Filter = 'IFC Files (*.ifc)|*.ifc|BsCollab Files (*.bscollab)|*.bscollab|DWG Files (*.dwg)|*.dwg|All CAD Files|*.ifc;*.bscollab;*.dwg|All Files (*.*)|*.*'; $f.ShowDialog() | Out-Null; $f.FileName""",
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
                 CreateNoWindow = true

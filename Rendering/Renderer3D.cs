@@ -1,9 +1,9 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Silk.NET.OpenGL;
-using Vizzio.Models;
+using ArxisVR.Models;
 
-namespace Vizzio.Rendering;
+namespace ArxisVR.Rendering;
 
 /// <summary>
 /// OpenGL-based 3D renderer for IFC models
@@ -177,11 +177,11 @@ public class Renderer3D : IDisposable
 
         Console.WriteLine($"✅ GPU loading complete: {loadedCount} OK, {errorCount} errors");
 
-        // Focus camera on model
-        if (model.Elements.Count > 0)
+        // Frame camera to show entire model
+        if (model.Elements.Count > 0 && model.ModelSize > 0)
         {
-            Camera.FocusOn(model.ModelCenter, model.ModelSize * 1.5f);
-            Camera.LookAt(model.ModelCenter, Vector3.UnitY);
+            Camera.FrameAll(model.ModelCenter, model.ModelSize, immediate: true);
+            Console.WriteLine($"📷 Camera positioned to view entire model (Size: {model.ModelSize:F2}m)");
         }
     }
 

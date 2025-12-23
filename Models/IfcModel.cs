@@ -13,6 +13,7 @@ public class IfcModel
     public Vector3 ModelCenter { get; set; }
     public float ModelSize { get; set; }
     public Dictionary<string, List<IfcElement>> ElementsByType { get; set; } = new();
+    public Dictionary<string, string> Properties { get; set; } = new();
 
     public void CalculateModelBounds()
     {
@@ -20,7 +21,7 @@ public class IfcModel
             return;
 
         var allVertices = new List<Vector3>();
-        
+
         foreach (var element in Elements)
         {
             if (element.Geometry != null)
@@ -51,7 +52,7 @@ public class IfcModel
     public void OrganizeElementsByType()
     {
         ElementsByType.Clear();
-        
+
         foreach (var element in Elements)
         {
             if (!ElementsByType.ContainsKey(element.IfcType))

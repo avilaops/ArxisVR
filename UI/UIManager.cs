@@ -9,14 +9,27 @@ using ArxisVR.AI;
 namespace ArxisVR.UI;
 
 /// <summary>
-/// Modern UI manager with beautiful interface
+/// Modern UI manager with beautiful interface and performance optimizations
 /// </summary>
 public class UIManager
 {
+    // Layout constants
+    private const float PROPERTIES_PANEL_WIDTH = 420f;
+    private const float PROPERTIES_PANEL_HEIGHT = 700f;
+    private const float STATS_PANEL_WIDTH = 320f;
+    private const float STATS_PANEL_HEIGHT = 280f;
+    private const float PANEL_OFFSET = 20f;
+    private const float MENU_BAR_PADDING = 12f;
+    private const int MAX_PROPERTY_GROUPS = 50;
+
     private IfcModel? _currentModel;
     private IfcElement? _selectedElement;
     private string _searchFilter = "";
     private bool _isUpdatingSelection = false; // Prevent re-entrance
+
+    // Cache for performance
+    private Dictionary<string, string> _elementIconCache = new();
+    private Dictionary<string, string> _propertyCategoryCache = new();
 
     // Search functionality
     public string SearchFilter
@@ -115,6 +128,9 @@ public class UIManager
     {
         _currentModel = model;
         _typeVisibility.Clear();
+        _elementIconCache.Clear();
+        _propertyCategoryCache.Clear();
+        _searchFilter = "";
 
         foreach (var type in model.GetElementTypes())
         {
@@ -321,7 +337,7 @@ public class UIManager
 
     private void RenderMainMenuBar(Camera camera, VRManager vrManager, float fps)
     {
-        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(12, 8));
+        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(MENU_BAR_PADDING, 8));
 
         if (ImGui.BeginMainMenuBar())
         {
@@ -531,18 +547,27 @@ public class UIManager
 
     private string GetElementIcon(string ifcType)
     {
-        if (ifcType.Contains("Wall")) return "[W]";
-        if (ifcType.Contains("Slab")) return "[S]";
-        if (ifcType.Contains("Column")) return "[C]";
-        if (ifcType.Contains("Beam")) return "[B]";
-        if (ifcType.Contains("Door")) return "[D]";
-        if (ifcType.Contains("Window")) return "[Win]";
-        if (ifcType.Contains("Roof")) return "[R]";
-        if (ifcType.Contains("Stair")) return "[St]";
-        if (ifcType.Contains("Railing")) return "[Rl]";
-        if (ifcType.Contains("Pile") || ifcType.Contains("Footing")) return "[F]";
-        if (ifcType.Contains("Flow") || ifcType.Contains("Pipe")) return "[P]";
-        return "[-]";
+        if (string.IsNullOrEmpty(ifcType)) return "[-]";
+
+        if (_elementIconCache.TryGetValue(ifcType, out var cached))
+            return cached;
+
+        string icon;
+        if (ifcType.Contains("Wall")) icon = "[W]";
+        else if (ifcType.Contains("Slab")) icon = "[S]";
+        else if (ifcType.Contains("Column")) icon = "[C]";
+        else if (ifcType.Contains("Beam")) icon = "[B]";
+        else if (ifcType.Contains("Door")) icon = "[D]";
+        else if (ifcType.Contains("Window")) icon = "[Win]";
+        else if (ifcType.Contains("Roof")) icon = "[R]";
+        else if (ifcType.Contains("Stair")) icon = "[St]";
+        else if (ifcType.Contains("Railing")) icon = "[Rl]";
+        else if (ifcType.Contains("Pile") || ifcType.Contains("Footing")) icon = "[F]";
+        else if (ifcType.Contains("Flow") || ifcType.Contains("Pipe")) icon = "[P]";
+        else icon = "[-]";
+
+        _elementIconCache[ifcType] = icon;
+        return icon;
     }
 
     private void RenderModernPropertiesPanel()
@@ -550,9 +575,9 @@ public class UIManager
         if (_selectedElement == null)
             return;
 
-        // Larger window for complete properties (AutoCAD/Revit style)
-        ImGui.SetNextWindowSize(new Vector2(420, 700), ImGuiCond.FirstUseEver);
-        ImGui.SetNextWindowPos(new Vector2(ImGui.GetIO().DisplaySize.X - 440, 120), ImGuiCond.FirstUseEver);
+        var displaySize = ImGui.GetIO().DisplaySize;
+        ImGui.SetNextWindowSize(new Vector2(PROPERTIES_PANEL_WIDTH, PROPERTIES_PANEL_HEIGHT), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowPos(new Vector2(displaySize.X - PROPERTIES_PANEL_WIDTH - PANEL_OFFSET, 120), ImGuiCond.FirstUseEver);
 
         if (ImGui.Begin("📋 Properties Inspector", ref _showProperties))
         {
@@ -606,50 +631,72 @@ public class UIManager
             {
                 if (ImGui.BeginTabItem("📋 All Properties"))
                 {
+                    // Search filter for properties
+                    string propFilter = "";
+                    ImGui.SetNextItemWidth(-1);
+                    ImGui.InputTextWithHint("##PropFilter", "Search properties...", ref propFilter, 100);
+                    ImGui.Spacing();
+
                     // Group properties by category
                     var groupedProps = _selectedElement.Properties
                         .GroupBy(p => GetPropertyCategory(p.Key))
-                        .OrderBy(g => g.Key);
+                        .OrderBy(g => g.Key)
+                        .Take(MAX_PROPERTY_GROUPS);
 
-                    foreach (var group in groupedProps)
+                    if (ImGui.BeginChild("PropertiesScroll", new Vector2(0, 0)))
                     {
-                        if (ImGui.CollapsingHeader(group.Key, ImGuiTreeNodeFlags.DefaultOpen))
+                        foreach (var group in groupedProps)
                         {
-                            if (ImGui.BeginTable($"props_{group.Key}", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp))
+                            if (ImGui.CollapsingHeader(group.Key, ImGuiTreeNodeFlags.DefaultOpen))
                             {
-                                ImGui.TableSetupColumn("Property", ImGuiTableColumnFlags.WidthFixed, 180);
-                                ImGui.TableSetupColumn("Value");
-                                ImGui.TableHeadersRow();
-
-                                foreach (KeyValuePair<string, string> prop in group.OrderBy(p => p.Key))
+                                if (ImGui.BeginTable($"props_{group.Key}", 2, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingStretchProp))
                                 {
-                                    ImGui.TableNextRow();
-                                    ImGui.TableNextColumn();
-                                    ImGui.PushStyleColor(ImGuiCol.Text, ModernTheme.Colors.Text);
-                                    ImGui.TextUnformatted(prop.Key);
-                                    ImGui.PopStyleColor();
+                                    ImGui.TableSetupColumn("Property", ImGuiTableColumnFlags.WidthFixed, 180);
+                                    ImGui.TableSetupColumn("Value");
+                                    ImGui.TableHeadersRow();
 
-                                    ImGui.TableNextColumn();
-                                    ImGui.TextWrapped(prop.Value);
+                                    var properties = string.IsNullOrWhiteSpace(propFilter)
+                                        ? group.OrderBy(p => p.Key)
+                                        : group.Where(p => p.Key.Contains(propFilter, StringComparison.OrdinalIgnoreCase) ||
+                                                          p.Value.Contains(propFilter, StringComparison.OrdinalIgnoreCase))
+                                              .OrderBy(p => p.Key);
 
-                                    // Copy button
-                                    if (ImGui.IsItemHovered())
+                                    foreach (KeyValuePair<string, string> prop in properties)
                                     {
-                                        ImGui.BeginTooltip();
-                                        ImGui.Text("Right-click to copy");
-                                        ImGui.EndTooltip();
+                                        ImGui.TableNextRow();
+                                        ImGui.TableNextColumn();
+                                        ImGui.PushStyleColor(ImGuiCol.Text, ModernTheme.Colors.Text);
+                                        ImGui.TextUnformatted(prop.Key);
+                                        ImGui.PopStyleColor();
 
-                                        if (ImGui.IsMouseClicked(ImGuiMouseButton.Right))
+                                        ImGui.TableNextColumn();
+                                        ImGui.TextWrapped(prop.Value);
+
+                                        // Enhanced tooltips and copy
+                                        if (ImGui.IsItemHovered())
                                         {
-                                            ImGui.SetClipboardText(prop.Value);
-                                            ShowNotification($"Copied: {prop.Key}", NotificationType.Info);
+                                            ImGui.BeginTooltip();
+                                            ImGui.Text("Right-click to copy");
+                                            if (prop.Value.Length > 50)
+                                            {
+                                                ImGui.Separator();
+                                                ImGui.TextWrapped(prop.Value);
+                                            }
+                                            ImGui.EndTooltip();
+
+                                            if (ImGui.IsMouseClicked(ImGuiMouseButton.Right))
+                                            {
+                                                ImGui.SetClipboardText(prop.Value);
+                                                ShowNotification($"Copied: {prop.Key}", NotificationType.Info);
+                                            }
                                         }
                                     }
-                                }
 
-                                ImGui.EndTable();
+                                    ImGui.EndTable();
+                                }
                             }
                         }
+                        ImGui.EndChild();
                     }
                     ImGui.EndTabItem();
                 }
@@ -677,8 +724,9 @@ public class UIManager
         if (_currentModel == null)
             return;
 
-        ImGui.SetNextWindowSize(new Vector2(320, 280), ImGuiCond.FirstUseEver);
-        ImGui.SetNextWindowPos(new Vector2(15, ImGui.GetIO().DisplaySize.Y - 300), ImGuiCond.FirstUseEver);
+        var displaySize = ImGui.GetIO().DisplaySize;
+        ImGui.SetNextWindowSize(new Vector2(STATS_PANEL_WIDTH, STATS_PANEL_HEIGHT), ImGuiCond.FirstUseEver);
+        ImGui.SetNextWindowPos(new Vector2(PANEL_OFFSET - 5, displaySize.Y - STATS_PANEL_HEIGHT - PANEL_OFFSET), ImGuiCond.FirstUseEver);
 
         if (ImGui.Begin("📊 Statistics", ref _showStatistics))
         {

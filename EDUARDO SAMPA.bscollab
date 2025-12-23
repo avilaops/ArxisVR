@@ -1,0 +1,27 @@
+{
+    "bscollab" : {
+        "asset" : {
+            "version" : 1
+        },
+        "modified_date" : "2025-12-22T19:29:02+00:00",
+        "collaboration_global_id" : "3bHjdLKCz2l9BNTF89VLVG",
+        "collaboration_description" : "EDUARDO SAMPA",
+        "application" : {
+            "name" : "CYPECAD",
+            "identifier" : "72:68AB1CF7-53AA-411D-AFF0-3006719A2CB3",
+            "developer_name" : "CYPE Ingenieros S.A.",
+            "developer_identifier" : "7"
+        },
+        "documents" : [
+            {
+                "name" : "EDUARDO SAMPA.ifc",
+                "identification_tag" : "ifc"
+            },
+            {
+                "name" : "EDUARDO SAMPA.bsplcmnt",
+                "identification_tag" : "BIMserver_placement",
+                "hidden" : true
+            }
+        ]
+    }
+}

@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>ArxisVR.Tests</AssemblyName>
+    <RootNamespace>ArxisVR.Tests</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);NU1701;CA1416;CS9193</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DotNetEnv" Version="3.1.1" />
+    <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.1" />
+    <PackageReference Include="Silk.NET.OpenGL" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.OpenXR" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.Windowing" Version="2.22.0" />
+    <PackageReference Include="Silk.NET.Input" Version="2.22.0" />
+    <PackageReference Include="Xbim.Essentials" Version="6.0.563" />
+    <PackageReference Include="Xbim.Geometry.Engine.Interop" Version="5.1.820" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.1" />
+    <PackageReference Include="AWSSDK.Core" Version="4.0.3.6" />
+    <PackageReference Include="Azure.Core" Version="1.50.0" />
+    <PackageReference Include="Azure.Identity" Version="1.17.1" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.79.2" />
+    <PackageReference Include="System.Diagnostics.EventLog" Version="10.0.1" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.1" />
+    <PackageReference Include="System.Windows.Extensions" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reference to main project source files -->
+    <Compile Include="..\Models\*.cs" LinkBase="Shared\Models" />
+    <Compile Include="..\Services\*.cs" LinkBase="Shared\Services" />
+    <Compile Include="..\AI\*.cs" LinkBase="Shared\AI" />
+    <Compile Include="..\Rendering\*.cs" LinkBase="Shared\Rendering" />
+    <Compile Include="..\VR\*.cs" LinkBase="Shared\VR" />
+    <Compile Include="..\Tools\*.cs" LinkBase="Shared\Tools" />
+    <Compile Include="..\UI\*.cs" LinkBase="Shared\UI" />
+    <Compile Include="..\Interaction\*.cs" LinkBase="Shared\Interaction" />
+  </ItemGroup>
+
+</Project>

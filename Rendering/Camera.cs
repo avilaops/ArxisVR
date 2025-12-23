@@ -559,6 +559,58 @@ public class Camera
     }
 
     /// <summary>
+    /// Frames the camera to show the entire model based on its center and size
+    /// </summary>
+    /// <param name="modelCenter">Center point of the model</param>
+    /// <param name="modelSize">Diagonal size of the model bounding box</param>
+    /// <param name="immediate">If true, positions immediately; if false, smoothly transitions</param>
+    public void FrameAll(Vector3 modelCenter, float modelSize, bool immediate = false)
+    {
+        // Switch to orbit mode for better viewing
+        _isOrbitMode = true;
+        _targetPoint = modelCenter;
+
+        // Calculate optimal distance based on FOV and model size
+        // Using a margin of 1.5x to ensure the whole model is visible
+        float halfFov = Fov * 0.5f * (float)Math.PI / 180.0f;
+        float optimalDistance = (modelSize * 1.5f) / (2.0f * MathF.Tan(halfFov));
+
+        // Ensure minimum distance
+        optimalDistance = Math.Max(optimalDistance, modelSize * 0.5f);
+
+        _distance = optimalDistance;
+
+        // Position camera at a nice isometric-style angle (45° yaw, 30° pitch)
+        _yaw = -45.0f;
+        _pitch = 30.0f;
+
+        if (immediate)
+        {
+            UpdateOrbitPosition();
+        }
+        else
+        {
+            // Smooth transition will be handled by Update method
+            UpdateOrbitPosition();
+        }
+
+        Console.WriteLine($"🎯 Camera framed: Center={modelCenter}, Size={modelSize:F2}, Distance={_distance:F2}");
+    }
+
+    /// <summary>
+    /// Frames the camera to a specific bounding box
+    /// </summary>
+    /// <param name="min">Minimum corner of bounding box</param>
+    /// <param name="max">Maximum corner of bounding box</param>
+    /// <param name="immediate">If true, positions immediately; if false, smoothly transitions</param>
+    public void FrameBoundingBox(Vector3 min, Vector3 max, bool immediate = false)
+    {
+        Vector3 center = (min + max) * 0.5f;
+        float size = Vector3.Distance(min, max);
+        FrameAll(center, size, immediate);
+    }
+
+    /// <summary>
     /// Corrects the camera if it's upside down
     /// </summary>
     public void CorrectUpsideDown()
