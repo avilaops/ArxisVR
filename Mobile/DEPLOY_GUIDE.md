@@ -1,4 +1,4 @@
-# 🚀 Guia de Deploy Mobile - Vizzio IFC/BIM/AR
+# 🚀 Guia de Deploy Mobile - ArxisVR IFC/BIM/AR
 
 **Stack**: React Native + Rust (via Tauri Mobile)
 **Target**: iOS 14+ / Android 10+ (API 29+)
@@ -62,8 +62,8 @@
 npm install -g react-native-cli
 
 # Criar projeto
-npx react-native@latest init VizzioBIM
-cd VizzioBIM
+npx react-native@latest init ArxisVRBIM
+cd ArxisVRBIM
 
 # Estrutura
 mkdir -p src/{components,screens,services,utils}
@@ -189,7 +189,7 @@ import Metal
 import MetalKit
 import ARKit
 
-class VizzioRenderer: NSObject, MTKViewDelegate {
+class ArxisVRRenderer: NSObject, MTKViewDelegate {
     let device: MTLDevice
     let commandQueue: MTLCommandQueue
     var pipelineState: MTLRenderPipelineState!
@@ -211,11 +211,11 @@ class VizzioRenderer: NSObject, MTKViewDelegate {
 ### 2.2 Android - Vulkan Renderer
 
 ```kotlin
-// android/app/src/main/kotlin/VizzioRenderer.kt
+// android/app/src/main/kotlin/ArxisVRRenderer.kt
 import android.view.Surface
 import org.lwjgl.vulkan.*
 
-class VizzioRenderer(private val surface: Surface) {
+class ArxisVRRenderer(private val surface: Surface) {
     private lateinit var instance: VkInstance
     private lateinit var device: VkDevice
 
@@ -241,9 +241,9 @@ class VizzioRenderer(private val surface: Surface) {
 // ios/AR/ARViewController.swift
 import ARKit
 
-class VizzioARView: UIViewController, ARSessionDelegate {
+class ArxisVRARView: UIViewController, ARSessionDelegate {
     var arSession: ARSession!
-    var renderer: VizzioRenderer!
+    var renderer: ArxisVRRenderer!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -270,9 +270,9 @@ class VizzioARView: UIViewController, ARSessionDelegate {
 // android/app/src/main/kotlin/ARActivity.kt
 import com.google.ar.core.*
 
-class VizzioARActivity : AppCompatActivity() {
+class ArxisVRARActivity : AppCompatActivity() {
     private lateinit var session: Session
-    private lateinit var renderer: VizzioRenderer
+    private lateinit var renderer: ArxisVRRenderer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -312,10 +312,10 @@ export class BackendClient {
   private client: any;
 
   constructor() {
-    const packageDefinition = protoLoader.loadSync('vizzio.proto');
+    const packageDefinition = protoLoader.loadSync('ArxisVR.proto');
     const proto = grpc.loadPackageDefinition(packageDefinition);
 
-    this.client = new proto.VizzioService(
+    this.client = new proto.ArxisVRService(
       'backend.railway.app:443',
       grpc.credentials.createSsl()
     );
@@ -432,7 +432,7 @@ cd android
 ## ESTRUTURA FINAL
 
 ```
-VizzioBIM/
+ArxisVRBIM/
 ├── package.json
 ├── tsconfig.json
 ├── metro.config.js
@@ -461,7 +461,7 @@ VizzioBIM/
 │       └── spatial.rs
 ├── ios/
 │   ├── Podfile
-│   ├── VizzioBIM/
+│   ├── ArxisVRBIM/
 │   │   ├── AppDelegate.mm
 │   │   └── Info.plist
 │   └── Renderer/
@@ -473,7 +473,7 @@ VizzioBIM/
     │   └── src/main/
     │       ├── kotlin/
     │       │   ├── MainActivity.kt
-    │       │   ├── VizzioRenderer.kt
+    │       │   ├── ArxisVRRenderer.kt
     │       │   └── ARActivity.kt
     │       └── jniLibs/
     └── gradle.properties

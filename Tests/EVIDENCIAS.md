@@ -66,7 +66,7 @@ Análise: 4/4 aprovados
 ⚠️  Aprovado com 1 ressalva(s)
 ══════════════════════════════════════════════════════════════════════
 
-📄 Relatório salvo em: C:\Users\Administrador\source\repos\Vizzio\Tests\TestReport_20251222_154436.md
+📄 Relatório salvo em: C:\Users\Administrador\source\repos\ArxisVR\Tests\TestReport_20251222_154436.md
 ```
 
 ---

@@ -202,7 +202,7 @@ dotnet run --project StandaloneTests.csproj
 ```
 
 **Data:** 22 de Dezembro de 2025
-**Versão:** ArxisVR (Vizzio) - Main Branch
+**Versão:** ArxisVR (ArxisVR) - Main Branch
 **Status:** ✅ **CERTIFICADO E APROVADO**
 
 ---

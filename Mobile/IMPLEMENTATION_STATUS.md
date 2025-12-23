@@ -96,11 +96,11 @@ mobile/
 ### 1. Inicializar React Native (AGORA)
 
 ```bash
-cd d:\vizzio\mobile
+cd d:\ArxisVR\mobile
 npm install
 
 # Se React Native não estiver instalado:
-npx react-native@latest init VizzioBIM --template react-native-template-typescript
+npx react-native@latest init ArxisVRBIM --template react-native-template-typescript
 # Depois mover arquivos para este diretório
 ```
 
@@ -196,7 +196,7 @@ npm run android -- --deviceId=<device_id>
 ### High Priority
 
 - [ ] Native renderer views (Metal/Vulkan)
-- [ ] Proto definitions (vizzio.proto)
+- [ ] Proto definitions (ArxisVR.proto)
 - [ ] Tauri native modules
 - [ ] Touch gesture handling
 - [ ] Camera animations

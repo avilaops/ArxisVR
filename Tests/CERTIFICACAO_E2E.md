@@ -1,7 +1,7 @@
 # 🔒 CERTIFICAÇÃO DE TESTES E2E - ARXISVR
 
 **Data de Execução:** 22 de Dezembro de 2025
-**Versão Testada:** ArxisVR (Vizzio) - Main Branch
+**Versão Testada:** ArxisVR (ArxisVR) - Main Branch
 **Executor:** Sistema Automatizado de Testes
 **Status Final:** ✅ **APROVADO COM RESSALVAS**
 

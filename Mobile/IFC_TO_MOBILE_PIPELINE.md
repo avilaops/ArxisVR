@@ -1702,6 +1702,6 @@ impl AvxbFile {
 
 ---
 
-**Documento mantido por**: Vizzio Core Team  
+**Documento mantido por**: ArxisVR Core Team  
 **Última atualização**: 2025-12-18  
 **Status**: 🟡 Definição completa (implementação pendente)

@@ -198,7 +198,7 @@
 ### Arquitetura Geral
 
 ```
-Vizzio/
+ArxisVR/
 ├── Application/        ✅ Main app controller
 ├── Services/          ✅ IFC parser, cache
 ├── Rendering/         ✅ OpenGL, camera, grid, feedback
@@ -547,7 +547,7 @@ Tests/
 
 ### Status Final
 
-**Vizzio v3.0** está **PRONTO PARA PRODUÇÃO**! 🎉
+**ArxisVR v3.0** está **PRONTO PARA PRODUÇÃO**! 🎉
 
 ### Pontos Fortes
 

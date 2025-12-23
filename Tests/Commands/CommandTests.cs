@@ -63,7 +63,7 @@ public class CommandTests
         var sw = Stopwatch.StartNew();
         try
         {
-            var scriptPath = Path.Combine(_projectRoot, "rename_vizzio_to_arxisvr.ps1");
+            var scriptPath = Path.Combine(_projectRoot, "rename_ArxisVR_to_arxisvr.ps1");
 
             if (!File.Exists(scriptPath))
             {
@@ -91,7 +91,7 @@ public class CommandTests
         var sw = Stopwatch.StartNew();
         try
         {
-            var scriptPath = Path.Combine(_projectRoot, "rename_vizzio_to_arxisvr.ps1");
+            var scriptPath = Path.Combine(_projectRoot, "rename_ArxisVR_to_arxisvr.ps1");
 
             if (!File.Exists(scriptPath))
             {

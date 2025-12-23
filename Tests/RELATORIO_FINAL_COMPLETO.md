@@ -152,7 +152,7 @@
 
 ### **Prioridade 1 - Crítica**
 1. **Corrigir build do projeto principal**
-   - Revisar erros de namespace (Vizzio vs ArxisVR)
+   - Revisar erros de namespace (ArxisVR vs ArxisVR)
    - Verificar dependências no .csproj
    - Garantir que todos os arquivos compilam
 

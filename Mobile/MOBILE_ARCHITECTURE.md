@@ -1,4 +1,4 @@
-# ARQUITETURA MOBILE VIZZIO - IFC/BIM/AR
+# ARQUITETURA MOBILE ArxisVR - IFC/BIM/AR
 **Documento Técnico Definitivo**
 
 > *"Mobile não é engine completa. Mobile é terminal geométrico inteligente."*
@@ -659,6 +659,6 @@ Mobile = Terminal Geométrico Inteligente
 
 ---
 
-**Documento mantido por**: Vizzio Core Team  
+**Documento mantido por**: ArxisVR Core Team  
 **Última atualização**: 2025-12-18  
 **Status**: 🟡 Em consolidação (Fase 1)

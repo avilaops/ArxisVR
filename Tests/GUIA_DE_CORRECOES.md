@@ -37,7 +37,7 @@ dotnet build ArxisVR.csproj --verbosity detailed
 ```
 
 2. Possíveis causas:
-   - Namespace inconsistente (Vizzio vs ArxisVR)
+   - Namespace inconsistente (ArxisVR vs ArxisVR)
    - Dependências quebradas
    - Arquivos faltando
 
@@ -46,13 +46,13 @@ dotnet build ArxisVR.csproj --verbosity detailed
 **Passo 1:** Verificar namespaces
 ```bash
 # Procurar namespaces inconsistentes
-grep -r "namespace Vizzio" .
-grep -r "using Vizzio" .
+grep -r "namespace ArxisVR" .
+grep -r "using ArxisVR" .
 ```
 
 **Passo 2:** Atualizar todos os namespaces
-- Renomear `namespace Vizzio` para `namespace ArxisVR`
-- Renomear `using Vizzio` para `using ArxisVR`
+- Renomear `namespace ArxisVR` para `namespace ArxisVR`
+- Renomear `using ArxisVR` para `using ArxisVR`
 
 **Passo 3:** Limpar e reconstruir
 ```bash
@@ -72,7 +72,7 @@ dotnet run --project CompleteTests.csproj
 
 Antes:
 ```csharp
-namespace Vizzio.Application
+namespace ArxisVR.Application
 {
     public class IfcViewer
     {
