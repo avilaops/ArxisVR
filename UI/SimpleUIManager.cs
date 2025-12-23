@@ -192,40 +192,6 @@ public class SimpleUIManager
                 });
 
                 ImGui.Separator();
-
-            private (Vector4 Background, Vector4 Text, Vector4 Accent) GetStatusPalette(StatusLevel level)
-            {
-                return level switch
-                {
-                    StatusLevel.Success => (new Vector4(0.10f, 0.16f, 0.12f, 0.95f), new Vector4(0.86f, 0.96f, 0.88f, 1f), new Vector4(0.38f, 0.78f, 0.48f, 1f)),
-                    StatusLevel.Warning => (new Vector4(0.16f, 0.14f, 0.08f, 0.95f), new Vector4(0.98f, 0.92f, 0.76f, 1f), new Vector4(0.96f, 0.78f, 0.38f, 1f)),
-                    StatusLevel.Error => (new Vector4(0.18f, 0.10f, 0.10f, 0.95f), new Vector4(0.98f, 0.86f, 0.86f, 1f), new Vector4(0.94f, 0.42f, 0.45f, 1f)),
-                    StatusLevel.Loading => (new Vector4(0.12f, 0.12f, 0.18f, 0.95f), new Vector4(0.92f, 0.94f, 1f, 1f), new Vector4(0.55f, 0.65f, 1f, 1f)),
-                    StatusLevel.Info => (new Vector4(0.11f, 0.13f, 0.18f, 0.95f), new Vector4(0.9f, 0.94f, 1f, 1f), new Vector4(0.4f, 0.6f, 0.95f, 1f)),
-                    _ => (new Vector4(0.08f, 0.09f, 0.12f, 0.95f), new Vector4(0.65f, 0.68f, 0.75f, 1f), new Vector4(0.36f, 0.56f, 0.9f, 1f))
-                };
-            }
-
-            private string GetStatusIcon(StatusLevel level)
-            {
-                return level switch
-                {
-                    StatusLevel.Success => "✓",
-                    StatusLevel.Warning => "!",
-                    StatusLevel.Error => "x",
-                    StatusLevel.Loading => "…",
-                    StatusLevel.Info => "i",
-                    StatusLevel.Idle => "•",
-                    _ => string.Empty
-                };
-            }
-
-            private string GetLoadingIndicator()
-            {
-                var phase = (int)(_statusPulse * 3f) % 3 + 1;
-                return new string('.', phase).PadRight(3, ' ');
-            }
-
                 RenderMenuAction("Exit", "Esc", "Close ArxisVR", () =>
                 {
                     Environment.Exit(0);
@@ -646,6 +612,40 @@ public class SimpleUIManager
         }
         ImGui.End();
     }
+
+    private (Vector4 Background, Vector4 Text, Vector4 Accent) GetStatusPalette(StatusLevel level)
+    {
+        return level switch
+        {
+            StatusLevel.Success => (new Vector4(0.10f, 0.16f, 0.12f, 0.95f), new Vector4(0.86f, 0.96f, 0.88f, 1f), new Vector4(0.38f, 0.78f, 0.48f, 1f)),
+            StatusLevel.Warning => (new Vector4(0.16f, 0.14f, 0.08f, 0.95f), new Vector4(0.98f, 0.92f, 0.76f, 1f), new Vector4(0.96f, 0.78f, 0.38f, 1f)),
+            StatusLevel.Error => (new Vector4(0.18f, 0.10f, 0.10f, 0.95f), new Vector4(0.98f, 0.86f, 0.86f, 1f), new Vector4(0.94f, 0.42f, 0.45f, 1f)),
+            StatusLevel.Loading => (new Vector4(0.12f, 0.12f, 0.18f, 0.95f), new Vector4(0.92f, 0.94f, 1f, 1f), new Vector4(0.55f, 0.65f, 1f, 1f)),
+            StatusLevel.Info => (new Vector4(0.11f, 0.13f, 0.18f, 0.95f), new Vector4(0.9f, 0.94f, 1f, 1f), new Vector4(0.4f, 0.6f, 0.95f, 1f)),
+            _ => (new Vector4(0.08f, 0.09f, 0.12f, 0.95f), new Vector4(0.65f, 0.68f, 0.75f, 1f), new Vector4(0.36f, 0.56f, 0.9f, 1f))
+        };
+    }
+
+    private string GetStatusIcon(StatusLevel level)
+    {
+        return level switch
+        {
+            StatusLevel.Success => "+",
+            StatusLevel.Warning => "!",
+            StatusLevel.Error => "x",
+            StatusLevel.Loading => ">",
+            StatusLevel.Info => "i",
+            StatusLevel.Idle => string.Empty,
+            _ => string.Empty
+        };
+    }
+
+    private string GetLoadingIndicator()
+    {
+        var phase = (int)(_statusPulse * 3f) % 3 + 1;
+        return new string('.', phase).PadRight(3, ' ');
+    }
+
     private void RenderStatusBar()
     {
         var displaySize = ImGui.GetIO().DisplaySize;

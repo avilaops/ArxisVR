@@ -11,6 +11,7 @@ on:
         required: true
         type: string
 
+# Set the AZURE_* repository variables to enable the optional Azure Functions deployment jobs.
 env:
   DOTNET_VERSION: '10.0.x'
 
@@ -25,13 +26,13 @@ jobs:
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       version: ${{ steps.get_version.outputs.version }}
-    
+
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
+
     - name: 🏷️ Get version
       id: get_version
       run: |
@@ -42,13 +43,13 @@ jobs:
         fi
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "Version: $VERSION"
-    
+
     - name: 📝 Generate Release Notes
       id: release_notes
       run: |
         cat > release_notes.md << 'EOF'
         ## 🎉 ArxisVR ${{ steps.get_version.outputs.version }}
-        
+
         ### ✨ Highlights
         - 🎮 Intuitive 3D Navigation with orbital camera
         - 🥽 Full VR Support with teleportation
@@ -56,20 +57,20 @@ jobs:
         - 📐 Visual aids: Grid, Axes, Mini-map, Compass
         - 💫 Rich visual feedback with animations
         - 📚 Interactive 12-step tutorial
-        
+
         ### 📦 Downloads
         Choose your platform below or build from source.
-        
+
         ### 📚 Documentation
         - [Quick Start Guide](https://github.com/avilaops/ArxisVR2/blob/main/docs/QUICK_START.md)
         - [Complete Documentation](https://github.com/avilaops/ArxisVR2/blob/main/docs/INDEX.md)
         - [AI Setup Guide](https://github.com/avilaops/ArxisVR2/blob/main/AI_README.md)
-        
+
         ### 🙏 Credits
         Developed with ❤️ by [Nícolas Ávila](https://github.com/avilaops)
         EOF
         cat release_notes.md
-    
+
     - name: 🚀 Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -96,37 +97,37 @@ jobs:
             build_script: |
               dotnet publish -c Release -r win-x64 --self-contained false -o publish/windows
               Compress-Archive -Path publish/windows/* -DestinationPath ArxisVR-windows-x64.zip
-          
+
           - name: Linux
             os: ubuntu-latest
             artifact: ArxisVR-linux-x64.tar.gz
             build_script: |
               dotnet publish -c Release -r linux-x64 --self-contained false -o publish/linux
               tar -czf ArxisVR-linux-x64.tar.gz -C publish/linux .
-          
+
           - name: macOS
             os: macos-latest
             artifact: ArxisVR-macos-x64.zip
             build_script: |
               dotnet publish -c Release -r osx-x64 --self-contained false -o publish/macos
               cd publish/macos && zip -r ../../ArxisVR-macos-x64.zip . && cd ../..
-    
+
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
-    
+
     - name: 🔧 Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-    
+
     - name: 📦 Restore dependencies
       run: dotnet restore
-    
+
     - name: 🏗️ Build and Package
       shell: bash
       run: ${{ matrix.config.build_script }}
-    
+
     - name: 📤 Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
@@ -136,15 +137,170 @@ jobs:
         asset_path: ./${{ matrix.config.artifact }}
         asset_name: ${{ matrix.config.artifact }}
         asset_content_type: application/octet-stream
-    
+
     - name: ✅ Build Complete
       run: |
         echo "### ✅ ${{ matrix.config.name }} Build Complete" >> $GITHUB_STEP_SUMMARY
         echo "Artifact: ${{ matrix.config.artifact }}" >> $GITHUB_STEP_SUMMARY
 
+  package-function-app:
+    name: 📦 Package Azure Function
+    needs: create-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      FUNCTIONAPP_BUILD_ROOT: build/functionapp
+      FUNCTIONAPP_PACKAGE_FILE: functionapp.zip
+      FUNCTIONAPP_ARTIFACT_NAME: functionapp-package
+    outputs:
+      artifact-name: ${{ steps.package_metadata.outputs.artifact-name }}
+      package-file: ${{ steps.package_metadata.outputs.package-file }}
+      project-found: ${{ steps.resolve_function.outputs.found }}
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔧 Setup .NET for Functions
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: 🔍 Resolve Function project
+      id: resolve_function
+      shell: bash
+      run: |
+        PROJECT_PATH="${AZURE_FUNCTIONAPP_PROJECT:-}"
+        if [ -z "$PROJECT_PATH" ]; then
+          PROJECT_PATH=$(find . -maxdepth 5 -name '*.csproj' -print0 | xargs -0 grep -l 'Microsoft.NET.Sdk.Functions' | head -n 1 || true)
+        fi
+
+        if [ -n "$PROJECT_PATH" ] && [ -f "$PROJECT_PATH" ]; then
+          echo "found=true" >> $GITHUB_OUTPUT
+          echo "project=$PROJECT_PATH" >> $GITHUB_OUTPUT
+          echo "Resolved Azure Functions project: $PROJECT_PATH"
+        else
+          echo "found=false" >> $GITHUB_OUTPUT
+          echo "project=" >> $GITHUB_OUTPUT
+          echo "No Azure Functions project detected. Skipping package." >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: 📦 Restore Function dependencies
+      if: ${{ steps.resolve_function.outputs.found == 'true' }}
+      run: dotnet restore "${{ steps.resolve_function.outputs.project }}"
+
+    - name: 🏗️ Publish Function app
+      if: ${{ steps.resolve_function.outputs.found == 'true' }}
+      run: |
+        mkdir -p "$GITHUB_WORKSPACE/$FUNCTIONAPP_BUILD_ROOT/publish"
+        dotnet publish "${{ steps.resolve_function.outputs.project }}" --configuration Release --output "$GITHUB_WORKSPACE/$FUNCTIONAPP_BUILD_ROOT/publish"
+
+    - name: 🗜️ Archive Function package
+      if: ${{ steps.resolve_function.outputs.found == 'true' }}
+      run: |
+        rm -f "$GITHUB_WORKSPACE/$FUNCTIONAPP_BUILD_ROOT/$FUNCTIONAPP_PACKAGE_FILE"
+        cd "$GITHUB_WORKSPACE/$FUNCTIONAPP_BUILD_ROOT/publish"
+        zip -r "$GITHUB_WORKSPACE/$FUNCTIONAPP_BUILD_ROOT/$FUNCTIONAPP_PACKAGE_FILE" .
+
+    - name: 📡 Upload Function package artifact
+      if: ${{ steps.resolve_function.outputs.found == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.FUNCTIONAPP_ARTIFACT_NAME }}
+        path: ${{ env.FUNCTIONAPP_BUILD_ROOT }}/${{ env.FUNCTIONAPP_PACKAGE_FILE }}
+
+    - name: 🗒️ Function package summary
+      if: ${{ steps.resolve_function.outputs.found == 'true' }}
+      run: |
+        echo "### 📦 Azure Function package ready" >> $GITHUB_STEP_SUMMARY
+        echo "Artifact: $FUNCTIONAPP_ARTIFACT_NAME" >> $GITHUB_STEP_SUMMARY
+        echo "Package file: $FUNCTIONAPP_PACKAGE_FILE" >> $GITHUB_STEP_SUMMARY
+
+    - name: 🔖 Capture package metadata
+      if: ${{ steps.resolve_function.outputs.found == 'true' }}
+      id: package_metadata
+      run: |
+        echo "artifact-name=$FUNCTIONAPP_ARTIFACT_NAME" >> $GITHUB_OUTPUT
+        echo "package-file=$FUNCTIONAPP_PACKAGE_FILE" >> $GITHUB_OUTPUT
+
+  deploy-function-app:
+    name: 🚀 Deploy Azure Function
+    needs: package-function-app
+    if: ${{ needs.package-function-app.result == 'success' && needs.package-function-app.outputs['project-found'] == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      FUNCTIONAPP_ARTIFACT_NAME: ${{ needs.package-function-app.outputs['artifact-name'] }}
+      FUNCTIONAPP_PACKAGE_FILE: ${{ needs.package-function-app.outputs['package-file'] }}
+    outputs:
+      deployment-started: ${{ steps.validate_azure.outputs.deploy }}
+
+    steps:
+    - name: 🔐 Validate Azure credentials
+      id: validate_azure
+      shell: bash
+      run: |
+        missing=0
+        for var in AZURE_FUNCTIONAPP_NAME AZURE_CLIENT_ID AZURE_TENANT_ID AZURE_SUBSCRIPTION_ID; do
+          value="${!var}"
+          if [ -z "$value" ]; then
+            echo "Missing $var" >> $GITHUB_STEP_SUMMARY
+            missing=$((missing+1))
+          else
+            printf '%s=%s\n' "$var" "$value" >> "$GITHUB_ENV"
+          fi
+        done
+
+        if [ $missing -gt 0 ]; then
+          echo "deploy=false" >> $GITHUB_OUTPUT
+          echo "⚠️ Azure Function deployment skipped: configure AZURE_* secrets." >> $GITHUB_STEP_SUMMARY
+        else
+          echo "deploy=true" >> $GITHUB_OUTPUT
+          printf 'client-id=%s\n' "$AZURE_CLIENT_ID" >> "$GITHUB_OUTPUT"
+          printf 'tenant-id=%s\n' "$AZURE_TENANT_ID" >> "$GITHUB_OUTPUT"
+          printf 'subscription-id=%s\n' "$AZURE_SUBSCRIPTION_ID" >> "$GITHUB_OUTPUT"
+          printf 'function-app=%s\n' "$AZURE_FUNCTIONAPP_NAME" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: 📥 Download Function package
+      if: ${{ steps.validate_azure.outputs.deploy == 'true' }}
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ env.FUNCTIONAPP_ARTIFACT_NAME }}
+        path: functionapp-package
+
+    - name: 🔐 Log in to Azure (OIDC)
+      if: ${{ steps.validate_azure.outputs.deploy == 'true' }}
+      uses: azure/login@v2
+      with:
+        client-id: ${{ steps.validate_azure.outputs.client-id }}
+        tenant-id: ${{ steps.validate_azure.outputs.tenant-id }}
+        subscription-id: ${{ steps.validate_azure.outputs.subscription-id }}
+
+    - name: 🌐 Deploy package to Azure Functions
+      if: ${{ steps.validate_azure.outputs.deploy == 'true' }}
+      uses: Azure/functions-action@v1
+      with:
+        app-name: ${{ steps.validate_azure.outputs['function-app'] }}
+        package: functionapp-package/${{ env.FUNCTIONAPP_PACKAGE_FILE }}
+        respect-funcignore: true
+
+    - name: ✅ Deployment summary
+      if: ${{ steps.validate_azure.outputs.deploy == 'true' }}
+      run: |
+        echo "### ✅ Azure Function deployment completed" >> $GITHUB_STEP_SUMMARY
+        echo "App: $AZURE_FUNCTIONAPP_NAME" >> $GITHUB_STEP_SUMMARY
+
   notify:
     name: 📢 Notify Release
-    needs: [create-release, build-and-upload]
+    needs:
+      - create-release
+      - build-and-upload
+      - package-function-app
+      - deploy-function-app
     runs-on: ubuntu-latest
     steps:
     - name: 🎉 Release Complete
@@ -154,5 +310,26 @@ jobs:
         echo "✅ Windows build uploaded" >> $GITHUB_STEP_SUMMARY
         echo "✅ Linux build uploaded" >> $GITHUB_STEP_SUMMARY
         echo "✅ macOS build uploaded" >> $GITHUB_STEP_SUMMARY
+
+        if [ "${{ needs.package-function-app.result }}" = "skipped" ]; then
+          echo "ℹ️ Azure Function packaging job skipped" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.package-function-app.outputs['project-found'] }}" = "true" ]; then
+          echo "✅ Azure Function package created" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.package-function-app.outputs['project-found'] }}" = "false" ]; then
+          echo "ℹ️ Azure Function packaging skipped (no Functions project detected)" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Azure Function packaging encountered an issue" >> $GITHUB_STEP_SUMMARY
+        fi
+
+        if [ "${{ needs.deploy-function-app.result }}" = "skipped" ]; then
+          echo "ℹ️ Azure Function deployment job skipped" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.deploy-function-app.outputs['deployment-started'] }}" = "true" ]; then
+          echo "✅ Azure Function deployment updated" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ needs.deploy-function-app.outputs['deployment-started'] }}" = "false" ]; then
+          echo "ℹ️ Azure Function deployment skipped (configure AZURE_* secrets for OIDC)" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Azure Function deployment encountered an issue" >> $GITHUB_STEP_SUMMARY
+        fi
+
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "🔗 [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ needs.create-release.outputs.version }})" >> $GITHUB_STEP_SUMMARY

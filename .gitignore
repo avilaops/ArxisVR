@@ -372,3 +372,5 @@ build.log
 *.ifc
 screenshots/
 exports/
+parameters.json
+template.json
