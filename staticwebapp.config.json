@@ -1,0 +1,32 @@
+{
+  "routes": [
+    {
+      "route": "/*",
+      "serve": "/index.html",
+      "statusCode": 200
+    }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/*.{css,js,json,wasm,ifc,glb,gltf}"]
+  },
+  "mimeTypes": {
+    ".wasm": "application/wasm",
+    ".json": "application/json",
+    ".ifc": "application/octet-stream",
+    ".glb": "model/gltf-binary",
+    ".gltf": "model/gltf+json"
+  },
+  "globalHeaders": {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "SAMEORIGIN",
+    "X-XSS-Protection": "1; mode=block",
+    "Cache-Control": "public, max-age=31536000, immutable"
+  },
+  "platform": {
+    "apiRuntime": "node:18"
+  }
+}
