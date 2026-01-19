@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npx tsc && npx vite build",
+    "build": "npx vite build",
     "preview": "vite preview",
     "build:azure": "npm run build && npm run postbuild",
     "postbuild": "echo Build completed successfully",
@@ -15,6 +15,7 @@
     "avx-render": "file:../../Avx-Core/categories/rendering/avx-render/pkg",
     "camera-controls": "^2.8.3",
     "dat.gui": "^0.7.9",
+    "express": "^5.2.1",
     "stats.js": "^0.17.0",
     "three": "^0.160.0",
     "web-ifc": "^0.0.74",

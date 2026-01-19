@@ -8,6 +8,9 @@ import { LayerManager } from './LayerManager';
 import { registerAllCommandHandlers } from '../commands';
 import { menuManager } from '../menu';
 
+// IFC Loader import
+import { IFCLoader } from '../loaders/IFCLoader';
+
 /**
  * AppController - Controlador principal do ArxisVR
  * Orquestra todos os gerenciadores e coordena a lógica de negócio
@@ -23,6 +26,9 @@ public readonly projectSerializer: ProjectSerializer;
 public readonly selectionManager: SelectionManager;
 public readonly navigationManager: NavigationManager;
 public readonly layerManager: LayerManager;
+
+// IFC Loader reference
+private ifcLoader: IFCLoader | null = null;
   
 // Renderer reference for quality settings
 private _renderer: THREE.WebGLRenderer | null = null;
@@ -60,10 +66,12 @@ private constructor() {
   public setEngineReferences(
     scene: THREE.Scene,
     _camera: THREE.Camera,
-    renderer: THREE.WebGLRenderer
+    renderer: THREE.WebGLRenderer,
+    ifcLoader?: IFCLoader
   ): void {
     this._renderer = renderer;
     this.layerManager.setScene(scene);
+    this.ifcLoader = ifcLoader || null;
   }
 
   // ==================== State Management ====================
@@ -794,6 +802,25 @@ private constructor() {
         return { success: true, message: 'Showed about dialog' };
       default:
         return { success: false, error: `Unknown help command: ${commandId}` };
+    }
+  }
+
+  // ==================== IFC Properties ====================
+
+  /**
+   * Obtém propriedades IFC de um elemento
+   */
+  public async getIFCProperties(modelID: number, expressID: number): Promise<any> {
+    if (!this.ifcLoader) {
+      console.warn('IFCLoader not available');
+      return null;
+    }
+    
+    try {
+      return await this.ifcLoader.getAllProperties(modelID, expressID);
+    } catch (error) {
+      console.error('Error getting IFC properties:', error);
+      return null;
     }
   }
 

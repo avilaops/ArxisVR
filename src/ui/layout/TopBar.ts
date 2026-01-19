@@ -581,13 +581,6 @@ private container: HTMLElement;
   }
 
   /**
-   * Atualiza estado visual
-   */
-  public update(): void {
-    this.updateButtonStates();
-  }
-  
-  /**
    * Atualiza estados dos botões XR e Network baseado no AppState
    */
   private updateButtonStates(): void {

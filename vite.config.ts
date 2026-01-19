@@ -4,30 +4,15 @@ import wasm from 'vite-plugin-wasm';
 export default defineConfig({
   plugins: [wasm()],
 
-  // Base path (importante para Azure e caminhos especiais)
-  base: './',
-
-  // Otimizações para produção
+  // Definir entrada explicitamente
   build: {
-    target: 'esnext',
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: false, // Manter console para debug em produção
-        drop_debugger: true,
-      },
-    },
     rollupOptions: {
-      output: {
-        manualChunks: {
-          'three': ['three'],
-          'web-ifc': ['web-ifc-three'],
-        },
-      },
-    },
-    chunkSizeWarningLimit: 1000,
-    assetsInlineLimit: 4096,
+      input: './index.html'
+    }
   },
+
+  // Base path - tentar resolver problemas de caminho
+  base: '/',
 
   // Configurações de servidor
   server: {
@@ -36,8 +21,12 @@ export default defineConfig({
     host: true,
     fs: {
       // Permitir acesso a arquivos fora do root
-      allow: ['../../']
-    }
+      allow: ['../../'],
+      // Strict mode off para permitir caracteres especiais
+      strict: false
+    },
+    // Headers para CORS
+    cors: true
   },
 
   // Configurações de preview (para testar build)

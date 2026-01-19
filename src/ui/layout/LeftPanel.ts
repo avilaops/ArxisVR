@@ -456,9 +456,9 @@ export class LeftPanel {
           <span>${state.currentProject.name || 'Untitled Project'}</span>
         </div>
         ${state.loadedModels.map(model => `
-          <div class="project-tree-item" data-model="${model.id}">
+          <div class="project-tree-item" data-model="${model.assetId}">
             <span class="project-tree-icon">🏗️</span>
-            <span>${model.name || model.id}</span>
+            <span>${model.fileName || model.assetId}</span>
           </div>
         `).join('')}
       </div>
@@ -496,10 +496,10 @@ export class LeftPanel {
     const state = appController.getState();
     
     return state.loadedModels.map(model => `
-      <div class="hierarchy-item" data-object="${model.id}">
+      <div class="hierarchy-item" data-object="${model.assetId}">
         <span class="hierarchy-expand">▼</span>
         <span class="hierarchy-icon">📦</span>
-        <span>${model.name || model.id}</span>
+        <span>${model.fileName || model.assetId}</span>
       </div>
     `).join('');
   }
@@ -530,7 +530,7 @@ export class LeftPanel {
     this.container.querySelectorAll('[data-model]').forEach(item => {
       item.addEventListener('click', () => {
         const modelId = (item as HTMLElement).dataset.model;
-        eventBus.emit(EventType.MODEL_SELECTED, { modelId });
+        eventBus.emit(EventType.MODEL_SELECTED, { modelID: parseInt(modelId!) });
       });
     });
     
@@ -538,7 +538,8 @@ export class LeftPanel {
     this.container.querySelectorAll('[data-object]').forEach(item => {
       item.addEventListener('click', () => {
         const objectId = (item as HTMLElement).dataset.object;
-        eventBus.emit(EventType.OBJECT_SELECTED, { objectId });
+        // TODO: Implement proper object selection from hierarchy
+        console.log('Hierarchy item clicked:', objectId);
       });
     });
   }

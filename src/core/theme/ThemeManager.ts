@@ -142,20 +142,24 @@ export class ThemeManager {
    */
   public setupHotReload(): void {
     if (import.meta.hot) {
-      // Aceita mudanças em temas
-      import.meta.hot.accept('./themes/*.json', (newModules) => {
-        console.log('🔥 Theme hot-reload triggered');
-        
-        if (newModules) {
-          Object.keys(newModules).forEach(modulePath => {
-            const themeId = this.extractThemeIdFromPath(modulePath);
-            if (themeId) {
-              this.reloadTheme(themeId).catch(err => {
-                console.error('Failed to reload theme:', err);
-              });
-            }
-          });
-        }
+      // Aceita mudanças em temas específicos
+      import.meta.hot.accept('./themes/default.json', (newModule) => {
+        if (newModule) this.reloadTheme('default').catch(console.error);
+      });
+      import.meta.hot.accept('./themes/dark.json', (newModule) => {
+        if (newModule) this.reloadTheme('dark').catch(console.error);
+      });
+      import.meta.hot.accept('./themes/ocean.json', (newModule) => {
+        if (newModule) this.reloadTheme('ocean').catch(console.error);
+      });
+      import.meta.hot.accept('./themes/forest.json', (newModule) => {
+        if (newModule) this.reloadTheme('forest').catch(console.error);
+      });
+      import.meta.hot.accept('./themes/sunset.json', (newModule) => {
+        if (newModule) this.reloadTheme('sunset').catch(console.error);
+      });
+      import.meta.hot.accept('./themes/highContrast.json', (newModule) => {
+        if (newModule) this.reloadTheme('highContrast').catch(console.error);
       });
       
       console.log('🔥 Vite HMR enabled for themes');

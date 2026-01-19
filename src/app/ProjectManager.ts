@@ -244,10 +244,40 @@ export class ProjectManager {
   }
 
   /**
-   * Obtém Work Package por ID
+   * Atualiza um Work Package
    */
-  public getWorkPackage(id: string): WorkPackage | undefined {
-    return this.workPackages.get(id);
+  public updateWorkPackage(id: string, updates: Partial<Pick<WorkPackage, 'name' | 'description' | 'dueDate'>>): boolean {
+    const workPackage = this.workPackages.get(id);
+    if (!workPackage) return false;
+
+    if (updates.name !== undefined) workPackage.name = updates.name;
+    if (updates.description !== undefined) workPackage.description = updates.description;
+    if (updates.dueDate !== undefined) workPackage.dueDate = updates.dueDate;
+    
+    workPackage.modified = new Date();
+    
+    console.log(`📦 Work Package ${workPackage.name} atualizado`);
+    eventBus.emit(EventType.PROJECT_UPDATED, { workPackageUpdated: id });
+    return true;
+  }
+
+  /**
+   * Remove um Work Package
+   */
+  public deleteWorkPackage(id: string): boolean {
+    const workPackage = this.workPackages.get(id);
+    if (!workPackage) return false;
+
+    // Remove containers associados
+    workPackage.informationContainers.forEach(container => {
+      this.informationContainers.delete(container.id);
+    });
+
+    this.workPackages.delete(id);
+    
+    console.log(`📦 Work Package removido: ${workPackage.name}`);
+    eventBus.emit(EventType.PROJECT_UPDATED, { workPackageDeleted: id });
+    return true;
   }
 
   /**
@@ -262,6 +292,65 @@ export class ProjectManager {
    */
   public getInformationContainer(id: string): InformationContainer | undefined {
     return this.informationContainers.get(id);
+  }
+
+  /**
+   * Cria um novo Information Container
+   */
+  public createInformationContainer(name: string, type: InformationContainerType, status: BIMStatusCode = BIMStatusCode.WIP): InformationContainer {
+    const container: InformationContainer = {
+      id: this.generateId(),
+      name,
+      type,
+      status,
+      version: '1.0',
+      created: new Date(),
+      modified: new Date(),
+      metadata: {}
+    };
+
+    this.informationContainers.set(container.id, container);
+    console.log(`📄 Information Container criado: ${name} (Tipo: ${type})`);
+    
+    eventBus.emit(EventType.PROJECT_UPDATED, { containerCreated: container.id });
+    return container;
+  }
+
+  /**
+   * Atualiza um Information Container
+   */
+  public updateInformationContainer(id: string, updates: Partial<Pick<InformationContainer, 'name' | 'version' | 'metadata'>>): boolean {
+    const container = this.informationContainers.get(id);
+    if (!container) return false;
+
+    if (updates.name !== undefined) container.name = updates.name;
+    if (updates.version !== undefined) container.version = updates.version;
+    if (updates.metadata !== undefined) container.metadata = { ...container.metadata, ...updates.metadata };
+    
+    container.modified = new Date();
+    
+    console.log(`📄 Information Container ${container.name} atualizado`);
+    eventBus.emit(EventType.PROJECT_UPDATED, { containerUpdated: id });
+    return true;
+  }
+
+  /**
+   * Remove um Information Container
+   */
+  public deleteInformationContainer(id: string): boolean {
+    const container = this.informationContainers.get(id);
+    if (!container) return false;
+
+    // Remove do work package se estiver associado
+    for (const wp of this.workPackages.values()) {
+      wp.informationContainers = wp.informationContainers.filter(c => c.id !== id);
+    }
+
+    this.informationContainers.delete(id);
+    
+    console.log(`📄 Information Container removido: ${container.name}`);
+    eventBus.emit(EventType.PROJECT_UPDATED, { containerDeleted: id });
+    return true;
   }
 
   /**

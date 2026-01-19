@@ -113,7 +113,8 @@ export class UI {
   }
 
   /**
-   * Atualiza UI (chamado a cada frame)
+   * Update UI components (FASE 5)
+   * Deve ser chamado no render loop
    */
   public update(_delta?: number): void {
     // Atualiza FPS (legacy) se delta for fornecido
@@ -131,83 +132,6 @@ export class UI {
     if (this.topBar) {
       this.topBar.update();
     }
-  }
-
-  /**
-   * Toggle visibilidade geral da UI
-   */
-  private toggleUI(): void {
-    this.uiVisible = !this.uiVisible;
-    
-    if (this.topBar) {
-      this.topBar.setVisible(this.uiVisible);
-    }
-    
-    if (this.leftPanel) {
-      this.leftPanel.setVisible(this.uiVisible);
-    }
-    
-    if (this.rightInspector) {
-      this.rightInspector.setVisible(this.uiVisible);
-    }
-    
-    if (this.bottomDock) {
-      this.bottomDock.setVisible(this.uiVisible);
-    }
-    
-    // Toggle legacy elements
-    const controlsInfo = document.getElementById('controls-info');
-    const statsPanel = document.getElementById('stats-panel');
-    
-    if (controlsInfo) {
-      controlsInfo.style.display = this.uiVisible ? 'block' : 'none';
-    }
-    
-    if (statsPanel) {
-      statsPanel.style.display = this.uiVisible ? 'block' : 'none';
-    }
-    
-    console.log(`UI visibility: ${this.uiVisible ? 'visible' : 'hidden'}`);
-  }
-
-  /**
-   * Toggle LeftPanel
-   */
-  private toggleLeftPanel(): void {
-    if (this.leftPanel) {
-      this.leftPanel.toggleVisibility();
-    }
-  }
-
-  /**
-   * Toggle RightInspector
-   */
-  private toggleRightInspector(): void {
-    if (this.rightInspector) {
-      this.rightInspector.toggle();
-    }
-  }
-
-  /**
-   * Mostra/esconde UI (legacy)
-   */
-  public setVisible(visible: boolean): void {
-    this.uiVisible = visible;
-    this.toggleUI();
-  }
-  
-  /**
-   * Update UI components (FASE 5)
-   * Deve ser chamado no render loop
-   */
-  public update(): void {
-    if (this.topBar) {
-      this.topBar.update();
-    }
-    
-    // Update FPS (legacy)
-    if (this.fpsElement) {
-      // FPS will be updated by main render loop
     }
   }
 
