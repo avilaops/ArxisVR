@@ -3,6 +3,9 @@ import * as THREE from 'three';
 import { IFCLoader as ThreeIFCLoader } from 'web-ifc-three';
 import { LODSystem } from '../systems/LODSystem';
 import { eventBus, EventType } from '../core';
+import { EntityManager, TransformComponent, MeshComponent, LODComponent } from '../engine/ecs';
+import { ScaleManager } from '../engine/ScaleManager';
+import { CoordinateSystem } from '../engine/CoordinateSystem';
 
 /**
  * IFC Loader otimizado
@@ -13,14 +16,22 @@ export class IFCLoader {
   private loader: ThreeIFCLoader;
   private lodSystem: LODSystem;
   private layerManager: any | null = null;
+  private entityManager: EntityManager;
   private loadedModels: THREE.Object3D[] = [];
   private loadingCallbacks: Map<string, (progress: number) => void> = new Map();
-  private currentModelID: number = 0; // Armazena o ID do modelo atual
+  private onEntitiesCreated?: () => void;
+  private scaleManager: ScaleManager;
+  private coordinateSystem: CoordinateSystem;
+  private currentModelID: number = 0;
 
-  constructor(scene: THREE.Scene, lodSystem: LODSystem, layerManager?: any) {
+  constructor(scene: THREE.Scene, lodSystem: LODSystem, entityManager: EntityManager, onEntitiesCreated?: () => void, layerManager?: any) {
     this.scene = scene;
     this.lodSystem = lodSystem;
+    this.entityManager = entityManager;
+    this.onEntitiesCreated = onEntitiesCreated;
     this.layerManager = layerManager || null;
+    this.scaleManager = ScaleManager.getInstance();
+    this.coordinateSystem = CoordinateSystem.getInstance();
     this.loader = new ThreeIFCLoader();
     
     this.setupLoader();
@@ -113,6 +124,12 @@ export class IFCLoader {
     const modelID = (model as any).modelID || this.currentModelID;
     console.log(`📋 Modelo IFC carregado - ID: ${modelID}`);
     
+    // Configura unidades métricas baseado no IFC
+    this.configureMetricScale(model);
+    
+    // Aplica escala métrica ao modelo
+    this.scaleManager.applyScale(model);
+    
     // Cria layers automáticos por tipo IFC se LayerManager disponível
     const layersByType = new Map<string, string>();
     
@@ -162,6 +179,14 @@ export class IFCLoader {
     this.scene.add(model);
     this.loadedModels.push(model);
     
+    // Cria entidades ECS para meshes IFC
+    this.createECSEntitiesForModel(model);
+    
+    // Notifica sistemas que novas entidades foram criadas
+    if (this.onEntitiesCreated) {
+      this.onEntitiesCreated();
+    }
+    
     // Incrementa modelID para próximo modelo
     this.currentModelID++;
     
@@ -173,7 +198,7 @@ export class IFCLoader {
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
     
-    console.log('📦 Dimensões do modelo (escala 1:1):');
+    console.log('📦 Dimensões do modelo (precisão métrica 1:1):');
     console.log(`   Largura: ${size.x.toFixed(2)}m`);
     console.log(`   Altura: ${size.y.toFixed(2)}m`);
     console.log(`   Profundidade: ${size.z.toFixed(2)}m`);
@@ -185,6 +210,72 @@ export class IFCLoader {
     
     // Atualiza UI
     this.updateModelInfo(model);
+  }
+
+  /**
+   * Configura escala métrica baseada no arquivo IFC
+   */
+  private configureMetricScale(model: THREE.Object3D): void {
+    try {
+      // Tenta obter informações de unidades do IFC
+      const ifcData = this.extractIFCData(model);
+      this.scaleManager.setUnitsFromIFC(ifcData);
+      
+      // Configura sistema de coordenadas
+      this.coordinateSystem.loadFromIFC(ifcData);
+      
+      // Valida medições após aplicação da escala
+      this.scaleManager.validateMeasurements(model);
+      
+    } catch (error) {
+      console.warn('⚠️ Não foi possível configurar escala métrica automaticamente:', error);
+      console.log('📏 Usando escala padrão (1 unidade = 1 metro)');
+    }
+  }
+
+  /**
+   * Extrai dados IFC do modelo carregado
+   */
+  private extractIFCData(model: THREE.Object3D): any {
+    // Tenta acessar dados IFC através do loader
+    const modelID = (model as any).modelID;
+    if (modelID !== undefined && this.loader.ifcManager) {
+      try {
+        // Tenta obter informações do projeto IFC
+        const project = this.loader.ifcManager.getSpatialStructure(modelID);
+        if (project) {
+          return {
+            units: this.detectIFCUnits(modelID),
+            project: project
+          };
+        }
+      } catch (error) {
+        console.warn('Erro ao extrair dados IFC:', error);
+      }
+    }
+
+    // Fallback: retorna dados básicos
+    return {
+      units: { type: 'MILLIMETRE' } // Assume milímetros como padrão
+    };
+  }
+
+  /**
+   * Detecta unidades do arquivo IFC
+   */
+  private detectIFCUnits(modelID: number): any {
+    try {
+      // Tenta obter unidades do projeto IFC
+      const units = this.loader.ifcManager.getUnits(modelID);
+      if (units && units.length > 0) {
+        return units[0]; // Retorna primeira unidade encontrada
+      }
+    } catch (error) {
+      console.warn('Erro ao detectar unidades IFC:', error);
+    }
+
+    // Fallback
+    return { type: 'MILLIMETRE' };
   }
 
   /**
@@ -438,6 +529,42 @@ export class IFCLoader {
   public clear(): void {
     this.loadedModels.forEach(model => this.removeModel(model));
     this.loadedModels = [];
+  }
+
+  /**
+   * Cria entidades ECS para meshes do modelo IFC
+   */
+  private createECSEntitiesForModel(model: THREE.Object3D): void {
+    model.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.userData.expressID) {
+        // Converte coordenadas locais para globais
+        const globalPosition = this.coordinateSystem.localToGlobal(child.position.clone());
+        
+        // Cria entidade para este mesh
+        const entity = this.entityManager.createEntity();
+
+        // Adiciona componentes com coordenadas globais
+        entity.addComponent(new TransformComponent(globalPosition, child.rotation.clone(), child.scale.clone()));
+        entity.addComponent(new MeshComponent(child));
+        entity.addComponent(new LODComponent(0, 100)); // LOD básico
+
+        console.log(`🆕 Entidade ECS criada para mesh IFC: ${child.userData.expressID} at (${globalPosition.x.toFixed(2)}, ${globalPosition.y.toFixed(2)}, ${globalPosition.z.toFixed(2)})`);
+      }
+    });
+  }
+
+  /**
+   * Obtém estatísticas de escala métrica
+   */
+  public getScaleStats() {
+    return this.scaleManager.getScaleStats();
+  }
+
+  /**
+   * Obtém estatísticas do sistema de coordenadas
+   */
+  public getCoordinateStats() {
+    return this.coordinateSystem.getStats();
   }
 
   public dispose(): void {

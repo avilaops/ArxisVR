@@ -29,7 +29,7 @@ export class IFCLoader {
 
   private setupLoader(): void {
     // Define o caminho dos arquivos WASM - usando CDN para garantir que funcione
-    this.loader.ifcManager.setWasmPath('https://cdn.jsdelivr.net/npm/web-ifc@0.0.52/');
+    this.loader.ifcManager.setWasmPath('https://cdn.jsdelivr.net/npm/web-ifc@0.0.74/');
     
     // Otimizações de memória
     this.loader.ifcManager.applyWebIfcConfig({
@@ -42,44 +42,71 @@ export class IFCLoader {
    * Carrega arquivo IFC
    */
   public async loadIFC(file: File): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const url = URL.createObjectURL(file);
-      
-      // Callback de progresso
-      const onProgress = (event: ProgressEvent) => {
-        const progress = (event.loaded / event.total) * 100;
-        this.updateLoadingProgress(progress);
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Detecta versão IFC antes do carregamento
+        const ifcVersion = await this.detectIFCVersion(file);
+        console.log(`📋 Detectada versão IFC: ${ifcVersion}`);
         
-        const callback = this.loadingCallbacks.get(file.name);
-        if (callback) callback(progress);
-      };
+        // Valida suporte à versão
+        if (!this.isSupportedIFCVersion(ifcVersion)) {
+          throw new Error(`Versão IFC não suportada: ${ifcVersion}. Suportadas: IFC2X3, IFC4, IFC4X3`);
+        }
+        
+        const url = URL.createObjectURL(file);
+        
+        // Callback de progresso
+        const onProgress = (event: ProgressEvent) => {
+          const progress = (event.loaded / event.total) * 100;
+          this.updateLoadingProgress(progress);
+          
+          const callback = this.loadingCallbacks.get(file.name);
+          if (callback) callback(progress);
+        };
 
-      // Callback de erro
-      const onError = (error: ErrorEvent) => {
-        console.error('❌ Erro ao carregar IFC:', error);
-        URL.revokeObjectURL(url);
-        reject(error);
-      };
-
-      // Carrega o modelo
-      this.loader.load(
-        url,
-        (model) => {
-          console.log('✅ IFC carregado com sucesso!');
-          this.processLoadedModel(model);
+        // Callback de erro
+        const onError = (error: ErrorEvent) => {
+          console.error('❌ Erro ao carregar IFC:', error);
           URL.revokeObjectURL(url);
-          resolve();
-        },
-        onProgress,
-        onError
-      );
+          reject(error);
+        };
+
+        // Carrega o modelo
+        this.loader.load(
+          url,
+          async (model) => {
+            console.log('✅ IFC carregado com sucesso!');
+            
+            // Valida schema IFC
+            const isValid = await this.validateIFCSchema(ifcVersion);
+            if (!isValid) {
+              console.warn('⚠️ Modelo IFC pode ter problemas de conformidade');
+            }
+
+            // Verifica compliance OpenBIM
+            const complianceResult = await this.checkOpenBIMCompliance(ifcVersion);
+            if (!complianceResult.compliant) {
+              console.warn('⚠️ Modelo IFC não está totalmente compliant com OpenBIM');
+              console.warn('📋 Issues:', complianceResult.issues);
+            }
+            
+            this.processLoadedModel(model, ifcVersion);
+            URL.revokeObjectURL(url);
+            resolve();
+          },
+          onProgress,
+          onError
+        );
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 
   /**
    * Processa modelo carregado aplicando otimizações
    */
-  private processLoadedModel(model: THREE.Object3D): void {
+  private processLoadedModel(model: THREE.Object3D, ifcVersion: string): void {
     // Obtém o modelID do modelo carregado
     const modelID = (model as any).modelID || this.currentModelID;
     console.log(`📋 Modelo IFC carregado - ID: ${modelID}`);
@@ -410,9 +437,308 @@ export class IFCLoader {
     this.loadedModels = [];
   }
 
-  public dispose(): void {
-    this.clear();
-    this.loader.ifcManager.dispose();
-    this.loadingCallbacks.clear();
+  /**
+   * Detecta versão IFC do arquivo
+   */
+  private async detectIFCVersion(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const content = event.target?.result as string;
+          const lines = content.split('\n');
+          
+          // Procura pela linha HEADER
+          for (const line of lines) {
+            if (line.includes('FILE_SCHEMA')) {
+              if (line.includes('IFC2X3')) {
+                resolve('IFC2X3');
+                return;
+              } else if (line.includes('IFC4X3')) {
+                resolve('IFC4X3');
+                return;
+              } else if (line.includes('IFC4')) {
+                resolve('IFC4');
+                return;
+              }
+            }
+          }
+          
+          // Se não encontrou, assume IFC4 como padrão
+          resolve('IFC4');
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = () => reject(new Error('Erro ao ler arquivo IFC'));
+      
+      // Lê apenas o início do arquivo para detectar versão
+      const blob = file.slice(0, 1024 * 10); // 10KB deve ser suficiente
+      reader.readAsText(blob);
+    });
+  }
+
+  /**
+   * Valida schema IFC básico
+   */
+  private async validateIFCSchema(ifcVersion: string): Promise<boolean> {
+    try {
+      // Verifica se há elementos básicos no modelo
+      const spatialStructure = await this.loader.ifcManager.getSpatialStructure(0);
+      
+      if (!spatialStructure || spatialStructure.children.length === 0) {
+        console.warn('⚠️ Estrutura espacial IFC vazia ou inválida');
+        return false;
+      }
+      
+      // Verifica se há pelo menos um projeto
+      const projects = spatialStructure.children.filter((child: any) => 
+        child.type === 'IFCPROJECT'
+      );
+      
+      if (projects.length === 0) {
+        console.warn('⚠️ Nenhum projeto IFC encontrado');
+        return false;
+      }
+      
+      console.log(`✅ Schema IFC validado: ${projects.length} projeto(s) encontrado(s)`);
+      return true;
+    } catch (error) {
+      console.error('❌ Erro na validação do schema IFC:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Verifica compliance OpenBIM do modelo
+   */
+  private async checkOpenBIMCompliance(ifcVersion: string): Promise<{ compliant: boolean; issues: string[] }> {
+    const issues: string[] = [];
+    
+    try {
+      // 1. Verifica estrutura espacial
+      const spatialStructure = await this.loader.ifcManager.getSpatialStructure(0);
+      if (!spatialStructure || spatialStructure.children.length === 0) {
+        issues.push('Estrutura espacial IFC ausente ou vazia');
+      }
+
+      // 2. Verifica presença de projeto
+      const projects = spatialStructure.children.filter((child: any) => 
+        child.type === 'IFCPROJECT'
+      );
+      if (projects.length === 0) {
+        issues.push('Nenhum projeto IFC (IFCPROJECT) encontrado');
+      }
+
+      // 3. Verifica geometria válida
+      const geometryIssues = await this.validateGeometryCompliance();
+      issues.push(...geometryIssues);
+
+      // 4. Verifica propriedades IFC
+      const propertyIssues = await this.validatePropertyCompliance();
+      issues.push(...propertyIssues);
+
+      // 5. Verifica relacionamentos
+      const relationshipIssues = await this.validateRelationshipCompliance();
+      issues.push(...relationshipIssues);
+
+      const compliant = issues.length === 0;
+      
+      console.log(`🔍 OpenBIM Compliance check: ${compliant ? 'PASSOU' : 'FALHOU'}`);
+      if (!compliant) {
+        console.log('📋 Issues encontrados:', issues);
+      }
+
+      return { compliant, issues };
+    } catch (error) {
+      issues.push(`Erro na verificação de compliance: ${error}`);
+      return { compliant: false, issues };
+    }
+  }
+
+  /**
+   * Valida geometria para compliance OpenBIM
+   */
+  private async validateGeometryCompliance(): Promise<string[]> {
+    const issues: string[] = [];
+    
+    // Verifica se há meshes com geometria válida
+    let totalMeshes = 0;
+    let invalidMeshes = 0;
+
+    this.scene.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        totalMeshes++;
+        
+        if (!child.geometry) {
+          invalidMeshes++;
+          issues.push(`Mesh sem geometria: ${child.name}`);
+        } else if (!child.geometry.attributes.position) {
+          invalidMeshes++;
+          issues.push(`Mesh sem posições: ${child.name}`);
+        }
+      }
+    });
+
+    if (invalidMeshes > 0) {
+      issues.push(`${invalidMeshes}/${totalMeshes} meshes com geometria inválida`);
+    }
+
+    return issues;
+  }
+
+  /**
+   * Valida propriedades IFC para compliance
+   */
+  private async validatePropertyCompliance(): Promise<string[]> {
+    const issues: string[] = [];
+    
+    // Verifica se elementos têm propriedades básicas
+    this.scene.traverse((child) => {
+      if (child instanceof THREE.Mesh && (child as any).expressID) {
+        const expressID = (child as any).expressID;
+        
+        // Tenta obter propriedades básicas
+        try {
+          const properties = this.loader.ifcManager.getItemProperties(0, expressID, false);
+          if (!properties || Object.keys(properties).length === 0) {
+            issues.push(`Elemento ${expressID} sem propriedades IFC`);
+          }
+        } catch (e) {
+          issues.push(`Erro ao acessar propriedades do elemento ${expressID}`);
+        }
+      }
+    });
+
+    return issues;
+  }
+
+  /**
+   * Valida relacionamentos IFC para compliance
+   */
+  private async validateRelationshipCompliance(): Promise<string[]> {
+    const issues: string[] = [];
+    
+    try {
+      // Verifica estrutura de agregação
+      const spatialStructure = await this.loader.ifcManager.getSpatialStructure(0);
+      
+      const validateNode = (node: any, path: string = ''): void => {
+        if (!node.children || node.children.length === 0) {
+          // Nó folha deve ter elementos relacionados
+          if (!node.expressID) {
+            issues.push(`Nó sem expressID: ${path}/${node.name || 'unnamed'}`);
+          }
+        } else {
+          // Nó pai deve ter filhos válidos
+          node.children.forEach((child: any, index: number) => {
+            validateNode(child, `${path}/${node.name || 'unnamed'}[${index}]`);
+          });
+        }
+      };
+
+      if (spatialStructure.children) {
+        spatialStructure.children.forEach((child: any, index: number) => {
+          validateNode(child, `root[${index}]`);
+        });
+      }
+    } catch (error) {
+      issues.push(`Erro na validação de relacionamentos: ${error}`);
+    }
+
+    return issues;
+  }
+
+  /**
+   * Gera relatório de compliance OpenBIM
+   */
+  public async generateComplianceReport(ifcVersion: string): Promise<string> {
+    const complianceResult = await this.checkOpenBIMCompliance(ifcVersion);
+    
+    const report = {
+      timestamp: new Date().toISOString(),
+      ifcVersion,
+      compliant: complianceResult.compliant,
+      totalIssues: complianceResult.issues.length,
+      issues: complianceResult.issues,
+      modelStats: this.getModelStatistics()
+    };
+
+    // Gera relatório HTML
+    let html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenBIM Compliance Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background: #f0f0f0; padding: 20px; border-radius: 5px; }
+        .status { font-size: 24px; font-weight: bold; }
+        .status.pass { color: green; }
+        .status.fail { color: red; }
+        .issues { margin-top: 20px; }
+        .issue { background: #ffebee; padding: 10px; margin: 5px 0; border-left: 4px solid #f44336; }
+        .stats { background: #e3f2fd; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>OpenBIM Compliance Report</h1>
+        <p><strong>IFC Version:</strong> ${report.ifcVersion}</p>
+        <p><strong>Generated:</strong> ${report.timestamp}</p>
+        <p class="status ${report.compliant ? 'pass' : 'fail'}">
+            Status: ${report.compliant ? 'COMPLIANT' : 'NON-COMPLIANT'}
+        </p>
+    </div>
+
+    <div class="stats">
+        <h2>Model Statistics</h2>
+        <p><strong>Meshes:</strong> ${report.modelStats.meshes}</p>
+        <p><strong>Triangles:</strong> ${report.modelStats.triangles.toLocaleString()}</p>
+        <p><strong>Materials:</strong> ${report.modelStats.materials}</p>
+    </div>
+
+    <div class="issues">
+        <h2>Issues Found (${report.totalIssues})</h2>
+        ${report.issues.length > 0 
+            ? report.issues.map(issue => `<div class="issue">${issue}</div>`).join('')
+            : '<p>No issues found - model is fully compliant!</p>'
+        }
+    </div>
+</body>
+</html>`;
+
+    return html;
+  }
+
+  /**
+   * Obtém estatísticas do modelo
+   */
+  private getModelStatistics(): { meshes: number; triangles: number; materials: number } {
+    let meshes = 0;
+    let triangles = 0;
+    let materials = 0;
+    const materialSet = new Set<string>();
+
+    this.scene.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        meshes++;
+        
+        if (child.geometry.index) {
+          triangles += child.geometry.index.count / 3;
+        }
+        
+        // Conta materiais únicos
+        if (Array.isArray(child.material)) {
+          child.material.forEach(mat => materialSet.add(mat.uuid));
+        } else if (child.material) {
+          materialSet.add(child.material.uuid);
+        }
+      }
+    });
+
+    materials = materialSet.size;
+
+    return { meshes, triangles: Math.floor(triangles), materials };
   }
 }

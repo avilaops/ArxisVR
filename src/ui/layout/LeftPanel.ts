@@ -9,7 +9,7 @@ import { LayerPanel } from './LayerPanel';
 export class LeftPanel {
   private container: HTMLElement;
   private layerPanel: LayerPanel | null = null;
-  private currentTab: 'project' | 'layers' | 'hierarchy' = 'layers';
+  private currentTab: 'project' | 'layers' | 'hierarchy' | 'bim' = 'layers';
   private isVisible: boolean = true;
 
   constructor(containerId: string) {
@@ -233,6 +233,129 @@ export class LeftPanel {
       .left-panel.hidden + .left-panel-toggle {
         left: 0;
       }
+      
+      /* BIM Management Tab */
+      .bim-management {
+        padding: 16px;
+      }
+      
+      .bim-section {
+        margin-bottom: 24px;
+      }
+      
+      .bim-section h4 {
+        margin: 0 0 12px 0;
+        color: var(--theme-foreground, #fff);
+        font-size: 14px;
+        font-weight: 600;
+      }
+      
+      .bim-add-btn {
+        width: 100%;
+        padding: 8px 12px;
+        background: var(--theme-primary, #667eea);
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        font-size: 12px;
+        margin-bottom: 12px;
+        transition: background 0.2s;
+      }
+      
+      .bim-add-btn:hover {
+        background: var(--theme-accent, #00ff88);
+        color: black;
+      }
+      
+      .bim-list {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      
+      .bim-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: var(--theme-background, #1a1a1a);
+        border-radius: 4px;
+        margin-bottom: 4px;
+        border: 1px solid var(--theme-border, #333);
+      }
+      
+      .bim-item:hover {
+        background: var(--theme-hover, #2a2a2a);
+      }
+      
+      .bim-status, .bim-type {
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      
+      .bim-status.status-wip { background: #ffa500; color: black; }
+      .bim-status.status-shared { background: #00ff88; color: black; }
+      .bim-status.status-approved { background: #667eea; color: white; }
+      .bim-status.status-published { background: #00ff88; color: black; }
+      .bim-status.status-archived { background: #666; color: white; }
+      
+      .bim-type {
+        background: var(--theme-primary, #667eea);
+        color: white;
+      }
+      
+      .bim-name {
+        flex: 1;
+        font-size: 12px;
+        color: var(--theme-foreground, #fff);
+      }
+      
+      .bim-actions {
+        display: flex;
+        gap: 4px;
+      }
+      
+      .bim-actions button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        padding: 2px;
+        border-radius: 2px;
+        transition: background 0.2s;
+      }
+      
+      .bim-actions button:hover {
+        background: var(--theme-hover, #2a2a2a);
+      }
+      
+      .bim-empty {
+        padding: 20px;
+        text-align: center;
+        color: var(--theme-foregroundMuted, #999);
+        font-style: italic;
+      }
+      
+      .version-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 8px;
+      }
+      
+      .version-number {
+        font-weight: bold;
+        color: var(--theme-primary, #667eea);
+        font-size: 12px;
+      }
+      
+      .version-date {
+        font-size: 10px;
+        color: var(--theme-foregroundMuted, #999);
+      }
     `;
     
     if (!document.getElementById('left-panel-styles')) {
@@ -274,6 +397,9 @@ export class LeftPanel {
         <button class="left-panel-tab ${this.currentTab === 'hierarchy' ? 'active' : ''}" data-tab="hierarchy">
           🌳 Scene
         </button>
+        <button class="left-panel-tab ${this.currentTab === 'bim' ? 'active' : ''}" data-tab="bim">
+          🏗️ BIM
+        </button>
       </div>
       
       <div class="left-panel-content">
@@ -287,6 +413,10 @@ export class LeftPanel {
         
         <div class="left-panel-tab-content ${this.currentTab === 'hierarchy' ? 'active' : ''}" data-content="hierarchy">
           ${this.renderHierarchyTab()}
+        </div>
+
+        <div class="left-panel-tab-content ${this.currentTab === 'bim' ? 'active' : ''}" data-content="bim">
+          ${this.renderBIMTab()}
         </div>
       </div>
     `;
@@ -518,6 +648,88 @@ export class LeftPanel {
         (toggleBtn as HTMLElement).innerHTML = '▶';
       }
     }
+  }
+
+  /**
+   * Renderiza aba BIM (ISO 19650)
+   */
+  private renderBIMTab(): string {
+    const projectManager = appController.projectManager;
+    const workPackages = projectManager.getWorkPackages();
+    const containers = projectManager.getInformationContainers();
+
+    return `
+      <div class="bim-management">
+        <div class="bim-section">
+          <h4>📦 Work Packages</h4>
+          <button class="bim-add-btn" data-action="add-workpackage">+ Novo Work Package</button>
+          <div class="bim-list">
+            ${workPackages.map((wp: any) => `
+              <div class="bim-item workpackage" data-id="${wp.id}">
+                <span class="bim-status status-${wp.status.toLowerCase()}">${wp.status}</span>
+                <span class="bim-name">${wp.name}</span>
+                <div class="bim-actions">
+                  <button data-action="edit-wp" data-id="${wp.id}">✏️</button>
+                  <button data-action="delete-wp" data-id="${wp.id}">🗑️</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="bim-section">
+          <h4>📄 Information Containers</h4>
+          <button class="bim-add-btn" data-action="add-container">+ Novo Container</button>
+          <div class="bim-list">
+            ${containers.map((container: any) => `
+              <div class="bim-item container" data-id="${container.id}">
+                <span class="bim-type">${container.type}</span>
+                <span class="bim-status status-${container.status.toLowerCase()}">${container.status}</span>
+                <span class="bim-name">${container.name}</span>
+                <div class="bim-actions">
+                  <button data-action="edit-container" data-id="${container.id}">✏️</button>
+                  <button data-action="delete-container" data-id="${container.id}">🗑️</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="bim-section">
+          <h4>📝 Version History</h4>
+          <button class="bim-add-btn" data-action="create-version">+ Criar Versão</button>
+          <div class="bim-list">
+            ${this.renderVersionHistory()}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Renderiza histórico de versões
+   */
+  private renderVersionHistory(): string {
+    const projectSerializer = appController.projectSerializer;
+    const versions = projectSerializer.getVersionHistory();
+
+    if (versions.length === 0) {
+      return '<div class="bim-empty">Nenhuma versão criada ainda</div>';
+    }
+
+    return versions.slice(-5).reverse().map((version: any) => `
+      <div class="bim-item version" data-id="${version.id}">
+        <div class="version-info">
+          <span class="version-number">${version.version}</span>
+          <span class="version-date">${new Date(version.timestamp).toLocaleDateString()}</span>
+        </div>
+        <span class="bim-name">${version.description}</span>
+        <div class="bim-actions">
+          <button data-action="revert-version" data-id="${version.id}" title="Reverter para esta versão">↩️</button>
+          <button data-action="compare-version" data-id="${version.id}" title="Comparar versões">⚖️</button>
+        </div>
+      </div>
+    `).join('');
   }
 
   /**

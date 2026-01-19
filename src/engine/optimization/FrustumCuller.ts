@@ -49,8 +49,9 @@ export class FrustumCuller {
   private bimPriorities: Map<IFCElementType, number> = new Map();
   
   // Occlusion culling
-  private occlusionEnabled: boolean = false;
+  private occlusionEnabled: boolean = true; // Habilitado por padrão
   private occluders: THREE.Mesh[] = [];
+  private occlusionThreshold: number = 0.8; // 80% cobertura para considerar oculto
   
   // Estatísticas
   private totalObjects: number = 0;
@@ -123,7 +124,7 @@ export class FrustumCuller {
   }
   
   /**
-   * Aplica culling em cena
+   * Aplica culling em cena (frustum + occlusion)
    */
   public cullScene(scene: THREE.Scene): void {
     if (!this.enabled) return;
@@ -132,6 +133,7 @@ export class FrustumCuller {
     this.visibleObjects = 0;
     this.culledObjects = 0;
     
+    // Primeiro, frustum culling
     scene.traverse((object) => {
       if (object instanceof THREE.Mesh) {
         this.totalObjects++;
@@ -148,6 +150,11 @@ export class FrustumCuller {
         }
       }
     });
+    
+    // Depois, occlusion culling nos objetos ainda visíveis
+    if (this.occlusionEnabled) {
+      this.occlusionCulling(scene);
+    }
   }
   
   /**
@@ -441,39 +448,84 @@ export class FrustumCuller {
   }
   
   /**
-   * Occlusion culling (experimental)
-   * Remove objetos escondidos atrás de occluders
+   * Occlusion culling aprimorado
+   * Remove objetos escondidos atrás de occluders usando raycasting e análise de cobertura
    */
   public occlusionCulling(scene: THREE.Scene): void {
     if (!this.occlusionEnabled || this.occluders.length === 0) return;
-    
+
     const raycaster = new THREE.Raycaster();
-    
+    const tempVector = new THREE.Vector3();
+
     scene.traverse((object: any) => {
-      if (!object.isMesh || !object.visible) return;
-      
-      const direction = new THREE.Vector3()
-        .subVectors(object.position, this.camera.position)
-        .normalize();
-      
-      raycaster.set(this.camera.position, direction);
-      
+      if (!object.isMesh || !object.visible || this.occluders.includes(object)) return;
+
+      // Calcula direção da câmera para o objeto
+      tempVector.subVectors(object.position, this.camera.position).normalize();
+      raycaster.set(this.camera.position, tempVector);
+
       // Testa interseção com occluders
       const intersections = raycaster.intersectObjects(this.occluders, false);
-      
+
       if (intersections.length > 0) {
         const firstIntersection = intersections[0];
         const distanceToObject = this.camera.position.distanceTo(object.position);
-        
-        // Se occluder está mais próximo, object está oculto
-        if (firstIntersection.distance < distanceToObject) {
-          object.visible = false;
-          this.culledObjects++;
+
+        // Se occluder está mais próximo E cobre significativamente o objeto
+        if (firstIntersection.distance < distanceToObject * 0.95) { // 5% margem
+          const coverage = this.calculateOcclusionCoverage(object, firstIntersection.object as THREE.Mesh);
+          if (coverage > this.occlusionThreshold) {
+            object.visible = false;
+            this.culledObjects++;
+          }
         }
       }
-      
-      this.totalObjects++;
     });
+  }
+
+  /**
+   * Calcula cobertura de oclusão entre objeto e occluder
+   */
+  private calculateOcclusionCoverage(targetObject: THREE.Mesh, occluder: THREE.Mesh): number {
+    // Bounding boxes
+    const targetBox = new THREE.Box3().setFromObject(targetObject);
+    const occluderBox = new THREE.Box3().setFromObject(occluder);
+
+    // Projeção 2D na tela (simplificada)
+    const targetSize = targetBox.getSize(new THREE.Vector3());
+    const occluderSize = occluderBox.getSize(new THREE.Vector3());
+
+    // Área aproximada de cobertura
+    const overlapX = Math.max(0, Math.min(targetBox.max.x, occluderBox.max.x) - Math.max(targetBox.min.x, occluderBox.min.x));
+    const overlapY = Math.max(0, Math.min(targetBox.max.y, occluderBox.max.y) - Math.max(targetBox.min.y, occluderBox.min.y));
+    const overlapZ = Math.max(0, Math.min(targetBox.max.z, occluderBox.max.z) - Math.max(targetBox.min.z, occluderBox.min.z));
+
+    const overlapVolume = overlapX * overlapY * overlapZ;
+    const targetVolume = targetSize.x * targetSize.y * targetSize.z;
+
+    return targetVolume > 0 ? overlapVolume / targetVolume : 0;
+  }
+
+  /**
+   * Detecta automaticamente occluders potenciais (paredes, estruturas grandes)
+   */
+  public autoDetectOccluders(scene: THREE.Scene): void {
+    this.occluders = [];
+
+    scene.traverse((object: any) => {
+      if (object.isMesh && object.visible) {
+        const box = new THREE.Box3().setFromObject(object);
+        const size = box.getSize(new THREE.Vector3());
+        const area = size.x * size.z; // Área da base (para paredes verticais)
+
+        // Critérios para occluder: área grande (> 10m²) e orientação vertical
+        if (area > 10 && Math.abs(object.rotation.x) < 0.1 && Math.abs(object.rotation.z) < 0.1) {
+          this.occluders.push(object);
+        }
+      }
+    });
+
+    console.log(`🚧 Auto-detected ${this.occluders.length} occluders`);
   }
   
   /**

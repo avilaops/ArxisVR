@@ -20,6 +20,9 @@ export interface ProjectData {
     created: number;
     modified: number;
     author?: string;
+    // Versionamento
+    projectVersion: string;
+    versionHistory: ProjectVersion[];
   };
   
   camera: {
@@ -93,11 +96,33 @@ export interface SerializedLayer {
   objectIds: string[];
 }
 
+export interface ProjectVersion {
+  id: string;
+  version: string;
+  timestamp: number;
+  author: string;
+  description: string;
+  changes: VersionChange[];
+  snapshot: ProjectData; // Snapshot completo do projeto nesta versão
+}
+
+export interface VersionChange {
+  type: 'add' | 'remove' | 'modify' | 'reorder';
+  target: 'object' | 'layer' | 'setting' | 'scene';
+  targetId: string;
+  description: string;
+  oldValue?: any;
+  newValue?: any;
+}
+
 /**
  * ProjectSerializer - Classe principal
  */
 export class ProjectSerializer {
   private static instance: ProjectSerializer;
+  private currentVersion: string = '1.0.0';
+  private versionHistory: ProjectVersion[] = [];
+  private maxVersions: number = 50; // Limite de versões mantidas
   
   private constructor() {
     console.log('💾 ProjectSerializer initialized');
@@ -136,7 +161,9 @@ export class ProjectSerializer {
         description: '',
         created: Date.now(),
         modified: Date.now(),
-        author: 'ArxisVR'
+        author: 'ArxisVR',
+        projectVersion: this.currentVersion,
+        versionHistory: this.versionHistory
       },
       
       camera: {
@@ -177,7 +204,140 @@ export class ProjectSerializer {
     
     return projectData;
   }
-  
+
+  /**
+   * Cria nova versão do projeto
+   */
+  public createVersion(
+    scene: THREE.Scene,
+    camera: THREE.Camera,
+    description: string,
+    author: string = 'ArxisVR',
+    changes: VersionChange[] = []
+  ): ProjectVersion {
+    // Incrementa versão
+    const versionParts = this.currentVersion.split('.').map(Number);
+    versionParts[2]++; // Incrementa patch version
+    this.currentVersion = versionParts.join('.');
+
+    // Cria snapshot do projeto atual
+    const snapshot = this.serialize(scene, camera, `Version ${this.currentVersion}`);
+
+    const version: ProjectVersion = {
+      id: this.generateVersionId(),
+      version: this.currentVersion,
+      timestamp: Date.now(),
+      author,
+      description,
+      changes,
+      snapshot
+    };
+
+    // Adiciona ao histórico
+    this.versionHistory.push(version);
+
+    // Mantém limite de versões
+    if (this.versionHistory.length > this.maxVersions) {
+      this.versionHistory.shift(); // Remove versão mais antiga
+    }
+
+    console.log(`📝 Nova versão criada: ${this.currentVersion} - ${description}`);
+    return version;
+  }
+
+  /**
+   * Reverte para versão específica
+   */
+  public async revertToVersion(
+    versionId: string,
+    scene: THREE.Scene,
+    camera: THREE.Camera
+  ): Promise<boolean> {
+    const version = this.versionHistory.find(v => v.id === versionId);
+    if (!version) {
+      console.error(`❌ Versão ${versionId} não encontrada`);
+      return false;
+    }
+
+    try {
+      // Restaura snapshot da versão
+      await this.deserialize(version.snapshot, scene, camera);
+      this.currentVersion = version.version;
+
+      console.log(`↩️ Revertido para versão ${version.version}: ${version.description}`);
+      return true;
+    } catch (error) {
+      console.error('❌ Erro ao reverter versão:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Obtém histórico de versões
+   */
+  public getVersionHistory(): ProjectVersion[] {
+    return [...this.versionHistory];
+  }
+
+  /**
+   * Obtém versão atual
+   */
+  public getCurrentVersion(): string {
+    return this.currentVersion;
+  }
+
+  /**
+   * Compara duas versões
+   */
+  public compareVersions(versionId1: string, versionId2: string): VersionChange[] {
+    const v1 = this.versionHistory.find(v => v.id === versionId1);
+    const v2 = this.versionHistory.find(v => v.id === versionId2);
+
+    if (!v1 || !v2) {
+      return [];
+    }
+
+    // Comparação simplificada - em produção, seria mais sofisticada
+    const changes: VersionChange[] = [];
+
+    // Compara objetos
+    const objects1 = new Set(v1.snapshot.objects.map(o => o.uuid));
+    const objects2 = new Set(v2.snapshot.objects.map(o => o.uuid));
+
+    // Objetos adicionados
+    for (const objId of objects2) {
+      if (!objects1.has(objId)) {
+        changes.push({
+          type: 'add',
+          target: 'object',
+          targetId: objId,
+          description: 'Objeto adicionado'
+        });
+      }
+    }
+
+    // Objetos removidos
+    for (const objId of objects1) {
+      if (!objects2.has(objId)) {
+        changes.push({
+          type: 'remove',
+          target: 'object',
+          targetId: objId,
+          description: 'Objeto removido'
+        });
+      }
+    }
+
+    return changes;
+  }
+
+  /**
+   * Gera ID único para versão
+   */
+  private generateVersionId(): string {
+    return `ver_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
   /**
    * Deserializa projeto
    */
@@ -189,6 +349,14 @@ export class ProjectSerializer {
     console.log(`📂 Deserializing project: ${projectData.meta.name}...`);
     
     try {
+      // Restaura versionamento se disponível
+      if (projectData.meta.projectVersion) {
+        this.currentVersion = projectData.meta.projectVersion;
+      }
+      if (projectData.meta.versionHistory) {
+        this.versionHistory = projectData.meta.versionHistory;
+      }
+
       // 1. Limpa cena atual (exceto luzes e helpers essenciais)
       this.clearScene(scene);
       

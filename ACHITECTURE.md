@@ -1,173 +1,170 @@
-🧱 ARXISVR — ENTERPRISE ARCHITECTURE BLUEPRINT
-1. Visão Geral
+# BIM 4D/5D/6D
 
-O ArxisVR é uma plataforma BIM interativa em tempo real baseada em WebGL/Three.js, projetada segundo os princípios:
+## **🧱 EPIC 0 — FUNDAMENTAÇÃO (BASE MUNDIAL)**
 
-Separação rígida de camadas
+### Core Técnico
 
-Estado centralizado
+- [ ]  Engine 3D própria (Three.js / WebGPU / WebGL2)
+- [ ]  Loader IFC ultra-performático (streaming + lazy loading)
+- [ ]  ECS (Entity Component System)
+- [ ]  Scene Graph desacoplado
+- [ ]  Multithread (Web Workers)
+- [ ]  GPU Instancing
+- [ ]  Frustum + Occlusion Culling
+- [ ]  LOD automático por distância / relevância
+- [ ]  Precisão métrica 1:1 real
+- [ ]  Sistema de coordenadas global (georreferenciado)
 
-Arquitetura orientada a sistemas
+### Padrões
 
-Extensibilidade por ferramentas (Tool-based Architecture)
+- [ ]  IFC 2x3 / IFC4 / IFC4.3
+- [ ]  ISO 19650 (BIM Management)
+- [ ]  OpenBIM compliance
+- [ ]  Versionamento de modelos
 
-UI desacoplada da engine
+## **🧩 EPIC 1 — BIM 3D (BASE VISUAL + DADOS)**
 
-2. Camadas do Sistema
-src/
- ├── engine/   → Camada de Render e Simulação 3D (Three.js, IFC, VR)
- ├── app/      → Camada de Domínio e Regras de Negócio
- ├── ui/       → Camada de Interface e Interação Humana
- ├── core/     → Infraestrutura, eventos, estado global
- ├── tools/    → Ferramentas do usuário (medição, corte, seleção, etc.)
- └── plugins/  → Extensões futuras (VR, multiplayer, BIM 4D/5D, etc.)
+### Visualização
 
+- [ ]  Navegação FPS / Orbital / Walkthrough
+- [ ]  Clipping planes avançados
+- [ ]  Explode view por sistemas
+- [ ]  Isolamento por disciplina
+- [ ]  Filtros por propriedades IFC
+- [ ]  Temas visuais (disciplinas, status, risco)
 
-Nenhuma camada acessa diretamente outra fora da hierarquia:
+### Dados
 
-UI → App → Core → Engine
-Tools → App → Core → Engine
-Plugins → App → Core → Engine
+- [ ]  Inspector IFC completo
+- [ ]  Query engine (SQL-like sobre IFC)
+- [ ]  Seleção por regra (ex: todos os IfcWall do pavimento X)
+- [ ]  Exportação CSV / JSON
 
-3. Estado Global (Single Source of Truth)
-core/AppState.ts
+## **⏱️ EPIC 2 — BIM 4D (PLANEJAMENTO & TEMPO)**
 
+### Integração de Cronograma
 
-Responsabilidades:
+- [ ]  Import MS Project
+- [ ]  Import Primavera P6
+- [ ]  Import Excel (custom mapping)
+- [ ]  API para cronogramas externos
 
-Modo de navegação (VOO / CAMINHADA / VR)
+### Vinculação Obra ↔ Modelo
 
-Ferramenta ativa
+- [ ]  Link tarefa ↔ elemento IFC
+- [ ]  Link por GUID
+- [ ]  Link por regra (ex: paredes por pavimento)
+- [ ]  Múltiplas tarefas por elemento
 
-Elemento selecionado
+### Simulação 4D
 
-Layers visíveis
+- [ ]  Timeline interativa
+- [ ]  Play / Pause / Scrub
+- [ ]  Visualização por fases
+- [ ]  Estados: planejado / em execução / concluído / atraso
+- [ ]  Comparação planejado vs realizado
+- [ ]  Simulação de cenários (what-if)
 
-Configuração gráfica
+### Controle
 
-Sessão do usuário
+- [ ]  Curva S automática
+- [ ]  Caminho crítico visual
+- [ ]  Alertas de conflito temporal
+- [ ]  Logs de alteração de cronograma
 
-Contexto do projeto BIM
+## **💰 EPIC 3 — BIM 5D (CUSTOS & ORÇAMENTO)**
 
-Toda alteração de estado ocorre apenas via:
+### Quantificação
 
-AppController
+- [ ]  Takeoff automático por IFC
+- [ ]  Quantificação por regra
+- [ ]  Quantificação manual assistida
+- [ ]  Versionamento de medições
 
-4. Sistema de Eventos
-core/EventBus.ts
+### Custos
 
+- [ ]  Banco de preços (local/global)
+- [ ]  Integração SINAPI / CYPE / custom
+- [ ]  Custos por elemento
+- [ ]  Custos por tarefa (4D ↔ 5D)
+- [ ]  Custos indiretos
+- [ ]  Curva de desembolso
 
-Nenhuma camada se comunica diretamente.
-Tudo acontece por eventos tipados:
+### Simulação Financeira
 
-EVENT_MODEL_LOADED
-EVENT_OBJECT_SELECTED
-EVENT_TOOL_CHANGED
-EVENT_CAMERA_MODE_CHANGED
-EVENT_LAYER_TOGGLED
-EVENT_RENDER_QUALITY_CHANGED
+- [ ]  Orçado vs realizado
+- [ ]  Impacto de atraso no custo
+- [ ]  Simulação de inflação
+- [ ]  Simulação de cenário (troca de material)
 
-5. Engine Layer
-engine/
- ├── Renderer
- ├── SceneManager
- ├── CameraSystem
- ├── LightingSystem
- ├── MaterialSystem
- ├── LODSystem
- ├── IFCLoader
- ├── PhysicsSystem (futuro)
- └── XRSystem
+### Relatórios
 
+- [ ]  DRE da obra
+- [ ]  Fluxo de caixa
+- [ ]  Export PDF / Excel
+- [ ]  Dashboards executivos
 
-A engine nunca conhece UI.
+## **🏢 EPIC 4 — BIM 6D (OPERAÇÃO & CICLO DE VIDA)**
 
-6. Sistema de Ferramentas
-tools/
- ├── Tool.ts
- ├── SelectionTool
- ├── MeasurementTool
- ├── CutTool
- ├── AnnotationTool
- ├── NavigationTool
- └── LayerTool
+### Ativos
 
+- [ ]  Cadastro de ativos por IFC
+- [ ]  Dados de fabricante
+- [ ]  Vida útil
+- [ ]  Manuais vinculados
+- [ ]  Garantias
 
-Contrato universal:
+### Manutenção
 
-interface Tool {
-  name: string
-  activate(): void
-  deactivate(): void
-  onPointerDown(e)
-  onPointerMove(e)
-  onPointerUp(e)
-  onKeyDown(e)
-}
+- [ ]  Planos preventivos
+- [ ]  Ordens de serviço
+- [ ]  Histórico por elemento
+- [ ]  Custo de manutenção acumulado
 
-7. Camada de Aplicação
-app/
- ├── AppController
- ├── ToolManager
- ├── ProjectManager
- ├── SelectionManager
- ├── NavigationManager
- ├── LayerManager
- └── SettingsManager
+### Operação
 
+- [ ]  Consumo energético
+- [ ]  Simulação de eficiência
+- [ ]  Integração IoT (sensores)
+- [ ]  Digital Twin operacional
 
-Coordena regras de negócio, estado e engine.
+## **🔐 EPIC 5 — GOVERNANÇA & SEGURANÇA**
 
-8. UI Layer
-ui/
- ├── layout/
- │   ├── TopBar
- │   ├── LeftPanel
- │   ├── RightInspector
- │   ├── BottomDock
- │   └── Viewport
- ├── components/
- │   ├── Button
- │   ├── Panel
- │   ├── Slider
- │   ├── Toggle
- │   └── Modal
- └── themes/
+- [ ]  Multi-tenant
+- [ ]  RBAC (roles)
+- [ ]  Auditoria completa
+- [ ]  Logs imutáveis
+- [ ]  Versionamento de decisões
+- [ ]  Trilhas ISO 19650
+- [ ]  Assinatura digital de entregáveis
 
+## **🌍 EPIC 6 — COLABORAÇÃO GLOBAL**
 
-UI não conhece Three.js, IFC ou Engine.
+- [ ]  Comentários ancorados no modelo
+- [ ]  Issues por elemento
+- [ ]  Aprovações de fase
+- [ ]  Markups 3D
+- [ ]  Histórico de revisões
+- [ ]  Comparação visual entre versões
+- [ ]  Modo apresentação executiva
 
-9. Fluxo de Interação
-User → UI → AppController → AppState → EventBus → Engine
+## **🤖 EPIC 7 — IA APLICADA AO BIM**
 
-10. Princípios de Engenharia
+> Diferencial brutal.
+> 
+- [ ]  Detecção automática de conflitos 4D
+- [ ]  Previsão de atraso
+- [ ]  Previsão de estouro de custo
+- [ ]  Sugestão de replanejamento
+- [ ]  Leitura de IFC “em linguagem natural”
+- [ ]  Copiloto BIM (pergunte ao modelo)
 
-Nenhum componente faz mais de uma função
+## **📦 EPIC 8 — ECOSSISTEMA & ESCALA**
 
-Nenhuma feature acessa engine diretamente
+- [ ]  API pública
+- [ ]  SDK para parceiros
+- [ ]  Plugins (Revit, Archicad, Navisworks)
+- [ ]  White-label
+- [ ]  Cloud + On-prem
+- [ ]  Licenciamento por módulo
 
-Nenhum estado fica fora do AppState
-
-Nenhuma UI implementa lógica de negócio
-
-11. Objetivo da Arquitetura
-
-Transformar o ArxisVR em uma plataforma BIM extensível, pronta para:
-
-VR
-
-Colaboração multiusuário
-
-BIM 4D / 5D
-
-Cloud BIM
-
-Digital Twin
-
-Se você seguir esse blueprint, três coisas acontecem automaticamente:
-
-O Copilot passa a sugerir código de arquitetura profissional
-
-O crescimento do projeto deixa de ser caótico
-
-Sua interface e produto sobem de patamar em semanas, não meses

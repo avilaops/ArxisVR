@@ -19,6 +19,7 @@ private static instance: AppController;
 // Managers
 public readonly toolManager: ToolManager;
 public readonly projectManager: ProjectManager;
+public readonly projectSerializer: ProjectSerializer;
 public readonly selectionManager: SelectionManager;
 public readonly navigationManager: NavigationManager;
 public readonly layerManager: LayerManager;
@@ -30,6 +31,7 @@ private constructor() {
   // Initialize managers
   this.toolManager = new ToolManager();
   this.projectManager = new ProjectManager();
+  this.projectSerializer = ProjectSerializer.getInstance();
   this.selectionManager = new SelectionManager();
   this.navigationManager = new NavigationManager();
   this.layerManager = new LayerManager();

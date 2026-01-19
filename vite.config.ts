@@ -4,6 +4,9 @@ import wasm from 'vite-plugin-wasm';
 export default defineConfig({
   plugins: [wasm()],
 
+  // Base path (importante para Azure e caminhos especiais)
+  base: './',
+
   // Otimizações para produção
   build: {
     target: 'esnext',
@@ -31,6 +34,10 @@ export default defineConfig({
     port: 3000,
     strictPort: false,
     host: true,
+    fs: {
+      // Permitir acesso a arquivos fora do root
+      allow: ['../../']
+    }
   },
 
   // Configurações de preview (para testar build)
@@ -44,7 +51,4 @@ export default defineConfig({
     exclude: ['web-ifc-three'],
     include: ['three'],
   },
-
-  // Base path (importante para Azure)
-  base: './',
 });

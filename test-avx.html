@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVX Render Test</title>
+</head>
+<body>
+    <canvas id="test-canvas" width="800" height="600" style="border: 1px solid black;"></canvas>
+    <script type="module">
+        try {
+            console.log("Testing AVX Render...");
+            console.log("Current location:", window.location.href);
+            const avxRender = await import('./node_modules/avx-render/avx_render.js');
+            console.log("AVX Render imported:", avxRender);
+            console.log("Available functions:", Object.keys(avxRender));
+            console.log("run_basic function:", avxRender.run_basic);
+            await avxRender.run_basic('test-canvas');
+            console.log("AVX Render test completed");
+        } catch (error) {
+            console.error("AVX Render test failed:", error);
+            console.error("Error stack:", error.stack);
+        }
+    </script>
+</body>
+</html>

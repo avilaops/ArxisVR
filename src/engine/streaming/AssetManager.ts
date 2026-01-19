@@ -5,6 +5,7 @@ import { MemoryPool } from './MemoryPool';
 import { LODController } from './LODController';
 import { disposeObject } from './AssetUtils';
 import { eventBus, EventType } from '../../core';
+import { AssetStreamingConfig, DEFAULT_CONFIG } from './AssetConfig';
 
 /**
  * AssetManager - Gerenciador central de assets (Singleton)
@@ -28,15 +29,15 @@ export class AssetManager {
   private assets: Map<string, THREE.Object3D> = new Map();
   
   private constructor() {
-    this.cache = new AssetCache(512); // 512MB cache
-    this.streamer = new AssetStreamer();
+    this.cache = new AssetCache(DEFAULT_CONFIG.cacheSizeMB);
+    this.streamer = new AssetStreamer(DEFAULT_CONFIG);
     this.memoryPool = new MemoryPool();
     
     // Pré-aloca pools comuns
     this.memoryPool.preallocateCommonGeometries();
     this.memoryPool.preallocateCommonMaterials();
     
-    console.log('🎮 Asset Manager initialized');
+    console.log('🎮 Asset Manager initialized with config:', DEFAULT_CONFIG);
   }
   
   /**

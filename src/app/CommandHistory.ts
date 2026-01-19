@@ -47,6 +47,8 @@ export class CommandHistory {
   private history: ReversibleCommand[] = [];
   private currentIndex: number = -1;
   private maxHistorySize: number = 100;
+  private versionSnapshots: StateSnapshot[] = [];
+  private maxVersionSnapshots: number = 20;
   
   private snapshots: Map<string, StateSnapshot> = new Map();
   
@@ -297,6 +299,135 @@ export class CommandHistory {
     console.log(`   Redo: ${canRedo ? `✅ ${redoDesc}` : '❌ Nothing'}`);
   }
   
+  // ===== Versionamento Avançado =====
+
+  /**
+   * Cria snapshot de versão completa
+   */
+  public createVersionSnapshot(type: string, data: any, description?: string): StateSnapshot {
+    const snapshot: StateSnapshot = {
+      id: this.generateSnapshotId(),
+      timestamp: Date.now(),
+      data: JSON.parse(JSON.stringify(data)), // Deep clone
+      type
+    };
+
+    this.versionSnapshots.push(snapshot);
+
+    // Mantém limite
+    if (this.versionSnapshots.length > this.maxVersionSnapshots) {
+      this.versionSnapshots.shift();
+    }
+
+    console.log(`📸 Version snapshot criado: ${type} (${description || 'sem descrição'})`);
+    return snapshot;
+  }
+
+  /**
+   * Restaura snapshot de versão
+   */
+  public async restoreVersionSnapshot(snapshotId: string): Promise<any> {
+    const snapshot = this.versionSnapshots.find(s => s.id === snapshotId);
+    if (!snapshot) {
+      throw new Error(`Snapshot ${snapshotId} não encontrado`);
+    }
+
+    console.log(`↩️ Restaurando snapshot: ${snapshot.type}`);
+    
+    // Emite evento para que outros sistemas restaurem o estado
+    eventBus.emit(EventType.VERSION_RESTORE, {
+      snapshotId,
+      snapshot
+    });
+
+    return snapshot.data;
+  }
+
+  /**
+   * Lista snapshots de versão disponíveis
+   */
+  public getVersionSnapshots(): StateSnapshot[] {
+    return [...this.versionSnapshots];
+  }
+
+  /**
+   * Remove snapshot de versão
+   */
+  public removeVersionSnapshot(snapshotId: string): boolean {
+    const index = this.versionSnapshots.findIndex(s => s.id === snapshotId);
+    if (index === -1) return false;
+
+    this.versionSnapshots.splice(index, 1);
+    return true;
+  }
+
+  /**
+   * Compara dois snapshots
+   */
+  public compareSnapshots(snapshotId1: string, snapshotId2: string): any {
+    const s1 = this.versionSnapshots.find(s => s.id === snapshotId1);
+    const s2 = this.versionSnapshots.find(s => s.id === snapshotId2);
+
+    if (!s1 || !s2) {
+      return null;
+    }
+
+    // Comparação simplificada - retorna diff básico
+    return {
+      snapshot1: s1,
+      snapshot2: s2,
+      timeDiff: s2.timestamp - s1.timestamp,
+      // Em produção, implementaria diff mais sofisticado
+      changes: this.calculateBasicDiff(s1.data, s2.data)
+    };
+  }
+
+  /**
+   * Calcula diff básico entre dois objetos
+   */
+  private calculateBasicDiff(obj1: any, obj2: any): any[] {
+    const changes: any[] = [];
+
+    // Comparação superficial de propriedades
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+
+    // Propriedades adicionadas
+    for (const key of keys2) {
+      if (!(key in obj1)) {
+        changes.push({ type: 'added', key, value: obj2[key] });
+      }
+    }
+
+    // Propriedades removidas
+    for (const key of keys1) {
+      if (!(key in obj2)) {
+        changes.push({ type: 'removed', key, oldValue: obj1[key] });
+      }
+    }
+
+    // Propriedades modificadas
+    for (const key of keys1) {
+      if (key in obj2 && obj1[key] !== obj2[key]) {
+        changes.push({ 
+          type: 'modified', 
+          key, 
+          oldValue: obj1[key], 
+          newValue: obj2[key] 
+        });
+      }
+    }
+
+    return changes;
+  }
+
+  /**
+   * Gera ID único para snapshot
+   */
+  private generateSnapshotId(): string {
+    return `snap_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
   /**
    * Retorna estatísticas
    */
