@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "ArxisVR.Client",
   "resources": {
-    "hash": "sha256-F2/qM9cH32Iw7He2sBSSc/b2VUSchml/AP9vJMtBhXM=",
+    "hash": "sha256-0zHcBGwtMnxB3KsOKWhUiSPYXytZ3DYiG7/GPNCj1+E=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-NljIbpK/1KCj0+knpX8U77Rbl5kTtfFIuFjK7AuczEw="
     },
@@ -212,12 +212,12 @@
       "mscorlib.wasm": "sha256-oV7k+vcNqj7FS6Y/lMtdhVlq3myDH55/wVxmO4QPrw4=",
       "netstandard.wasm": "sha256-XMXMB0WW//vbNNgQiFAqYo7IJ2C4yQX590aoAbOtTB4=",
       "System.Private.CoreLib.wasm": "sha256-tuhzUgbFn7ji3yhMSxyBLHAps9h0RsFnq+8pUoizHiw=",
-      "ArxisVR.Shared.wasm": "sha256-8IByAGFEpwTMCzsZMvJVkYi9HWMMMXpACbwUNWkSqHE=",
-      "ArxisVR.Client.wasm": "sha256-bTnLSjyXvzk9T5WyHWC4OGuxZdngnm4srVKEosRFmoI="
+      "ArxisVR.Shared.wasm": "sha256-CY6xfmmw1+gktm4/0Ljhx8Li6J+vEBwohwCz+4nHIKA=",
+      "ArxisVR.Client.wasm": "sha256-AMkDX0OIVOsj1pcZMNdbUgh4vQsHvEsmXxqhfJmGFMk="
     },
     "pdb": {
-      "ArxisVR.Shared.pdb": "sha256-MEdLDpUJfA2xqjHu24EvX/M4aw6aUkmWmMbS3JOXzKU=",
-      "ArxisVR.Client.pdb": "sha256-qj4TrmpnlTE2c+TFouc779qGwG3rvFhBDBnlqmqw5ys="
+      "ArxisVR.Shared.pdb": "sha256-PU2jUmtfZ9cymUWLAfDe+4+Dp5f/LC6v3KrqqUatyT8=",
+      "ArxisVR.Client.pdb": "sha256-9XZEcUgk4D0+UFxfk0ue2DbfNeMMy9Y7NLm0md8FMsw="
     }
   },
   "cacheBootResources": true,

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ArxisVR.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cc5c7b8021cb2e84012931fa9efc15098e527efc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2648dea6076ad2d51e66b227d0fd911a30da305a")]
 [assembly: System.Reflection.AssemblyProductAttribute("ArxisVR.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ArxisVR.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

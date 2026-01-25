@@ -1043,8 +1043,6 @@ D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net
 D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\oi8doprybx-{0}-tptq2av103-tptq2av103.gz
 D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\5mqr4qqeyt-{0}-lfu7j35m59-lfu7j35m59.gz
 D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\wuhr3sxm3d-{0}-oyz0vx2fzb-oyz0vx2fzb.gz
-D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\mrjalpsody-{0}-8ysycf1evj-8ysycf1evj.gz
-D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\8e6d06luh1-{0}-8mjuuj7uv0-8mjuuj7uv0.gz
 D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\staticwebassets.build.json
 D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\staticwebassets.build.json.cache
 D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\staticwebassets.development.json
@@ -1055,6 +1053,8 @@ D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net
 D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\refint\ArxisVR.Client.dll
 D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\ArxisVR.Client.pdb
 D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\ref\ArxisVR.Client.dll
-D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\buvy2dx6pe-{0}-x3yndstxow-x3yndstxow.gz
-D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\j7metu1a1j-{0}-aw243t6ai9-aw243t6ai9.gz
-D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\1t92zw6ccn-{0}-qznuhso2va-qznuhso2va.gz
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\mrjalpsody-{0}-lpbrimzin0-lpbrimzin0.gz
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\8e6d06luh1-{0}-togvvyur4s-togvvyur4s.gz
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\buvy2dx6pe-{0}-gkygipm8nn-gkygipm8nn.gz
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\j7metu1a1j-{0}-l8s0cb9vym-l8s0cb9vym.gz
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Client\ArxisVR.Client\obj\Debug\net8.0\compressed\1t92zw6ccn-{0}-rs96x2j3mu-rs96x2j3mu.gz
