@@ -1,528 +1,662 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" type="image/svg+xml" href="/vite.svg">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArxisVR - Visualizador IFC 3D</title>
-    <link rel="stylesheet" href="/src/styles/theme-animations.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            background: #000;
-        }
-        
-        #canvas-container {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-        }
-        
-        #loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 24px;
-            text-align: center;
-            z-index: 1000;
-        }
-        
-        #loading-bar {
-            width: 300px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            margin: 20px auto;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        
-        #loading-progress {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #00ff88, #00ccff);
-            transition: width 0.3s;
-        }
-        
-        /* Menu Bar Styles */
-        #menu-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 50px;
-            background: rgba(0, 0, 0, 0.9);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            z-index: 200;
-            transition: all 0.3s ease;
-        }
-        
-        #menu-bar.collapsed .menu-items {
-            opacity: 0;
-            pointer-events: none;
-            transform: translateX(-20px);
-        }
-        
-        .menu-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 16px;
-            margin-right: 20px;
-            z-index: 201;
-        }
-        
-        .menu-btn:hover {
-            background: rgba(0, 255, 136, 0.3);
-            border-color: #00ff88;
-            transform: scale(1.05);
-        }
-        
-        .menu-items {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .menu-dropdown {
-            position: relative;
-        }
-        
-        .submenu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: rgba(0, 0, 0, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            padding: 5px 0;
-            min-width: 180px;
-            display: none;
-            z-index: 300;
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-        }
-        
-        .submenu-item {
-            display: block;
-            width: 100%;
-            background: none;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-        
-        .submenu-item:hover {
-            background: rgba(0, 255, 136, 0.3);
-        }
-        
-        .menu-item {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-        
-        .menu-item:hover {
-            background: rgba(0, 255, 136, 0.3);
-            border-color: #00ff88;
-            transform: translateY(-2px);
-        }
-        
-        /* New UI Panel Styles */
-        .theme-panel {
-            position: absolute;
-            top: 60px;
-            right: 20px;
-            max-width: 400px;
-            max-height: 500px;
-            background: rgba(30, 30, 30, 0.95);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            -webkit-backdrop-filter: blur(20px);
-            backdrop-filter: blur(20px);
-            z-index: 150;
-            overflow: hidden;
-        }
-        
-        .ui-panel {
-            position: absolute;
-            background: rgba(26, 26, 26, 0.95);
-            border-radius: 8px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-            color: white;
-            overflow: hidden;
-        }
-        
-        .left-panel {
-            left: 20px;
-            top: 70px;
-            width: 300px;
-            height: calc(100vh - 100px);
-            z-index: 100;
-        }
-        
-        .right-panel {
-            right: 20px;
-            top: 70px;
-            width: 320px;
-            max-height: calc(100vh - 100px);
-            z-index: 100;
-        }
-        
-        .bottom-toolbar {
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 15px 30px;
-            border-radius: 50px;
-            display: flex;
-            gap: 15px;
-            z-index: 100;
-        }
-        
-        #controls-info {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            z-index: 100;
-            max-width: 300px;
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-        }
-        
-        #controls-info h3 {
-            margin-bottom: 10px;
-            color: #00ff88;
-        }
-        
-        #controls-info ul {
-            list-style: none;
-            line-height: 1.8;
-        }
-        
-        #stats-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-family: monospace;
-            z-index: 100;
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-        }
-        
-        #toolbar {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.9);
-            padding: 15px 30px;
-            border-radius: 50px;
-            display: flex;
-            gap: 15px;
-            z-index: 100;
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
-        }
-        
-        .tool-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-        
-        .tool-btn:hover {
-            background: rgba(0, 255, 136, 0.3);
-            border-color: #00ff88;
-            transform: translateY(-2px);
-        }
-        
-        .tool-btn.active {
-            background: #00ff88;
-            color: black;
-            font-weight: bold;
-        }
-        
-        #crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            pointer-events: none;
-            z-index: 50;
-        }
-        
-        #crosshair::before,
-        #crosshair::after {
-            content: '';
-            position: absolute;
-            background: rgba(255, 255, 255, 0.8);
-        }
-        
-        #crosshair::before {
-            top: 50%;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            transform: translateY(-50%);
-        }
-        
-        #crosshair::after {
-            left: 50%;
-            top: 0;
-            width: 2px;
-            height: 100%;
-            transform: translateX(-50%);
-        }
-        
-        /* Accessibility: visually hidden but available to screen readers */
-        .visually-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
-        }
-        
-        #file-input {
-            display: none;
-        }
-        
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            #menu-bar {
-                height: 40px;
-                padding: 0 10px;
-            }
-            
-            .menu-btn {
-                font-size: 14px;
-                margin-right: 10px;
-            }
-            
-            .menu-item {
-                font-size: 12px;
-                padding: 6px 12px;
-            }
-            
-            #controls-info {
-                top: 50px;
-                left: 10px;
-                right: 10px;
-                max-width: none;
-                width: calc(100vw - 20px);
-                font-size: 12px;
-                padding: 15px;
-            }
-            
-            #stats-panel {
-                top: 50px;
-                right: 10px;
-                font-size: 10px;
-                padding: 10px;
-            }
-            
-            #toolbar {
-                bottom: 10px;
-                left: 50%;
-                transform: translateX(-50%);
-                padding: 10px 20px;
-                gap: 10px;
-            }
-            
-            .tool-btn {
-                font-size: 12px;
-                padding: 8px 16px;
-            }
-            
-            #crosshair {
-                width: 15px;
-                height: 15px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            #menu-bar {
-                height: 35px;
-            }
-            
-            .menu-btn {
-                font-size: 12px;
-                padding: 6px 10px;
-            }
-            
-            .menu-item {
-                font-size: 11px;
-                padding: 5px 10px;
-            }
-            
-            #controls-info {
-                display: none; /* Hide by default on very small screens */
-            }
-            
-            #stats-panel {
-                top: 45px;
-                right: 5px;
-                padding: 8px;
-            }
-            
-            #toolbar {
-                bottom: 5px;
-                padding: 8px 15px;
-            }
-            
-            .tool-btn {
-                font-size: 11px;
-                padding: 6px 12px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ArxisVR - BIM IFC Viewer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      color: #fff;
+      overflow: hidden;
+    }
+
+    #app {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    #loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 9999;
+      transition: opacity 0.3s;
+    }
+
+    #loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #loading h1 {
+      font-size: 48px;
+      font-weight: 700;
+      color: #00d4ff;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+    }
+
+    #loading .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(0, 212, 255, 0.2);
+      border-top-color: #00d4ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    #loading p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 16px;
+    }
+
+    /* Menu Bar */
+    .menu-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 8px;
+      z-index: 10001;
+    }
+
+    .menu-bar-item {
+      position: relative;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .menu-bar-item:hover {
+      background: rgba(0, 212, 255, 0.15);
+      color: #00d4ff;
+    }
+
+    .menu-bar-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 4px;
+      min-width: 220px;
+      background: rgba(20, 20, 30, 0.98);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      display: none;
+      flex-direction: column;
+      padding: 8px 0;
+      z-index: 10002;
+    }
+
+    .menu-bar-item:hover .menu-bar-dropdown {
+      display: flex;
+    }
+
+    .menu-bar-dropdown button {
+      padding: 10px 16px;
+      text-align: left;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+    }
+
+    .menu-bar-dropdown button:hover {
+      background: rgba(0, 212, 255, 0.15);
+      color: #00d4ff;
+    }
+
+    .menu-bar-dropdown hr {
+      border: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 4px 0;
+    }
+
+    .menu-bar-logo {
+      font-size: 16px;
+      font-weight: 700;
+      color: #00d4ff;
+      margin-right: 24px;
+    }
+
+    .connect-multiplayer-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 12px 24px;
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s;
+      z-index: 1000;
+    }
+
+    .connect-multiplayer-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    }
+
+    .connect-multiplayer-btn:active {
+      transform: translateY(0);
+    }
+
+    .spatial-mode-btn {
+      position: fixed;
+      bottom: 70px;
+      right: 20px;
+      padding: 12px 24px;
+      background: rgba(68, 68, 255, 0.3);
+      color: white;
+      border: 2px solid #4444ff;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(68, 68, 255, 0.3);
+      transition: all 0.2s;
+      z-index: 1000;
+    }
+
+    .spatial-mode-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(68, 68, 255, 0.4);
+    }
+
+    .spatial-mode-btn:active {
+      transform: translateY(0);
+    }
+
+    .spatial-mode-btn.active {
+      background: rgba(68, 255, 68, 0.3);
+      border-color: #44ff44;
+      box-shadow: 0 4px 12px rgba(68, 255, 68, 0.3);
+    }
+
+    .toolbar {
+      position: fixed;
+      top: 50%;
+      left: 20px;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 8px;
+      background: rgba(20, 20, 30, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      z-index: 1001;
+      pointer-events: auto;
+    }
+
+    .toolbar-btn {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: rgba(255, 255, 255, 0.8);
+      pointer-events: auto;
+    }
+
+    .toolbar-btn:hover {
+      background: rgba(0, 212, 255, 0.15);
+      border-color: rgba(0, 212, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .toolbar-btn.active {
+      background: rgba(0, 212, 255, 0.3);
+      border-color: #00d4ff;
+      color: #00d4ff;
+    }
+
+    .toolbar-separator {
+      width: 2px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 4px;
+    }
+    
+    /* Toolbar Group Expand */
+    .toolbar-group {
+      position: relative;
+    }
+    
+    .toolbar-group-content {
+      position: absolute;
+      left: 60px;
+      top: 0;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px 8px;
+      background: rgba(20, 20, 30, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      min-width: 200px;
+      z-index: 10002;
+    }
+    
+    .toolbar-group:hover .toolbar-group-content {
+      display: flex;
+    }
+    
+    .toolbar-group-btn {
+      width: 44px;
+      height: 44px;
+      position: relative;
+    }
+    
+    .toolbar-group-btn::after {
+      content: '▸';
+      position: absolute;
+      right: 2px;
+      bottom: 2px;
+      font-size: 10px;
+      color: rgba(0, 212, 255, 0.6);
+    }
+
+    /* Components Menu */
+    .components-menu {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90vw;
+      max-width: 1200px;
+      max-height: 85vh;
+      background: rgba(15, 15, 25, 0.98);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(0, 212, 255, 0.4);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+      z-index: 10000;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      background: rgba(0, 212, 255, 0.1);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+    }
+    
+    .menu-header h3 {
+      margin: 0;
+      font-size: 24px;
+      color: #00d4ff;
+    }
+    
+    .close-menu {
+      background: rgba(255, 0, 0, 0.2);
+      border: 1px solid rgba(255, 0, 0, 0.4);
+      color: #ff4444;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .close-menu:hover {
+      background: rgba(255, 0, 0, 0.3);
+      transform: scale(1.1);
+    }
+    
+    .menu-content {
+      padding: 30px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+    }
+    
+    .menu-section {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    
+    .menu-section h4 {
+      margin: 0 0 15px 0;
+      font-size: 16px;
+      color: #00d4ff;
+      border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+      padding-bottom: 10px;
+    }
+    
+    .menu-section button {
+      width: 100%;
+      padding: 12px 16px;
+      margin: 6px 0;
+      background: rgba(0, 212, 255, 0.1);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .menu-section button:hover {
+      background: rgba(0, 212, 255, 0.2);
+      border-color: rgba(0, 212, 255, 0.6);
+      transform: translateX(4px);
+    }
+  </style>
 </head>
 <body>
-    <div id="canvas-container">
-        <div id="loading">
-            <div>Carregando ArxisVR...</div>
-            <div id="loading-bar">
-                <div id="loading-progress"></div>
-            </div>
+  <div id="app">
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+      <div class="menu-bar-logo">ArxisVR</div>
+      
+      <div class="menu-bar-item">
+        Arquivo
+        <div class="menu-bar-dropdown">
+          <button data-component="LoadFileModal">📁 Abrir Arquivo IFC</button>
+          <button data-component="RecentProjects">⏰ Projetos Recentes</button>
+          <hr>
+          <button data-component="ExportModal">📤 Exportar</button>
+          <button data-component="ShareModal">🔗 Compartilhar</button>
+          <hr>
+          <button data-component="FileBrowser">📂 Navegador de Arquivos</button>
+          <button data-component="CloudStoragePanel">☁️ Cloud Storage</button>
+          <button data-component="VersionHistory">📜 Histórico de Versões</button>
         </div>
-        
-        <div id="menu-bar">
-            <button id="menu-toggle" class="menu-btn">☰</button>
-            <div class="menu-items">
-                <div class="menu-dropdown">
-                    <button class="menu-item" id="file-menu">Arquivo ▼</button>
-                    <div class="submenu" id="file-submenu">
-                        <button class="submenu-item" id="load-ifc-btn">📁 Carregar IFC</button>
-                        <button class="submenu-item" id="export-btn">💾 Exportar</button>
-                    </div>
-                </div>
-                <button class="menu-item" id="view-menu">Visualizar</button>
-                <button class="menu-item" id="tools-menu">Ferramentas</button>
-                <button class="menu-item" id="help-menu">Ajuda</button>
-            </div>
+      </div>
+      
+      <div class="menu-bar-item">
+        Editar
+        <div class="menu-bar-dropdown">
+          <button>↩️ Desfazer</button>
+          <button>↪️ Refazer</button>
+          <hr>
+          <button data-component="FilterBuilder">🔧 Filtros</button>
+          <button data-component="SelectionSetsPanel">🎯 Conjuntos de Seleção</button>
         </div>
-        
-        <div id="controls-info" style="display: none;">
-            <h3>⌨️ Controles</h3>
-            <ul>
-                <li><strong>W</strong> - Frente</li>
-                <li><strong>S</strong> - Trás</li>
-                <li><strong>A</strong> - Esquerda</li>
-                <li><strong>D</strong> - Direita</li>
-                <li><strong>Setas ←→</strong> - Rotacionar</li>
-                <li><strong>Setas ↑↓</strong> - Olhar cima/baixo</li>
-                <li><strong>Mouse</strong> - Olhar (clicar)</li>
-                <li><strong>Clique Esquerdo</strong> - Selecionar</li>
-                <li><strong>Botão Direito</strong> - Propriedades</li>
-                <li><strong>Shift</strong> - Correr</li>
-                <li><strong>Space</strong> - Subir/Pular</li>
-                <li><strong>Ctrl</strong> - Descer</li>
-                <li><strong>F</strong> - Voar/Caminhar</li>
-                <li><strong>M</strong> - Medir</li>
-                <li><strong>H</strong> - Ocultar UI</li>
-            </ul>
+      </div>
+      
+      <div class="menu-bar-item">
+        Visualizar
+        <div class="menu-bar-dropdown">
+          <button data-component="CameraPresetsPanel">📷 Vistas Salvas</button>
+          <button data-component="TransparencyControl">👻 Transparência</button>
+          <button data-component="ExplodeViewPanel">💥 Vista Explodida</button>
+          <button data-component="SectionBoxTool">✂️ Cortes e Seções</button>
+          <hr>
+          <button data-component="LayersPanel">🎨 Layers</button>
+          <button data-component="LightingPanel">💡 Iluminação</button>
+          <button data-component="MaterialEditor">🖌️ Materiais</button>
         </div>
-        
-        <div id="stats-panel" style="display: none;">
-            <div id="fps-counter">FPS: 0</div>
-            <div id="position-info">Posição: (0, 0, 0)</div>
-            <div id="objects-count">Objetos: 0</div>
-            <div id="triangles-count">Triângulos: 0</div>
+      </div>
+      
+      <div class="menu-bar-item">
+        BIM
+        <div class="menu-bar-dropdown">
+          <button data-component="IFCPropertyPanel">📋 Propriedades IFC</button>
+          <button data-component="QuantitiesPanel">📊 Quantitativos</button>
+          <hr>
+          <button data-component="TimelinePanel">⏱️ Timeline 4D</button>
+          <button data-component="CostDashboard">💰 Custos 5D</button>
+          <button data-component="FacilityPanel">🏢 Facilities 6D</button>
         </div>
-        
-        <div id="crosshair" style="display: none;"></div>
-        
-        <div id="toolbar" style="display: none;">
-            <button class="tool-btn" id="load-btn">📁 Carregar IFC</button>
-            <button class="tool-btn" id="measure-btn">📏 Medir</button>
-            <button class="tool-btn" id="section-btn">✂️ Corte</button>
-            <button class="tool-btn" id="info-btn">ℹ️ Informações</button>
-            <button class="tool-btn" id="settings-btn">⚙️ Configurações</button>
+      </div>
+      
+      <div class="menu-bar-item">
+        Análise
+        <div class="menu-bar-dropdown">
+          <button data-component="MeasurementPanel">📏 Medições</button>
+          <button data-component="ConflictDetectionModal">⚠️ Clash Detection</button>
+          <hr>
+          <button data-component="AdvancedSearchPanel">🔎 Busca Avançada</button>
+          <button data-component="DashboardWidget">📊 Dashboard</button>
+          <button data-component="ReportViewer">📄 Relatórios</button>
         </div>
-        
-        <!-- Theme System Containers -->
-        <div id="theme-selector-container" class="theme-panel" style="display: none;"></div>
-        <div id="color-picker-container" class="theme-panel" style="display: none;"></div>
-        
-        <!-- FASE 3: New UI Layout Containers -->
-        <!-- TopBar: Menu superior com File/Edit/View/Help -->
-        <div id="top-bar"></div>
-        
-        <!-- LeftPanel: Project/Layers/Hierarchy -->
-        <div id="left-panel"></div>
-        
-        <!-- RightInspector: Propriedades do objeto selecionado -->
-        <div id="right-inspector"></div>
-        
-        <!-- BottomDock: Ferramentas e console -->
-        <div id="bottom-dock"></div>
-        
-        <!-- Layer Panel Container (legacy - pode ser removido) -->
-        <div id="layer-panel-container" class="ui-panel left-panel" style="display: none;"></div>
-        
-        <!-- Properties Inspector Container (legacy - pode ser removido) -->
-        <div id="properties-inspector" class="ui-panel right-panel" style="display: none;"></div>
-        
-        
-        <!-- FASE 4: AI Chat Container -->
-        <div id="ai-chat-container"></div>
-        
-        <!-- Toolbar Container (Bottom) -->
-        <div id="toolbar-container" class="ui-panel bottom-toolbar"></div>
-        
-        <label for="file-input" class="visually-hidden">Select IFC file</label>
-        <input type="file" id="file-input" accept=".ifc" title="Select IFC file to open" />
+      </div>
+      
+      <div class="menu-bar-item">
+        Colaboração
+        <div class="menu-bar-dropdown">
+          <button data-component="AnnotationsPanel">📝 Anotações</button>
+          <button data-component="IssuesPanel">🐛 Issues/BCF</button>
+          <button data-component="ChatPanel">💬 Chat</button>
+          <hr>
+          <button data-component="UserPresenceWidget">👥 Usuários Online</button>
+          <button data-component="ActivityFeed">📰 Atividades</button>
+        </div>
+      </div>
+      
+      <div class="menu-bar-item">
+        Ajuda
+        <div class="menu-bar-dropdown">
+          <button data-component="HelpPanel">❓ Ajuda</button>
+          <button data-component="TutorialOverlay">🎓 Tutorial</button>
+          <button data-component="KeyboardShortcutsPanel">⌨️ Atalhos</button>
+          <hr>
+          <button data-component="SettingsPanel">⚙️ Configurações</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="canvas-container" style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0;"></div>
+    
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button class="toolbar-btn" data-tool="menu" title="Todos os Componentes (M)">☰</button>
+      <div class="toolbar-separator"></div>
+      
+      <!-- Seleção e Edição -->
+      <button class="toolbar-btn active" data-tool="select" title="Selecionar (Q)">👆</button>
+      
+      <!-- Visualização -->
+      <div class="toolbar-group">
+        <button class="toolbar-btn toolbar-group-btn" title="Visualização">👁️</button>
+        <div class="toolbar-group-content">
+          <button class="toolbar-btn" data-tool="camera" title="Vistas (V)">📷</button>
+          <button class="toolbar-btn" data-tool="transparency" title="Transparência (T)">👻</button>
+          <button class="toolbar-btn" data-tool="explode" title="Vista Explodida (E)">💥</button>
+        </div>
+      </div>
+      
+      <!-- Ferramentas -->
+      <div class="toolbar-group">
+        <button class="toolbar-btn toolbar-group-btn" title="Ferramentas">🔧</button>
+        <div class="toolbar-group-content">
+          <button class="toolbar-btn" data-tool="measure" title="Medir (M)">📏</button>
+          <button class="toolbar-btn" data-tool="section" title="Corte/Seção (C)">✂️</button>
+          <button class="toolbar-btn" data-tool="annotate" title="Anotar (A)">📝</button>
+        </div>
+      </div>
+      
+      <div class="toolbar-separator"></div>
+      
+      <!-- Gerenciamento -->
+      <button class="toolbar-btn" data-tool="layers" title="Camadas (L)">📁</button>
+      
+      <!-- Colaboração -->
+      <div class="toolbar-group">
+        <button class="toolbar-btn toolbar-group-btn" title="Colaboração">🤝</button>
+        <div class="toolbar-group-content">
+          <button class="toolbar-btn" data-tool="comments" title="Comentários (K)">💬</button>
+          <button class="toolbar-btn" data-tool="annotate" title="Anotações (A)">📝</button>
+        </div>
+      </div>
+      
+      <div class="toolbar-separator"></div>
+      <button class="toolbar-btn" data-tool="vr" title="VR/AR (Shift+V)">🥽</button>
     </div>
     
-    <script type="module" src="/src/main.ts"></script>
+    <!-- Components Menu (Hidden by default) -->
+    <div id="components-menu" class="components-menu" style="display: none;">
+      <div class="menu-header">
+        <h3>📦 Todos os Componentes</h3>
+        <button class="close-menu">✕</button>
+      </div>
+      <div class="menu-content">
+        <!-- ESSENCIAIS -->
+        <div class="menu-section">
+          <h4>⚡ Essenciais</h4>
+          <button data-component="LoadFileModal">📁 Abrir Arquivo IFC</button>
+          <button data-component="IFCPropertyPanel">📋 Propriedades</button>
+          <button data-component="MeasurementPanel">📏 Medições</button>
+          <button data-component="LayersPanel">🎨 Layers</button>
+        </div>
+
+        <!-- VISUALIZAÇÃO -->
+        <div class="menu-section">
+          <h4>👁️ Visualização</h4>
+          <button data-component="CameraPresetsPanel">📷 Vistas Salvas</button>
+          <button data-component="TransparencyControl">👻 Transparência</button>
+          <button data-component="ExplodeViewPanel">💥 Vista Explodida</button>
+          <button data-component="SectionBoxTool">✂️ Cortes e Seções</button>
+          <button data-component="ClippingPlanesEditor">📐 Planos de Corte</button>
+          <button data-component="LightingPanel">💡 Iluminação</button>
+          <button data-component="MaterialEditor">🎨 Materiais</button>
+        </div>
+        
+        <!-- BIM 4D/5D/6D -->
+        <div class="menu-section">
+          <h4>📦 BIM nD</h4>
+          <button data-component="TimelinePanel">⏱️ Timeline 4D</button>
+          <button data-component="SchedulePanel">📅 Cronograma</button>
+          <button data-component="CostDashboard">💰 Custos 5D</button>
+          <button data-component="QuantitiesPanel">📊 Quantitativos</button>
+          <button data-component="FacilityPanel">🏢 Facilities 6D</button>
+          <button data-component="MaintenancePanel">🔧 Manutenção</button>
+        </div>
+        
+        <!-- COLABORAÇÃO -->
+        <div class="menu-section">
+          <h4>🤝 Colaboração</h4>
+          <button data-component="AnnotationsPanel">📝 Anotações</button>
+          <button data-component="IssuesPanel">🐛 Issues/BCF</button>
+          <button data-component="ChatPanel">💬 Chat</button>
+          <button data-component="UserPresenceWidget">👥 Usuários Online</button>
+          <button data-component="ActivityFeed">📰 Atividades</button>
+        </div>
+        
+        <!-- ANÁLISE -->
+        <div class="menu-section">
+          <h4>🔍 Análise</h4>
+          <button data-component="AdvancedSearchPanel">🔎 Busca Avançada</button>
+          <button data-component="FilterBuilder">🔧 Filtros</button>
+          <button data-component="SelectionSetsPanel">🎯 Conjuntos</button>
+          <button data-component="ConflictDetectionModal">⚠️ Clash Detection</button>
+          <button data-component="DashboardWidget">📊 Dashboard</button>
+          <button data-component="ChartsPanel">📈 Gráficos</button>
+        </div>
+        
+        <!-- ARQUIVOS -->
+        <div class="menu-section">
+          <h4>📁 Arquivos</h4>
+          <button data-component="FileBrowser">📂 Navegador</button>
+          <button data-component="RecentProjects">⏰ Recentes</button>
+          <button data-component="CloudStoragePanel">☁️ Cloud</button>
+          <button data-component="VersionHistory">📜 Versões</button>
+          <button data-component="ExportModal">📤 Exportar</button>
+          <button data-component="ShareModal">🔗 Compartilhar</button>
+        </div>
+        
+        <!-- XR -->
+        <div class="menu-section">
+          <h4>🥽 VR/AR</h4>
+          <button data-component="VRControlsPanel">🎮 Controles VR</button>
+          <button data-component="VRTeleportUI">🚀 Teleporte</button>
+          <button data-component="VRMenuRadial">🔘 Menu Radial</button>
+          <button data-component="ARMeasurementUI">📏 Medição AR</button>
+        </div>
+        
+        <!-- RELATÓRIOS -->
+        <div class="menu-section">
+          <h4>📄 Relatórios</h4>
+          <button data-component="ReportViewer">📄 Visualizar</button>
+          <button data-component="ReportGeneratorModal">📝 Gerar</button>
+          <button data-component="ExportReportButton">📤 Exportar</button>
+        </div>
+        
+        <!-- SISTEMA -->
+        <div class="menu-section">
+          <h4>⚙️ Sistema</h4>
+          <button data-component="SettingsPanel">⚙️ Configurações</button>
+          <button data-component="KeyboardShortcutsPanel">⌨️ Atalhos</button>
+          <button data-component="HelpPanel">❓ Ajuda</button>
+          <button data-component="TutorialOverlay">🎓 Tutorial</button>
+          <button data-component="ThemePicker">🎨 Tema</button>
+          <button data-component="LanguageSelector">🌐 Idioma</button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="loading">
+      <h1>ArxisVR</h1>
+      <div class="spinner"></div>
+      <p>Carregando visualizador BIM...</p>
+    </div>
+    <button class="spatial-mode-btn">🚀 Modo Espacial</button>
+    <button class="connect-multiplayer-btn">Connect Multiplayer</button>
+  </div>
+  <script type="module" src="/src/main-simple.ts"></script>
 </body>
 </html>
-

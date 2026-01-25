@@ -9,10 +9,15 @@
     "preview": "vite preview",
     "build:azure": "npm run build && npm run postbuild",
     "postbuild": "echo Build completed successfully",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "avx-render": "file:../../Avx-Core/categories/rendering/avx-render/pkg",
+    "avx-render": "file:../Avx-Core/categories/rendering/avx-render/pkg",
     "camera-controls": "^2.8.3",
     "dat.gui": "^0.7.9",
     "express": "^5.2.1",
@@ -25,10 +30,13 @@
     "@types/dat.gui": "^0.7.13",
     "@types/stats.js": "^0.17.3",
     "@types/three": "^0.160.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
     "eslint": "^9.39.2",
     "terser": "^5.44.1",
     "typescript": "^5.3.3",
     "vite": "^7.3.1",
-    "vite-plugin-wasm": "^3.3.0"
+    "vite-plugin-wasm": "^3.3.0",
+    "vitest": "^1.3.1"
   }
 }

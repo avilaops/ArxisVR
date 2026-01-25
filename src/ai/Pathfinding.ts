@@ -1,3 +1,12 @@
+/**
+ * Pathfinding.ts
+ * 
+ * TODO [P2]: Migrar para AVX interfaces
+ * Este arquivo ainda usa Three.js diretamente pois faz parte do subsistema AI
+ * que será migrado na fase P2 (após core systems)
+ */
+
+/* eslint-disable no-restricted-imports */
 import * as THREE from 'three';
 
 /**

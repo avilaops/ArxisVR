@@ -1,6 +1,7 @@
 import { appController } from '../../app/AppController';
-import { eventBus, EventType } from '../../core';
+import { eventBus, EventType, ToolType } from '../../core';
 import { LayerPanel } from './LayerPanel';
+import { SectionType } from '../../app/SectionManager';
 
 /**
  * LeftPanel - Painel esquerdo
@@ -9,7 +10,7 @@ import { LayerPanel } from './LayerPanel';
 export class LeftPanel {
   private container: HTMLElement;
   private layerPanel: LayerPanel | null = null;
-  private currentTab: 'project' | 'layers' | 'hierarchy' | 'bim' = 'layers';
+  private currentTab: 'project' | 'layers' | 'hierarchy' | 'bim' | 'sections' = 'layers';
   private isVisible: boolean = true;
 
   constructor(containerId: string) {
@@ -356,6 +357,93 @@ export class LeftPanel {
         font-size: 10px;
         color: var(--theme-foregroundMuted, #999);
       }
+      
+      /* Sections Tab Styles */
+      .sections-management {
+        padding: 16px;
+      }
+      
+      .section-toolbar {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 12px;
+      }
+      
+      .section-btn {
+        flex: 1;
+        padding: 8px;
+        background: var(--theme-backgroundSecondary, #2a2a2a);
+        border: 1px solid var(--theme-border, #333);
+        border-radius: 4px;
+        color: var(--theme-foreground, #fff);
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s;
+      }
+      
+      .section-btn:hover {
+        background: var(--theme-primary, #667eea);
+        border-color: var(--theme-accent, #00ff88);
+      }
+      
+      .section-btn.full-width {
+        width: 100%;
+        margin-bottom: 4px;
+      }
+      
+      .section-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .section-checkbox {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+      
+      .section-checkbox input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
+      
+      .section-name {
+        flex: 1;
+        font-size: 12px;
+        color: var(--theme-foreground, #fff);
+      }
+      
+      .section-controls {
+        margin-top: 12px;
+      }
+      
+      .setting-group {
+        margin-bottom: 8px;
+      }
+      
+      .setting-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+        cursor: pointer;
+        font-size: 12px;
+        color: var(--theme-foreground, #fff);
+        transition: background 0.2s;
+      }
+      
+      .setting-label:hover {
+        background: var(--theme-hover, #2a2a2a);
+        border-radius: 4px;
+      }
+      
+      .setting-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
     `;
     
     if (!document.getElementById('left-panel-styles')) {
@@ -375,6 +463,12 @@ export class LeftPanel {
     eventBus.on(EventType.SCENE_LOADED, this.handleSceneChange.bind(this));
     eventBus.on(EventType.OBJECT_ADDED, this.handleSceneChange.bind(this));
     eventBus.on(EventType.OBJECT_REMOVED, this.handleSceneChange.bind(this));
+    
+    // Section events
+    eventBus.on(EventType.SECTION_CREATED, this.handleSectionChange.bind(this));
+    eventBus.on(EventType.SECTION_REMOVED, this.handleSectionChange.bind(this));
+    eventBus.on(EventType.SECTION_UPDATED, this.handleSectionChange.bind(this));
+    eventBus.on(EventType.SECTIONS_CLEARED, this.handleSectionChange.bind(this));
   }
 
   /**
@@ -400,6 +494,9 @@ export class LeftPanel {
         <button class="left-panel-tab ${this.currentTab === 'bim' ? 'active' : ''}" data-tab="bim">
           🏗️ BIM
         </button>
+        <button class="left-panel-tab ${this.currentTab === 'sections' ? 'active' : ''}" data-tab="sections">
+          ✂️ Sections
+        </button>
       </div>
       
       <div class="left-panel-content">
@@ -417,6 +514,10 @@ export class LeftPanel {
 
         <div class="left-panel-tab-content ${this.currentTab === 'bim' ? 'active' : ''}" data-content="bim">
           ${this.renderBIMTab()}
+        </div>
+
+        <div class="left-panel-tab-content ${this.currentTab === 'sections' ? 'active' : ''}" data-content="sections">
+          ${this.renderSectionsTab()}
         </div>
       </div>
     `;
@@ -542,6 +643,86 @@ export class LeftPanel {
         console.log('Hierarchy item clicked:', objectId);
       });
     });
+    
+    // Section actions
+    this.setupSectionEventListeners();
+  }
+  
+  /**
+   * Configura event listeners específicos para ações de seção
+   */
+  private setupSectionEventListeners(): void {
+    // Criar seções por eixo
+    this.container.querySelector('[data-action="create-section-x"]')?.addEventListener('click', () => {
+      appController.sectionManager.createSection(SectionType.X_AXIS, 0);
+      this.updateContent();
+    });
+    
+    this.container.querySelector('[data-action="create-section-y"]')?.addEventListener('click', () => {
+      appController.sectionManager.createSection(SectionType.Y_AXIS, 0);
+      this.updateContent();
+    });
+    
+    this.container.querySelector('[data-action="create-section-z"]')?.addEventListener('click', () => {
+      appController.sectionManager.createSection(SectionType.Z_AXIS, 0);
+      this.updateContent();
+    });
+    
+    // Ativar ferramenta de seção
+    this.container.querySelector('[data-action="activate-section-tool"]')?.addEventListener('click', () => {
+      appController.activateTool(ToolType.CUT);
+    });
+    
+    // Toggle seção
+    this.container.querySelectorAll('[data-action="toggle-section"]').forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement;
+        const sectionId = target.dataset.id!;
+        appController.sectionManager.toggleSection(sectionId, target.checked);
+      });
+    });
+    
+    // Flip seção
+    this.container.querySelectorAll('[data-action="flip-section"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const sectionId = target.dataset.id!;
+        appController.sectionManager.flipSection(sectionId);
+        this.updateContent();
+      });
+    });
+    
+    // Delete seção
+    this.container.querySelectorAll('[data-action="delete-section"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const sectionId = target.dataset.id!;
+        appController.sectionManager.removeSection(sectionId);
+        this.updateContent();
+      });
+    });
+    
+    // Clear all sections
+    this.container.querySelector('[data-action="clear-sections"]')?.addEventListener('click', () => {
+      appController.sectionManager.clearSections();
+      this.updateContent();
+    });
+    
+    // Toggle visual options
+    this.container.querySelector('[data-action="toggle-section-lines"]')?.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      appController.sectionManager.updateVisualOptions({ showSectionLines: target.checked });
+    });
+    
+    this.container.querySelector('[data-action="toggle-clipping-planes"]')?.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      appController.sectionManager.updateVisualOptions({ showClippingPlanes: target.checked });
+    });
+    
+    // Measurement tools
+    this.container.querySelector('[data-action="activate-measurement"]')?.addEventListener('click', () => {
+      appController.activateTool(ToolType.MEASUREMENT);
+    });
   }
 
   /**
@@ -602,6 +783,15 @@ export class LeftPanel {
       this.updateContent();
     }
   }
+  
+  /**
+   * Handler para mudança de seções
+   */
+  private handleSectionChange(): void {
+    if (this.currentTab === 'sections') {
+      this.updateContent();
+    }
+  }
 
   /**
    * Atualiza conteúdo
@@ -609,6 +799,7 @@ export class LeftPanel {
   private updateContent(): void {
     const projectContent = this.container.querySelector('[data-content="project"]');
     const hierarchyContent = this.container.querySelector('[data-content="hierarchy"]');
+    const sectionsContent = this.container.querySelector('[data-content="sections"]');
     
     if (projectContent) {
       projectContent.innerHTML = this.renderProjectTab();
@@ -616,6 +807,12 @@ export class LeftPanel {
     
     if (hierarchyContent) {
       hierarchyContent.innerHTML = this.renderHierarchyTab();
+    }
+    
+    if (sectionsContent) {
+      sectionsContent.innerHTML = this.renderSectionsTab();
+      // Re-attach event listeners após update
+      this.setupSectionEventListeners();
     }
     
     // Re-anexar listeners
@@ -702,6 +899,88 @@ export class LeftPanel {
           <div class="bim-list">
             ${this.renderVersionHistory()}
           </div>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Renderiza aba de Seções e Clipping
+   */
+  private renderSectionsTab(): string {
+    const sections = appController.sectionManager.getSections();
+
+    return `
+      <div class="sections-management">
+        <div class="bim-section">
+          <h4>✂️ Section Planes</h4>
+          <div class="section-toolbar">
+            <button class="section-btn" data-action="create-section-x" title="Create X Section">
+              <span style="color: #ff0000;">X</span>
+            </button>
+            <button class="section-btn" data-action="create-section-y" title="Create Y Section">
+              <span style="color: #00ff00;">Y</span>
+            </button>
+            <button class="section-btn" data-action="create-section-z" title="Create Z Section">
+              <span style="color: #0000ff;">Z</span>
+            </button>
+            <button class="section-btn" data-action="activate-section-tool" title="Interactive Section Tool">
+              🎯 Tool
+            </button>
+          </div>
+          
+          <div class="bim-list" id="sections-list">
+            ${sections.length === 0 ? '<div class="bim-empty">No sections created</div>' : sections.map((section) => `
+              <div class="bim-item section-item" data-id="${section.id}">
+                <label class="section-checkbox">
+                  <input type="checkbox" ${section.enabled ? 'checked' : ''} data-action="toggle-section" data-id="${section.id}">
+                </label>
+                <span class="section-name">${section.name}</span>
+                <div class="bim-actions">
+                  <button data-action="flip-section" data-id="${section.id}" title="Flip section">🔄</button>
+                  <button data-action="delete-section" data-id="${section.id}" title="Delete">🗑️</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class="section-controls">
+            <button class="bim-add-btn" data-action="clear-sections">
+              🧹 Clear All Sections
+            </button>
+          </div>
+        </div>
+
+        <div class="bim-section">
+          <h4>🎨 Visual Settings</h4>
+          <div class="setting-group">
+            <label class="setting-label">
+              <input type="checkbox" checked data-action="toggle-section-lines">
+              Show Section Lines
+            </label>
+          </div>
+          <div class="setting-group">
+            <label class="setting-label">
+              <input type="checkbox" checked data-action="toggle-clipping-planes">
+              Show Clipping Planes
+            </label>
+          </div>
+        </div>
+
+        <div class="bim-section">
+          <h4>📏 Measurement Tools</h4>
+          <button class="section-btn full-width" data-action="activate-measurement">
+            📏 Distance
+          </button>
+          <button class="section-btn full-width" data-action="activate-area">
+            📐 Area
+          </button>
+          <button class="section-btn full-width" data-action="activate-volume">
+            📦 Volume
+          </button>
+          <button class="section-btn full-width" data-action="activate-angle">
+            📐 Angle
+          </button>
         </div>
       </div>
     `;

@@ -9,6 +9,7 @@ import { SelectionTool } from './tools/SelectionTool';
 import { MeasurementTool } from './tools/MeasurementTool';
 import { NavigationTool } from './tools/NavigationTool';
 import { LayerTool } from './tools/LayerTool';
+import { SectionTool } from './tools/SectionTool';
 import { LightingSystem } from './systems/LightingSystem';
 import { LODSystem as LegacyLODSystem } from './systems/LODSystem';
 import { IFCLoader } from './loaders/IFCLoader';
@@ -177,6 +178,8 @@ private canvas!: HTMLCanvasElement;
   private async initializeApp(): Promise<void> {
     console.log('🏗️ ArxisVR Constructor: Starting initialization...');
     
+    console.log('🚀 ArxisVR: Starting initialization...');
+    
     // Initialize engine components
     this.sceneManager = new SceneManager();
     this.cameraSystem = new CameraSystem();
@@ -184,8 +187,21 @@ private canvas!: HTMLCanvasElement;
     // AVX Renderer: Create canvas directly instead of Three.js renderer
     this.initializeCanvas();
     
+    console.log('✅ Canvas initialized');
+
+    // FASE 5 - Initialize Engine Core FIRST (before components that depend on it)
+    try {
+      await this.initializeEngine();
+      console.log('✅ Engine initialized');
+    } catch (error) {
+      console.error('❌ Engine initialization failed:', error);
+      // Continue anyway
+    }
+    
     this.lightingSystem = new LightingSystem(this.sceneManager.scene);
     this.lodSystem = new LegacyLODSystem(this.cameraSystem.camera, this.engineLoop?.entityManager);
+    
+    console.log('✅ Lighting and LOD systems initialized');
     
     // Set engine references in AppController (AVX: no renderer reference)
     appController.setEngineReferences(
@@ -202,6 +218,8 @@ private canvas!: HTMLCanvasElement;
       () => this.instancingSystem?.initializeInstancing(), // Callback para atualizar instancing
       appController.layerManager as any
     );
+    
+    console.log('✅ IFC Loader initialized');
 
     // IFC Streaming Loader (ultra-performático)
     this.ifcStreamingLoader = new IFCStreamingLoader(
@@ -225,6 +243,10 @@ private canvas!: HTMLCanvasElement;
       this.cameraSystem.camera
     );
     this.layerTool = new LayerTool();
+    this.sectionTool = new SectionTool(
+      this.sceneManager.scene,
+      this.cameraSystem.camera
+    );
     
     
     // Register tools with ToolManager
@@ -232,6 +254,7 @@ private canvas!: HTMLCanvasElement;
     appController.toolManager.registerTool(ToolType.SELECTION, this.selectionTool);
     appController.toolManager.registerTool(ToolType.MEASUREMENT, this.measurementTool);
     appController.toolManager.registerTool(ToolType.LAYER, this.layerTool);
+    appController.toolManager.registerTool(ToolType.CUT, this.sectionTool);
     
     // Activate navigation tool by default
     appController.activateTool(ToolType.NAVIGATION);
@@ -239,17 +262,27 @@ private canvas!: HTMLCanvasElement;
     // Initialize Theme System
     this.initializeThemeSystem();
     
-    // FASE 2 - Initialize Performance Systems
-    this.initializePhase2Systems();
+    // FASE 2 - Initialize Performance Systems (simplified)
+    try {
+      this.initializePhase2Systems();
+    } catch (error) {
+      console.error('⚠️ Phase 2 systems error:', error);
+    }
     
-    // FASE 3 - Initialize Networking & Scripting
-    this.initializePhase3Systems();
+    // FASE 3 - Initialize Networking & Scripting (simplified)
+    try {
+      this.initializePhase3Systems();
+    } catch (error) {
+      console.error('⚠️ Phase 3 systems error:', error);
+    }
     
-    // FASE 4 - Initialize AI & Assistant
-    this.initializePhase4Systems();
+    // FASE 4 - Initialize AI & Assistant (simplified)
+    try {
+      this.initializePhase4Systems();
+    } catch (error) {
+      console.error('⚠️ Phase 4 systems error:', error);
+    }
 
-    // FASE 5 - Initialize Engine Core (async now)
-    await this.initializeEngine();
     
     // Continue with the rest of initialization
     await this.init();
@@ -373,8 +406,7 @@ private canvas!: HTMLCanvasElement;
     this.voipSystem = new VoIPSystem();
     console.log('✅ VoIP System ready');
     
-    // 4. Setup multiplayer UI
-    this.setupMultiplayerUI();
+    // Multiplayer UI será configurado via setupMultiplayerButton no init()
     
     console.log('🎊 Phase 3 Systems initialized successfully!');
     console.log('📜 Scripting: ON');
@@ -397,10 +429,15 @@ private canvas!: HTMLCanvasElement;
     console.log('✅ Pathfinding ready');
     
     // 3. AI Assistant with ChatGPT
+    const renderSystem = this.engineLoop.getSystem('RenderSystem') as RenderSystem;
+    const renderer = renderSystem?.getRenderer();
+    const scene = renderSystem?.getScene() || this.sceneManager.scene;
+    const camera = renderSystem?.getCamera() || this.cameraSystem.camera;
+    
     const actionRouter = new ViewerActionRouter(
-      this.sceneManager.scene,
-      this.cameraSystem.camera,
-      this.renderer.renderer
+      scene,
+      camera,
+      renderer!
     );
     
     this.aiAssistant = new AIAssistant(actionRouter);
@@ -440,39 +477,26 @@ private canvas!: HTMLCanvasElement;
   }
   
   /**
-   * Configura UI de multiplayer
+   * Configura botão Multiplayer
    */
-  private setupMultiplayerUI(): void {
-    // Botão para conectar multiplayer
-    const mpButton = document.createElement('button');
-    mpButton.textContent = '🌐 Connect Multiplayer';
-    mpButton.style.position = 'absolute';
-    mpButton.style.bottom = '70px';
-    mpButton.style.right = '20px';
-    mpButton.style.padding = '12px 24px';
-    mpButton.style.fontSize = '14px';
-    mpButton.style.fontWeight = 'bold';
-    mpButton.style.backgroundColor = '#44ff44';
-    mpButton.style.color = '#000';
-    mpButton.style.border = 'none';
-    mpButton.style.borderRadius = '8px';
-    mpButton.style.cursor = 'pointer';
-    mpButton.style.zIndex = '1000';
-    
-    mpButton.addEventListener('click', async () => {
-      if (!this.isMultiplayerEnabled) {
-        await this.enableMultiplayer();
-        mpButton.textContent = '🌐 Disconnect';
-        mpButton.style.backgroundColor = '#ff4444';
-      } else {
-        this.disableMultiplayer();
-        mpButton.textContent = '🌐 Connect Multiplayer';
-        mpButton.style.backgroundColor = '#44ff44';
-      }
-    });
-    
-    document.body.appendChild(mpButton);
-    console.log('🌐 Multiplayer button created');
+  private setupMultiplayerButton(): void {
+    const button = document.querySelector('.connect-multiplayer-btn') as HTMLButtonElement;
+    if (button) {
+      button.addEventListener('click', async () => {
+        if (this.isMultiplayerEnabled) {
+          this.disableMultiplayer();
+          button.textContent = 'Connect Multiplayer';
+          button.style.backgroundColor = '#10b981';
+        } else {
+          await this.enableMultiplayer();
+          button.textContent = 'Disconnect';
+          button.style.backgroundColor = '#ef4444';
+        }
+      });
+      console.log('✅ Multiplayer button setup complete');
+    } else {
+      console.warn('⚠️ Multiplayer button not found in DOM');
+    }
   }
   
   /**
@@ -522,6 +546,29 @@ private canvas!: HTMLCanvasElement;
     this.isMultiplayerEnabled = false;
     
     console.log('❌ Multiplayer disabled');
+  }
+  
+  /**
+   * Configura botão Multiplayer
+   */
+  private setupMultiplayerButton(): void {
+    const button = document.querySelector('.connect-multiplayer-btn') as HTMLButtonElement;
+    if (button) {
+      button.addEventListener('click', () => {
+        if (this.isMultiplayerEnabled) {
+          this.disableMultiplayer();
+          button.textContent = 'Connect Multiplayer';
+          button.style.backgroundColor = '#10b981';
+        } else {
+          this.enableMultiplayer();
+          button.textContent = 'Disconnect';
+          button.style.backgroundColor = '#ef4444';
+        }
+      });
+      console.log('✅ Multiplayer button setup complete');
+    } else {
+      console.warn('⚠️ Multiplayer button not found in DOM');
+    }
   }
   
   /**
@@ -620,42 +667,57 @@ private canvas!: HTMLCanvasElement;
   }
 
   private init(): Promise<void> {
-    // Initialize UI System (FASE 3)
-    this.ui = new UI();
-    
-    // Initialize InputSystem (FASE 4)
-    const inputSystem = InputSystem.getInstance();
-    inputSystem.initialize(this.cameraSystem.camera, this.sceneManager.scene, this.canvas);
-    
-    // Setup scene
-    this.setupScene();
-    
-    // Setup IFC loading
-    this.setupIFCLoading();
-    
-    // Setup toolbar
-    this.setupToolbar();
-    
-    // Setup keyboard shortcuts
-    this.setupKeyboardShortcuts();
-    
-    // Start render loop
-    this.start();
-    
-    // Hide loading screen
-    this.hideLoading();
-    
-    console.log('🚀 ArxisVR initialized - All Phases Complete!');
-    console.log('📊 Core → App → Engine/UI/Tools');
-    console.log('🎯 State: Centralized (AppState)');
-    console.log('📡 Communication: EventBus');
-    console.log('🎨 Themes: 6 default themes loaded');
-    console.log('🔧 Tools: Universal interface');
-    console.log('⚡ Phase 2: Asset Streaming, Hot-Reload, Optimization, VR');
-    console.log('🌐 Phase 3: Multiplayer, VoIP, Scripting, UI System');
-    console.log('🖱️ Phase 4: InputSystem, Selection, Project Management');
-    console.log('🏆 Performance: +100% FPS vs Unity WebGL');
-    console.log('🎊 ArxisVR - Unity Killer Edition - Ready!');
+    return new Promise((resolve) => {
+      try {
+        console.log('🎬 Starting main initialization...');
+        
+        // Initialize UI System (FASE 3)
+        this.ui = new UI();
+        
+        // Initialize InputSystem (FASE 4)
+        const inputSystem = InputSystem.getInstance();
+        inputSystem.initialize(this.cameraSystem.camera, this.sceneManager.scene, this.canvas);
+        
+        // Setup scene
+        this.setupScene();
+        
+        // Setup IFC loading
+        this.setupIFCLoading();
+        
+        // Setup toolbar
+        this.setupToolbar();
+        
+        // Setup keyboard shortcuts
+        this.setupKeyboardShortcuts();
+        
+        // Setup multiplayer button
+        this.setupMultiplayerButton();
+        
+        // Start render loop
+        this.start();
+        
+        // Hide loading screen
+        this.hideLoading();
+        
+        console.log('🚀 ArxisVR initialized - All Phases Complete!');
+        console.log('📊 Core → App → Engine/UI/Tools');
+        console.log('🎯 State: Centralized (AppState)');
+        console.log('📡 Communication: EventBus');
+        console.log('🎨 Themes: 6 default themes loaded');
+        console.log('🔧 Tools: Universal interface');
+        console.log('⚡ Phase 2: Asset Streaming, Hot-Reload, Optimization, VR');
+        console.log('🌐 Phase 3: Multiplayer, VoIP, Scripting, UI System');
+        console.log('🖱️ Phase 4: InputSystem, Selection, Project Management');
+        console.log('🏆 Performance: +100% FPS vs Unity WebGL');
+        console.log('🎊 ArxisVR - Unity Killer Edition - Ready!');
+        
+        resolve();
+      } catch (error) {
+        console.error('❌ Error during initialization:', error);
+        this.hideLoading();
+        resolve();
+      }
+    });
   }
 
   private setupScene(): void {
@@ -776,7 +838,11 @@ private canvas!: HTMLCanvasElement;
   private hideLoading(): void {
     const loading = document.getElementById('loading');
     if (loading) {
-      loading.style.display = 'none';
+      loading.classList.add('hidden');
+      setTimeout(() => {
+        loading.style.display = 'none';
+      }, 300);
+      console.log('✅ Loading screen hidden');
     }
   }
 
@@ -828,6 +894,18 @@ private canvas!: HTMLCanvasElement;
 
 // Initialize application
 const app = new ArxisVR();
+
+// Safety timeout - remove loading after 5 seconds no matter what
+setTimeout(() => {
+  const loading = document.getElementById('loading');
+  if (loading && loading.style.display !== 'none') {
+    console.warn('⚠️ Loading timeout - forcing removal');
+    loading.classList.add('hidden');
+    setTimeout(() => {
+      loading.style.display = 'none';
+    }, 300);
+  }
+}, 5000);
 
 // Export para debug global no console
 if (typeof window !== 'undefined') {

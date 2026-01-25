@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import wasm from 'vite-plugin-wasm';
+import path from 'node:path';
 
 export default defineConfig({
   plugins: [wasm()],
@@ -16,7 +17,7 @@ export default defineConfig({
 
   // Configurações de servidor
   server: {
-    port: 3000,
+    port: 3001,
     strictPort: false,
     host: true,
     fs: {

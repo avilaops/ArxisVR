@@ -1,10 +1,14 @@
-import * as THREE from 'three';
+import type { IScene, ICamera, IRenderer } from '../engine/api';
+import { createScene } from '../engine/adapters/ThreeAdapter';
 import { appState, eventBus, EventType, NavigationMode, ToolType, RenderQuality } from '../core';
 import { ToolManager } from './ToolManager';
 import { ProjectManager } from './ProjectManager';
+import { ProjectSerializer } from './ProjectSerializer';
 import { SelectionManager } from './SelectionManager';
 import { NavigationManager } from './NavigationManager';
 import { LayerManager } from './LayerManager';
+import { SectionManager } from './SectionManager';
+import { IFCPropertyService, ifcPropertyService } from './IFCPropertyService';
 import { registerAllCommandHandlers } from '../commands';
 import { menuManager } from '../menu';
 
@@ -26,21 +30,25 @@ public readonly projectSerializer: ProjectSerializer;
 public readonly selectionManager: SelectionManager;
 public readonly navigationManager: NavigationManager;
 public readonly layerManager: LayerManager;
+public readonly sectionManager: SectionManager;
+public readonly ifcPropertyService: IFCPropertyService;
 
 // IFC Loader reference
 private ifcLoader: IFCLoader | null = null;
   
 // Renderer reference for quality settings
-private _renderer: THREE.WebGLRenderer | null = null;
+private _renderer: IRenderer | null = null;
 
 private constructor() {
-  // Initialize managers
+  // Initialize managers (SectionManager será inicializado após ter scene/renderer)
   this.toolManager = new ToolManager();
   this.projectManager = new ProjectManager();
   this.projectSerializer = ProjectSerializer.getInstance();
   this.selectionManager = new SelectionManager();
   this.navigationManager = new NavigationManager();
   this.layerManager = new LayerManager();
+  this.sectionManager = new SectionManager(createScene()); // Temporário, será substituído
+  this.ifcPropertyService = ifcPropertyService; // Usa singleton
 
   // Register command handlers
   registerAllCommandHandlers();
@@ -64,14 +72,24 @@ private constructor() {
    * Define referências da engine (chamado pelo main.ts)
    */
   public setEngineReferences(
-    scene: THREE.Scene,
-    _camera: THREE.Camera,
-    renderer: THREE.WebGLRenderer,
+    scene: IScene,
+    _camera: ICamera,
+    renderer?: IRenderer | null,
     ifcLoader?: IFCLoader
   ): void {
-    this._renderer = renderer;
+    this._renderer = renderer ?? null;
     this.layerManager.setScene(scene);
     this.ifcLoader = ifcLoader || null;
+    
+    // Recria SectionManager com scene e renderer reais
+    (this.sectionManager as any) = new SectionManager(scene, renderer ?? null);
+    console.log('✂️ SectionManager configured with real scene and renderer');
+    
+    // Configura IFCPropertyService com o IFCLoader
+    if (ifcLoader) {
+      this.ifcPropertyService.setIFCLoader(ifcLoader);
+      console.log('🔍 IFCPropertyService configured with IFCLoader');
+    }
   }
 
   // ==================== State Management ====================

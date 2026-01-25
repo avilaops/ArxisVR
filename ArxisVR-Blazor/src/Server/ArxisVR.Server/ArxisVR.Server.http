@@ -1,6 +1,0 @@
-@ArxisVR.Server_HostAddress = http://localhost:5097
-
-GET {{ArxisVR.Server_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

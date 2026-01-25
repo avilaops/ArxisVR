@@ -11,6 +11,8 @@ export * from './SelectionManager';
 export * from './NavigationManager';
 export * from './LayerManager';
 export * from './CommandHistory';
+export * from './SectionManager';
+export * from './IFCPropertyService';
 export * from './commands';
 
 

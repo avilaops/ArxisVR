@@ -70,6 +70,15 @@ export enum EventType {
   MEASUREMENT_COMPLETED = 'MEASUREMENT_COMPLETED',
   MEASUREMENT_CANCELLED = 'MEASUREMENT_CANCELLED',
   
+  // Section & Clipping Events
+  SECTION_CREATED = 'SECTION_CREATED',
+  SECTION_REMOVED = 'SECTION_REMOVED',
+  SECTION_UPDATED = 'SECTION_UPDATED',
+  SECTION_TOGGLED = 'SECTION_TOGGLED',
+  SECTION_ACTIVATED = 'SECTION_ACTIVATED',
+  SECTIONS_CLEARED = 'SECTIONS_CLEARED',
+  SECTION_VISUAL_OPTIONS_UPDATED = 'SECTION_VISUAL_OPTIONS_UPDATED',
+  
   // Navigation Events
   NAVIGATION_MODE_CHANGED = 'NAVIGATION_MODE_CHANGED',
   
@@ -237,6 +246,15 @@ export interface EventData {
   [EventType.MEASUREMENT_STARTED]: { tool: string };
   [EventType.MEASUREMENT_COMPLETED]: { distance: number; points: THREE.Vector3[] };
   [EventType.MEASUREMENT_CANCELLED]: Record<string, never>;
+  
+  // Section & Clipping Events
+  [EventType.SECTION_CREATED]: { id: string; name: string; type: string };
+  [EventType.SECTION_REMOVED]: string;
+  [EventType.SECTION_UPDATED]: { id: string; name: string };
+  [EventType.SECTION_TOGGLED]: { sectionId: string; enabled: boolean };
+  [EventType.SECTION_ACTIVATED]: { id: string; name: string };
+  [EventType.SECTIONS_CLEARED]: Record<string, never>;
+  [EventType.SECTION_VISUAL_OPTIONS_UPDATED]: { showSectionLines: boolean; showClippingPlanes: boolean };
   
   // Navigation Events
   [EventType.NAVIGATION_MODE_CHANGED]: { mode: string };

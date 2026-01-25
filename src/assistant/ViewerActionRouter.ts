@@ -22,12 +22,21 @@ import {
 export class ViewerActionRouter {
   private scene: THREE.Scene;
   private camera: THREE.Camera;
-  private renderer: THREE.WebGLRenderer;
+  private renderer: THREE.WebGLRenderer | null;
+  private canvas: HTMLCanvasElement | null;
   
-  constructor(scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer) {
+  constructor(
+    scene: THREE.Scene,
+    camera: THREE.Camera,
+    options?: {
+      renderer?: THREE.WebGLRenderer | null;
+      canvas?: HTMLCanvasElement | null;
+    }
+  ) {
     this.scene = scene;
     this.camera = camera;
-    this.renderer = renderer;
+    this.renderer = options?.renderer ?? null;
+    this.canvas = options?.canvas ?? options?.renderer?.domElement ?? null;
   }
   
   /**
@@ -238,10 +247,21 @@ export class ViewerActionRouter {
    */
   private async executeTakeScreenshot(action: TakeScreenshotAction): Promise<ActionResult> {
     try {
-      this.renderer.render(this.scene, this.camera);
-      
       const quality = action.quality === 'high' ? 1.0 : action.quality === 'medium' ? 0.8 : 0.6;
-      const dataUrl = this.renderer.domElement.toDataURL('image/png', quality);
+      let dataUrl: string | null = null;
+
+      if (this.renderer) {
+        this.renderer.render(this.scene, this.camera);
+        dataUrl = this.renderer.domElement.toDataURL('image/png', quality);
+      } else if (this.canvas) {
+        dataUrl = this.canvas.toDataURL('image/png', quality);
+      } else {
+        return {
+          action,
+          success: false,
+          error: 'No render target available to capture screenshot'
+        };
+      }
       
       // Cria link de download
       const link = document.createElement('a');

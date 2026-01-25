@@ -8,3 +8,4 @@ export * from './SelectionTool';
 export * from './MeasurementTool';
 export * from './NavigationTool';
 export * from './LayerTool';
+export * from './SectionTool';

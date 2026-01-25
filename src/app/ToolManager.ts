@@ -75,6 +75,8 @@ export class ToolManager {
       'navigation': ToolType.NAVIGATION,
       'measurement': ToolType.MEASUREMENT,
       'layer': ToolType.LAYER,
+      'cut': ToolType.CUT,
+      'section': ToolType.CUT, // Alias para section
       'none': ToolType.NONE
     };
     

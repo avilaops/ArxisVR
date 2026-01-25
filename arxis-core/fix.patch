@@ -1,0 +1,22 @@
+--- a/src/main.ts
++++ b/src/main.ts
+@@ -186,6 +186,9 @@
+     // AVX Renderer: Create canvas directly instead of Three.js renderer
+     this.initializeCanvas();
+     
++    // FASE 5 - Initialize Engine Core FIRST (before components that depend on it)
++    await this.initializeEngine();
++    
+     this.lightingSystem = new LightingSystem(this.sceneManager.scene);
+     this.lodSystem = new LegacyLODSystem(this.cameraSystem.camera, this.engineLoop?.entityManager);
+     
+@@ -249,9 +252,6 @@
+     
+     // FASE 4 - Initialize AI & Assistant
+     this.initializePhase4Systems();
+-
+-    // FASE 5 - Initialize Engine Core (async now)
+-    await this.initializeEngine();
+     
+     // Continue with the rest of initialization
+     await this.init();

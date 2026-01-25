@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\ArxisVR-Blazor",
+    "\\ArxisVR-Blazor\\src",
+    "\\ArxisVR-Blazor\\src\\Client",
+    "\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client",
+    "\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core",
+    "\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS",
+    "\\geometry",
+    "\\physics",
+    "\\tensor"
+  ],
+  "SelectedNode": "\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Component.cs",
+  "PreviewInSolutionExplorer": false
+}

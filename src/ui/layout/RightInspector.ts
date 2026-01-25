@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { appController } from '../../app/AppController';
 import { IFCElement } from '../../core/types';
 import { eventBus, EventType } from '../../core';
+import { DetailedIFCProperties } from '../../app/IFCPropertyService';
 
 /**
  * RightInspector - Painel de propriedades IFC
@@ -10,6 +11,7 @@ import { eventBus, EventType } from '../../core';
 export class RightInspector {
   private container: HTMLElement;
   private isVisible: boolean = false;
+  private detailedProperties: DetailedIFCProperties | null = null;
 
   constructor(containerId: string) {
     const container = document.getElementById(containerId);
@@ -171,15 +173,15 @@ export class RightInspector {
   /**
    * Renderiza o inspetor
    */
-  private render(): void {
+  private async render(): Promise<void> {
     this.container.innerHTML = '';
     
     // Header
     const header = this.createHeader();
     this.container.appendChild(header);
     
-    // Content
-    const content = this.createContent();
+    // Content (async)
+    const content = await this.createContent();
     this.container.appendChild(content);
   }
 
@@ -207,7 +209,7 @@ export class RightInspector {
   /**
    * Cria conteúdo
    */
-  private createContent(): HTMLElement {
+  private async createContent(): Promise<HTMLElement> {
     const content = document.createElement('div');
     content.className = 'inspector-content';
     
@@ -238,9 +240,46 @@ export class RightInspector {
     content.appendChild(geometrySection);
     
     // IFC Properties section (if available)
-    if (selectedElement) {
-      const ifcSection = this.createIFCSection(selectedElement);
-      content.appendChild(ifcSection);
+    if (selectedElement || selectedObject.userData.expressID) {
+      // Tenta obter propriedades reais do IFC
+      const modelID = selectedObject.userData.modelID || 0;
+      const expressID = selectedObject.userData.expressID;
+      
+      if (expressID !== undefined) {
+        try {
+          // Mostra loading
+          const loadingDiv = document.createElement('div');
+          loadingDiv.className = 'inspector-section';
+          loadingDiv.innerHTML = '<div class="inspector-section-title">🔄 Loading IFC Properties...</div>';
+          content.appendChild(loadingDiv);
+          
+          // Obtém propriedades reais
+          this.detailedProperties = await appController.ifcPropertyService.getElementProperties(modelID, expressID);
+          
+          // Remove loading
+          content.removeChild(loadingDiv);
+          
+          if (this.detailedProperties) {
+            // IFC Properties completas
+            const ifcSection = this.createDetailedIFCSection(this.detailedProperties);
+            content.appendChild(ifcSection);
+          } else if (selectedElement) {
+            // Fallback para dados do SelectionManager
+            const ifcSection = this.createIFCSection(selectedElement);
+            content.appendChild(ifcSection);
+          }
+        } catch (error) {
+          console.error('Erro ao carregar propriedades IFC:', error);
+          // Fallback
+          if (selectedElement) {
+            const ifcSection = this.createIFCSection(selectedElement);
+            content.appendChild(ifcSection);
+          }
+        }
+      } else if (selectedElement) {
+        const ifcSection = this.createIFCSection(selectedElement);
+        content.appendChild(ifcSection);
+      }
     }
     
     return content;
@@ -330,6 +369,138 @@ export class RightInspector {
     }
     
     return section;
+  }
+
+  /**
+   * Cria seção de propriedades IFC detalhadas (dados reais)
+   */
+  private createDetailedIFCSection(detailed: DetailedIFCProperties): HTMLElement {
+    const container = document.createElement('div');
+    
+    // Basic Properties
+    const basicSection = document.createElement('div');
+    basicSection.className = 'inspector-section';
+    
+    const basicTitle = document.createElement('div');
+    basicTitle.className = 'inspector-section-title';
+    basicTitle.textContent = '🔍 IFC Properties (Real Data)';
+    basicSection.appendChild(basicTitle);
+    
+    const basicProperties = [
+      { key: 'Express ID', value: detailed.basic.expressID.toString() },
+      { key: 'IFC Type', value: detailed.basic.type },
+      { key: 'Global ID', value: detailed.basic.globalId },
+      { key: 'Name', value: detailed.basic.name }
+    ];
+    
+    if (detailed.basic.description) {
+      basicProperties.push({ key: 'Description', value: detailed.basic.description });
+    }
+    
+    basicProperties.forEach(prop => {
+      basicSection.appendChild(this.createPropertyRow(prop.key, prop.value));
+    });
+    
+    container.appendChild(basicSection);
+    
+    // Geometry Properties
+    if (detailed.geometry && Object.keys(detailed.geometry).length > 0) {
+      const geomSection = document.createElement('div');
+      geomSection.className = 'inspector-section';
+      
+      const geomTitle = document.createElement('div');
+      geomTitle.className = 'inspector-section-title';
+      geomTitle.textContent = '📐 Geometry';
+      geomSection.appendChild(geomTitle);
+      
+      if (detailed.geometry.length !== undefined) {
+        geomSection.appendChild(this.createPropertyRow('Length', `${detailed.geometry.length.toFixed(3)} m`));
+      }
+      if (detailed.geometry.width !== undefined) {
+        geomSection.appendChild(this.createPropertyRow('Width', `${detailed.geometry.width.toFixed(3)} m`));
+      }
+      if (detailed.geometry.height !== undefined) {
+        geomSection.appendChild(this.createPropertyRow('Height', `${detailed.geometry.height.toFixed(3)} m`));
+      }
+      if (detailed.geometry.area !== undefined) {
+        geomSection.appendChild(this.createPropertyRow('Area', `${detailed.geometry.area.toFixed(3)} m²`));
+      }
+      if (detailed.geometry.volume !== undefined) {
+        geomSection.appendChild(this.createPropertyRow('Volume', `${detailed.geometry.volume.toFixed(3)} m³`));
+      }
+      
+      container.appendChild(geomSection);
+    }
+    
+    // Material Properties
+    if (detailed.material && Object.keys(detailed.material).length > 0) {
+      const matSection = document.createElement('div');
+      matSection.className = 'inspector-section';
+      
+      const matTitle = document.createElement('div');
+      matTitle.className = 'inspector-section-title';
+      matTitle.textContent = '🎨 Material';
+      matSection.appendChild(matTitle);
+      
+      if (detailed.material.name) {
+        matSection.appendChild(this.createPropertyRow('Material Name', detailed.material.name));
+      }
+      if (detailed.material.layerThickness !== undefined) {
+        matSection.appendChild(this.createPropertyRow('Thickness', `${detailed.material.layerThickness.toFixed(3)} m`));
+      }
+      
+      container.appendChild(matSection);
+    }
+    
+    // Additional Properties
+    if (detailed.properties.length > 0) {
+      const propsSection = document.createElement('div');
+      propsSection.className = 'inspector-section';
+      
+      const propsTitle = document.createElement('div');
+      propsTitle.className = 'inspector-section-title';
+      propsTitle.textContent = '📋 Additional Properties';
+      propsSection.appendChild(propsTitle);
+      
+      // Mostra até 20 propriedades
+      detailed.properties.slice(0, 20).forEach(prop => {
+        const valueStr = typeof prop.value === 'number' 
+          ? prop.value.toFixed(3) 
+          : prop.value.toString();
+        propsSection.appendChild(this.createPropertyRow(prop.name, valueStr));
+      });
+      
+      if (detailed.properties.length > 20) {
+        const more = document.createElement('div');
+        more.className = 'inspector-property';
+        more.style.fontStyle = 'italic';
+        more.style.color = 'var(--theme-foregroundMuted, #999)';
+        more.textContent = `... and ${detailed.properties.length - 20} more properties`;
+        propsSection.appendChild(more);
+      }
+      
+      container.appendChild(propsSection);
+    }
+    
+    // Property Sets
+    if (detailed.propertySets.length > 0) {
+      const psetsSection = document.createElement('div');
+      psetsSection.className = 'inspector-section';
+      
+      const psetsTitle = document.createElement('div');
+      psetsTitle.className = 'inspector-section-title';
+      psetsTitle.textContent = '📦 Property Sets';
+      psetsSection.appendChild(psetsTitle);
+      
+      detailed.propertySets.forEach(pset => {
+        const psetName = pset.Name?.value || 'Unnamed PropertySet';
+        psetsSection.appendChild(this.createPropertyRow('Property Set', psetName));
+      });
+      
+      container.appendChild(psetsSection);
+    }
+    
+    return container;
   }
 
   /**

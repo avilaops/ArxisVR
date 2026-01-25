@@ -1,0 +1,1271 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Projetos\\arxisvr-clone\\arxis-core\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Component.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Component.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\ViewerService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\ViewerService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\ARCHITECTURE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\ARCHITECTURE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\lib.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:lib.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\fix.patch||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:fix.patch||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\Cargo.toml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Cargo.toml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\tensor\\mod.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:tensor\\mod.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\cosmology.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\cosmology.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\einstein.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\einstein.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\geodesic.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\geodesic.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\gravitational_lensing.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\gravitational_lensing.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\gravitational_waves.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\gravitational_waves.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\lisa.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_analysis.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\lisa_analysis.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_binary.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\lisa_binary.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_catalog.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\lisa_catalog.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_data.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\lisa_data.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_inference.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\lisa_inference.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_processing.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\lisa_processing.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_telemetry.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\lisa_telemetry.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_visualization.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\lisa_visualization.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\mod.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\mod.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\relativity.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:physics\\relativity.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\geometry\\mod.rs||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:geometry\\mod.rs||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\MIGRATION_GUIDE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\MIGRATION_GUIDE.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\_Imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\_Imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\App.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\App.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\viewer.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\viewer.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\scene.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\scene.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\input.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\input.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\camera.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\camera.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\css\\app.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\css\\app.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\State\\AppState.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\State\\AppState.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\SceneService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\SceneService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\InputService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\InputService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\CameraService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\CameraService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Index.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Index.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Viewer\\Viewer3D.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Viewer\\Viewer3D.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Components\\Layout\\MainLayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Components\\Layout\\MainLayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\2135666757\\_Imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Counter.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Counter.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Weather.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Weather.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1582522375\\Counter.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1582522375\\Home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1582522375\\Weather.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\1246721014\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\App.razor.new||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\App.razor.new||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\IFCService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\IFCService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\ifc-loader.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\ifc-loader.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\EngineService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\EngineService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\engine.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\engine.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\wasm\\README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\wasm\\README.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\wasm\\arxis_core.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\wasm\\arxis_core.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Entity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Entity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\ECSManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\ECSManager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\ecs.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\ecs.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core\\SceneGraph.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core\\SceneGraph.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core\\CoordinateSystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core\\CoordinateSystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\WorkerService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\WorkerService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\worker-manager.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\worker-manager.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\ifc-parser.worker.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\ifc-parser.worker.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\geometry.worker.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\geometry.worker.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\lod.worker.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\lod.worker.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Systems\\LODSystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Systems\\LODSystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\lod-system.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\lod-system.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Systems\\InstancingSystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Systems\\InstancingSystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\instancing-system.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\instancing-system.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\index.html.new||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\index.html.new||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 7,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 73,
+              "Title": "index.html.new",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\index.html.new",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\index.html.new",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\index.html.new",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\index.html.new",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T02:56:10.907Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{c6f34f0d-7ae5-4f3a-be61-fe0c21ae9eb8}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 72,
+              "Title": "instancing-system.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\instancing-system.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\instancing-system.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\instancing-system.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\instancing-system.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAALkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-25T02:30:41.892Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 68,
+              "Title": "lod.worker.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\lod.worker.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\lod.worker.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\lod.worker.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\lod.worker.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAF0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-25T02:25:38.087Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 64,
+              "Title": "WorkerService.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\WorkerService.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\WorkerService.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\WorkerService.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\WorkerService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-25T02:24:10.433Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 70,
+              "Title": "lod-system.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\lod-system.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\lod-system.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\lod-system.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\lod-system.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAI4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-25T02:27:57.071Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ViewerService.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\ViewerService.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\ViewerService.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\ViewerService.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\ViewerService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-24T23:13:32.041Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Component.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Component.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Component.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Component.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Component.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-25T02:15:18.377Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 69,
+              "Title": "LODSystem.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Systems\\LODSystem.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Systems\\LODSystem.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Systems\\LODSystem.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Systems\\LODSystem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAOwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-25T02:27:19.655Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 71,
+              "Title": "InstancingSystem.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Systems\\InstancingSystem.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Systems\\InstancingSystem.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Systems\\InstancingSystem.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Systems\\InstancingSystem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAPoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-25T02:30:05.833Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 63,
+              "Title": "CoordinateSystem.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core\\CoordinateSystem.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core\\CoordinateSystem.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core\\CoordinateSystem.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core\\CoordinateSystem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAMcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-25T02:19:12.066Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 67,
+              "Title": "geometry.worker.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\geometry.worker.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\geometry.worker.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\geometry.worker.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\geometry.worker.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-25T02:25:21.263Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 66,
+              "Title": "ifc-parser.worker.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\ifc-parser.worker.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\ifc-parser.worker.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\ifc-parser.worker.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\workers\\ifc-parser.worker.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-25T02:24:58.825Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 65,
+              "Title": "worker-manager.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\worker-manager.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\worker-manager.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\worker-manager.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\worker-manager.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAG4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-25T02:24:33.109Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 62,
+              "Title": "SceneGraph.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core\\SceneGraph.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core\\SceneGraph.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core\\SceneGraph.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Core\\SceneGraph.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-25T02:18:38.288Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:833278218:0:{83107a3e-496a-485e-b455-16ddb978e55e}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 56,
+              "Title": "engine.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\engine.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\engine.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\engine.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\engine.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAC4BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-25T02:01:10.204Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 55,
+              "Title": "EngineService.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\EngineService.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\EngineService.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\EngineService.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\EngineService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAANUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-25T02:00:33.722Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "README.md",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\README.md",
+              "RelativeDocumentMoniker": "README.md",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\README.md",
+              "RelativeToolTip": "README.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-01-25T00:52:37.908Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ARCHITECTURE.md",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\ARCHITECTURE.md",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\ARCHITECTURE.md",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\ARCHITECTURE.md",
+              "RelativeToolTip": "ArxisVR-Blazor\\ARCHITECTURE.md",
+              "ViewState": "AgIAAJIBAAAAAAAAAAAAwJ8BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-01-24T23:51:23.607Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 61,
+              "Title": "ecs.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\ecs.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\ecs.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\ecs.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\ecs.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-25T02:16:32.632Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 60,
+              "Title": "ECSManager.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\ECSManager.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\ECSManager.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\ECSManager.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\ECSManager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAPQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-25T02:15:52.496Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 59,
+              "Title": "Entity.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Entity.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Entity.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Entity.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\ECS\\Entity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-25T02:14:56.643Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 58,
+              "Title": "arxis_core.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\wasm\\arxis_core.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\wasm\\arxis_core.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\wasm\\arxis_core.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\wasm\\arxis_core.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-25T02:09:14.372Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 57,
+              "Title": "README.md",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\wasm\\README.md",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\wasm\\README.md",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\wasm\\README.md",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\wasm\\README.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-01-25T02:02:03.752Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 54,
+              "Title": "ifc-loader.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\ifc-loader.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\ifc-loader.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\ifc-loader.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\ifc-loader.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAN8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-25T00:57:12.227Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Program.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Program.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Program.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Program.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAqwCwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-24T23:14:51.627Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 53,
+              "Title": "IFCService.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\IFCService.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\IFCService.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\IFCService.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\IFCService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-25T00:56:47.798Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "lib.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\lib.rs",
+              "RelativeDocumentMoniker": "lib.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\lib.rs",
+              "RelativeToolTip": "lib.rs",
+              "ViewState": "AgIAAF0AAAAAAAAAAAAgwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:36.329Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Cargo.toml",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\Cargo.toml",
+              "RelativeDocumentMoniker": "Cargo.toml",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\Cargo.toml",
+              "RelativeToolTip": "Cargo.toml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:34.013Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "mod.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\tensor\\mod.rs",
+              "RelativeDocumentMoniker": "tensor\\mod.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\tensor\\mod.rs",
+              "RelativeToolTip": "tensor\\mod.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:31.655Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "fix.patch",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\fix.patch",
+              "RelativeDocumentMoniker": "fix.patch",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\fix.patch",
+              "RelativeToolTip": "fix.patch",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-24T22:24:11.73Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "einstein.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\einstein.rs",
+              "RelativeDocumentMoniker": "physics\\einstein.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\einstein.rs",
+              "RelativeToolTip": "physics\\einstein.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:25.972Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "cosmology.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\cosmology.rs",
+              "RelativeDocumentMoniker": "physics\\cosmology.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\cosmology.rs",
+              "RelativeToolTip": "physics\\cosmology.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:09.222Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "geodesic.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\geodesic.rs",
+              "RelativeDocumentMoniker": "physics\\geodesic.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\geodesic.rs",
+              "RelativeToolTip": "physics\\geodesic.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:24.974Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "gravitational_lensing.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\gravitational_lensing.rs",
+              "RelativeDocumentMoniker": "physics\\gravitational_lensing.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\gravitational_lensing.rs",
+              "RelativeToolTip": "physics\\gravitational_lensing.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:23.859Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "gravitational_waves.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\gravitational_waves.rs",
+              "RelativeDocumentMoniker": "physics\\gravitational_waves.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\gravitational_waves.rs",
+              "RelativeToolTip": "physics\\gravitational_waves.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:22.695Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "lisa.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa.rs",
+              "RelativeDocumentMoniker": "physics\\lisa.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa.rs",
+              "RelativeToolTip": "physics\\lisa.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:21.868Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "lisa_analysis.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_analysis.rs",
+              "RelativeDocumentMoniker": "physics\\lisa_analysis.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_analysis.rs",
+              "RelativeToolTip": "physics\\lisa_analysis.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:21.011Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "lisa_binary.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_binary.rs",
+              "RelativeDocumentMoniker": "physics\\lisa_binary.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_binary.rs",
+              "RelativeToolTip": "physics\\lisa_binary.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:20.051Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "lisa_catalog.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_catalog.rs",
+              "RelativeDocumentMoniker": "physics\\lisa_catalog.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_catalog.rs",
+              "RelativeToolTip": "physics\\lisa_catalog.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:18.56Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "lisa_data.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_data.rs",
+              "RelativeDocumentMoniker": "physics\\lisa_data.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_data.rs",
+              "RelativeToolTip": "physics\\lisa_data.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:17.63Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "lisa_inference.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_inference.rs",
+              "RelativeDocumentMoniker": "physics\\lisa_inference.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_inference.rs",
+              "RelativeToolTip": "physics\\lisa_inference.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:16.735Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "lisa_processing.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_processing.rs",
+              "RelativeDocumentMoniker": "physics\\lisa_processing.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_processing.rs",
+              "RelativeToolTip": "physics\\lisa_processing.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:15.767Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "lisa_telemetry.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_telemetry.rs",
+              "RelativeDocumentMoniker": "physics\\lisa_telemetry.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_telemetry.rs",
+              "RelativeToolTip": "physics\\lisa_telemetry.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:14.815Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "lisa_visualization.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_visualization.rs",
+              "RelativeDocumentMoniker": "physics\\lisa_visualization.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\lisa_visualization.rs",
+              "RelativeToolTip": "physics\\lisa_visualization.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:13.846Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "mod.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\mod.rs",
+              "RelativeDocumentMoniker": "physics\\mod.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\mod.rs",
+              "RelativeToolTip": "physics\\mod.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:12.783Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "relativity.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\relativity.rs",
+              "RelativeDocumentMoniker": "physics\\relativity.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\physics\\relativity.rs",
+              "RelativeToolTip": "physics\\relativity.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:11.72Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "mod.rs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\geometry\\mod.rs",
+              "RelativeDocumentMoniker": "geometry\\mod.rs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\geometry\\mod.rs",
+              "RelativeToolTip": "geometry\\mod.rs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:52:05.986Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "MIGRATION_GUIDE.md",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\MIGRATION_GUIDE.md",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\MIGRATION_GUIDE.md",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\MIGRATION_GUIDE.md",
+              "RelativeToolTip": "ArxisVR-Blazor\\MIGRATION_GUIDE.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKoBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-01-24T23:52:12.756Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "README.md",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\README.md",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\README.md",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\README.md",
+              "RelativeToolTip": "ArxisVR-Blazor\\README.md",
+              "ViewState": "AgIAABEBAAAAAAAAAAAAABEBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2026-01-24T23:15:34.146Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "_Imports.razor",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\_Imports.razor",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\_Imports.razor",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\_Imports.razor",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\_Imports.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-24T23:15:10.362Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "App.razor",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\App.razor",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\App.razor",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\App.razor",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\App.razor",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-25T00:05:51.734Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "index.html",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\index.html",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\index.html",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\index.html",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\index.html",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2026-01-24T23:29:32.088Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "viewer.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\viewer.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\viewer.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\viewer.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\viewer.js",
+              "ViewState": "AgIAALkAAAAAAAAAAAAAALkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-24T23:29:14.238Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "scene.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\scene.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\scene.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\scene.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\scene.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-24T23:55:57.911Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "input.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\input.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\input.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\input.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\input.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-24T23:56:21.469Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "camera.js",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\camera.js",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\camera.js",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\camera.js",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\js\\camera.js",
+              "ViewState": "AgIAADQAAAAAAAAAAAAswFwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-01-24T23:56:09.614Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "app.css",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\css\\app.css",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\css\\app.css",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\css\\app.css",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\wwwroot\\css\\app.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2026-01-24T23:29:55.865Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "AppState.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\State\\AppState.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\State\\AppState.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\State\\AppState.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\State\\AppState.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-24T23:13:16.161Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 52,
+              "Title": "App.razor.new",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\App.razor.new",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\App.razor.new",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\App.razor.new",
+              "RelativeToolTip": "ArxisVR-Blazor\\App.razor.new",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-25T00:51:46.584Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "SceneService.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\SceneService.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\SceneService.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\SceneService.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\SceneService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-24T23:55:06.285Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "InputService.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\InputService.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\InputService.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\InputService.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\InputService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAI4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-24T23:55:39.017Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "CameraService.cs",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\CameraService.cs",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\CameraService.cs",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\CameraService.cs",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Services\\CameraService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-24T23:55:22.142Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "Index.razor",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Index.razor",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Index.razor",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Index.razor",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Index.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAG0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-25T00:05:39.96Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "Viewer3D.razor",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Viewer\\Viewer3D.razor",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Viewer\\Viewer3D.razor",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Viewer\\Viewer3D.razor",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Viewer\\Viewer3D.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-24T23:14:07.389Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "MainLayout.razor",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Components\\Layout\\MainLayout.razor",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Components\\Layout\\MainLayout.razor",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Components\\Layout\\MainLayout.razor",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Components\\Layout\\MainLayout.razor",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAgwDsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-24T23:13:44.488Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 50,
+              "Title": "Weather.razor",
+              "DocumentMoniker": "C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1582522375\\Weather.razor",
+              "ToolTip": "C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1582522375\\Weather.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-25T00:50:54.095Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 51,
+              "Title": "index.html",
+              "DocumentMoniker": "C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\1246721014\\index.html",
+              "ToolTip": "C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\1246721014\\index.html",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2026-01-25T00:50:54.162Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 49,
+              "Title": "Home.razor",
+              "DocumentMoniker": "C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1582522375\\Home.razor",
+              "ToolTip": "C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1582522375\\Home.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-25T00:50:54.058Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 48,
+              "Title": "Counter.razor",
+              "DocumentMoniker": "C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1582522375\\Counter.razor",
+              "ToolTip": "C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\-1582522375\\Counter.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-25T00:50:53.945Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 47,
+              "Title": "Weather.razor",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Weather.razor",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Weather.razor",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Weather.razor",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Weather.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-25T00:05:20.633Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 46,
+              "Title": "Home.razor",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Home.razor",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Home.razor",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Home.razor",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Home.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-25T00:05:15.037Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "Counter.razor",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Counter.razor",
+              "RelativeDocumentMoniker": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Counter.razor",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Counter.razor",
+              "RelativeToolTip": "ArxisVR-Blazor\\src\\Client\\ArxisVR.Client\\Pages\\Counter.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-25T00:05:10.2Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "index.html",
+              "DocumentMoniker": "D:\\Projetos\\arxisvr-clone\\arxis-core\\index.html",
+              "RelativeDocumentMoniker": "index.html",
+              "ToolTip": "D:\\Projetos\\arxisvr-clone\\arxis-core\\index.html",
+              "RelativeToolTip": "index.html",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2026-01-24T22:30:34.618Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "_Imports.razor",
+              "DocumentMoniker": "C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\2135666757\\_Imports.razor",
+              "ToolTip": "C:\\Users\\Administrador\\AppData\\Local\\Temp\\CopilotBaseline\\Deleted\\2135666757\\_Imports.razor",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-01-24T23:28:32.594Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

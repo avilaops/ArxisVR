@@ -132,7 +132,6 @@ export class UI {
     if (this.topBar) {
       this.topBar.update();
     }
-    }
   }
 
   /**

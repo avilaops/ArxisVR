@@ -6,6 +6,7 @@ import { eventBus, EventType } from '../core';
 import { EntityManager, TransformComponent, MeshComponent, LODComponent } from '../engine/ecs';
 import { ScaleManager } from '../engine/ScaleManager';
 import { CoordinateSystem } from '../engine/CoordinateSystem';
+import { ifc43InfrastructureLoader, IFC43_NEW_TYPES, IFC43_INFRASTRUCTURE_TYPES } from './IFC43Extensions';
 
 /**
  * IFC Loader otimizado
@@ -38,8 +39,11 @@ export class IFCLoader {
   }
 
   private setupLoader(): void {
-    // Define o caminho dos arquivos WASM - usando CDN para garantir que funcione
-    this.loader.ifcManager.setWasmPath('https://cdn.jsdelivr.net/npm/web-ifc@0.0.52/');
+    // Define o caminho dos arquivos WASM - usando arquivos locais
+    this.loader.ifcManager.setWasmPath('/wasm/');
+    
+    // Aguarda o WASM ser carregado antes de usar
+    this.loader.ifcManager.useWebWorkers(false);
     
     // Otimizações de memória
     this.loader.ifcManager.applyWebIfcConfig({
@@ -133,6 +137,9 @@ export class IFCLoader {
     // Cria layers automáticos por tipo IFC se LayerManager disponível
     const layersByType = new Map<string, string>();
     
+    // Processa entidades IFC 4.3 (Infrastructure)
+    let ifc43EntitiesFound = 0;
+    
     // Armazena modelID e expressID em todos os meshes
     model.traverse((child) => {
       if (child instanceof THREE.Mesh) {
@@ -143,9 +150,30 @@ export class IFCLoader {
         if ((child as any).expressID) {
           child.userData.expressID = (child as any).expressID;
           
+          // Detecta tipo IFC
+          const ifcType = this.detectIFCType(child);
+          child.userData.ifcType = ifcType;
+          
+          // Verifica se é entidade IFC 4.3
+          if (IFC43_NEW_TYPES.includes(ifcType) || IFC43_INFRASTRUCTURE_TYPES.includes(ifcType)) {
+            console.log(`🏗️ IFC 4.3 entity found: ${ifcType}`);
+            ifc43EntitiesFound++;
+            
+            // Processa com IFC43InfrastructureLoader
+            try {
+              const entity = {
+                type: ifcType,
+                GlobalId: { value: child.userData.ifcGuid || child.uuid },
+                Name: { value: child.name }
+              };
+              ifc43InfrastructureLoader.processIFC43Entity(entity, this.scene);
+            } catch (error) {
+              console.warn(`⚠️ Failed to process IFC 4.3 entity:`, error);
+            }
+          }
+          
           // Se tem LayerManager, organiza por tipo
           if (this.layerManager) {
-            const ifcType = this.detectIFCType(child);
             
             // Cria layer para este tipo se não existe
             if (!layersByType.has(ifcType)) {
@@ -171,6 +199,11 @@ export class IFCLoader {
         }
       }
     });
+    
+    // Log IFC 4.3 entities
+    if (ifc43EntitiesFound > 0) {
+      console.log(`🏗️ Total IFC 4.3 entities processed: ${ifc43EntitiesFound}`);
+    }
     
     // Otimiza geometrias
     this.optimizeGeometries(model);
@@ -565,6 +598,32 @@ export class IFCLoader {
    */
   public getCoordinateStats() {
     return this.coordinateSystem.getStats();
+  }
+
+  /**
+   * Obtém o tipo IFC de um elemento (novo método sem duplicação)
+   */
+  public async getType(modelID: number, expressID: number): Promise<any> {
+    try {
+      return await this.loader.ifcManager.getTypeProperties(modelID, expressID);
+    } catch (error) {
+      console.warn(`Erro ao obter tipo do elemento ${expressID}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Obtém o modelo IFC pelo ID
+   */
+  public getModel(modelID: number): THREE.Object3D | undefined {
+    return this.loadedModels.find((model: any) => model.modelID === modelID);
+  }
+
+  /**
+   * Obtém o IFC Manager para acesso direto (novo método sem duplicação)
+   */
+  public getIFCManager() {
+    return this.loader.ifcManager;
   }
 
   public dispose(): void {
