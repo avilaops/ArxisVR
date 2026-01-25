@@ -1,0 +1,12 @@
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Shared\ArxisVR.Shared\bin\Debug\net8.0\ArxisVR.Shared.deps.json
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Shared\ArxisVR.Shared\bin\Debug\net8.0\ArxisVR.Shared.dll
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Shared\ArxisVR.Shared\bin\Debug\net8.0\ArxisVR.Shared.pdb
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Shared\ArxisVR.Shared\obj\Debug\net8.0\ArxisVR.Shared.GeneratedMSBuildEditorConfig.editorconfig
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Shared\ArxisVR.Shared\obj\Debug\net8.0\ArxisVR.Shared.AssemblyInfoInputs.cache
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Shared\ArxisVR.Shared\obj\Debug\net8.0\ArxisVR.Shared.AssemblyInfo.cs
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Shared\ArxisVR.Shared\obj\Debug\net8.0\ArxisVR.Shared.csproj.CoreCompileInputs.cache
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Shared\ArxisVR.Shared\obj\Debug\net8.0\ArxisVR.Shared.sourcelink.json
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Shared\ArxisVR.Shared\obj\Debug\net8.0\ArxisVR.Shared.dll
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Shared\ArxisVR.Shared\obj\Debug\net8.0\refint\ArxisVR.Shared.dll
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Shared\ArxisVR.Shared\obj\Debug\net8.0\ArxisVR.Shared.pdb
+D:\Projetos\arxisvr-clone\ArxisVR-Blazor\src\Shared\ArxisVR.Shared\obj\Debug\net8.0\ref\ArxisVR.Shared.dll

@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "ArxisVR.Core/1.0.0": {
+        "runtime": {
+          "ArxisVR.Core.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "ArxisVR.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
