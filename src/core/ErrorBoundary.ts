@@ -114,8 +114,11 @@ export class ErrorBoundary {
       this.errorQueue.shift();
     }
 
-    // Notifica usuário (apenas erros críticos, não resources)
+    // Mostra UI de recovery para erros críticos (não resources)
     if (report.type !== 'resourceError') {
+      this.showErrorRecoveryUI(report.message, report.stack);
+      
+      // Também notifica via notification system
       this.notifications.error(
         'Erro Inesperado',
         this.getUserFriendlyMessage(report.message)
@@ -189,11 +192,191 @@ export class ErrorBoundary {
   }
 
   /**
+   * Exporta diagnóstico completo para análise
+   */
+  public exportDiagnostics(): string {
+    const diagnostics = {
+      exportDate: new Date().toISOString(),
+      sessionId: this.sessionId,
+      userAgent: navigator.userAgent,
+      screenResolution: `${window.screen.width}x${window.screen.height}`,
+      viewport: `${window.innerWidth}x${window.innerHeight}`,
+      memory: (performance as any).memory
+        ? {
+            totalJSHeapSize: (performance as any).memory.totalJSHeapSize,
+            usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
+            jsHeapSizeLimit: (performance as any).memory.jsHeapSizeLimit,
+          }
+        : 'N/A',
+      platform: navigator.platform,
+      language: navigator.language,
+      errors: this.errorQueue,
+      errorCount: this.errorQueue.length,
+    };
+
+    return JSON.stringify(diagnostics, null, 2);
+  }
+
+  /**
+   * Baixa diagnóstico como arquivo JSON
+   */
+  public downloadDiagnostics(): void {
+    const data = this.exportDiagnostics();
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `arxisvr-diagnostics-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    console.log('📥 Diagnóstico baixado:', this.errorQueue.length, 'erros');
+    this.notifications.show('Diagnóstico baixado com sucesso', 'success');
+  }
+
+  /**
+   * Mostra UI de erro com ações de recovery
+   */
+  private showErrorRecoveryUI(message: string, stack?: string): void {
+    // Remove UI anterior
+    const existing = document.getElementById('error-recovery-ui');
+    if (existing) existing.remove();
+
+    const errorUI = document.createElement('div');
+    errorUI.id = 'error-recovery-ui';
+    errorUI.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #dc2626;
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      max-width: 420px;
+      z-index: 999999;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      animation: slideIn 0.3s ease-out;
+    `;
+
+    errorUI.innerHTML = `
+      <style>
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+      </style>
+      <div style="display: flex; align-items: start; gap: 12px;">
+        <div style="font-size: 24px;">⚠️</div>
+        <div style="flex: 1;">
+          <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">Erro Detectado</h3>
+          <p style="margin: 0 0 12px 0; font-size: 14px; opacity: 0.95; line-height: 1.4;">
+            ${this.sanitizeMessage(message)}
+          </p>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button id="error-download-btn" style="
+              background: white;
+              color: #dc2626;
+              border: none;
+              padding: 8px 14px;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 13px;
+              font-weight: 600;
+              transition: transform 0.1s;
+            " onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'">
+              📥 Baixar Diagnóstico
+            </button>
+            <button id="error-reload-btn" style="
+              background: rgba(255,255,255,0.15);
+              color: white;
+              border: 1px solid rgba(255,255,255,0.3);
+              padding: 8px 14px;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 13px;
+              font-weight: 500;
+            ">🔄 Recarregar</button>
+            <button id="error-close-btn" style="
+              background: transparent;
+              color: white;
+              border: none;
+              padding: 4px 8px;
+              cursor: pointer;
+              font-size: 20px;
+              line-height: 1;
+              margin-left: auto;
+            ">×</button>
+          </div>
+        </div>
+      </div>
+      ${
+        stack
+          ? `
+      <details style="margin-top: 12px; font-size: 12px; opacity: 0.9;">
+        <summary style="cursor: pointer; font-weight: 500;">🔍 Stack Trace</summary>
+        <pre style="
+          margin: 8px 0 0 0;
+          padding: 10px;
+          background: rgba(0,0,0,0.25);
+          border-radius: 4px;
+          overflow-x: auto;
+          font-size: 11px;
+          line-height: 1.5;
+          font-family: 'Consolas', 'Monaco', monospace;
+        ">${this.sanitizeMessage(stack)}</pre>
+      </details>
+      `
+          : ''
+      }
+    `;
+
+    document.body.appendChild(errorUI);
+
+    // Event listeners
+    document.getElementById('error-download-btn')?.addEventListener('click', () => {
+      this.downloadDiagnostics();
+    });
+
+    document.getElementById('error-reload-btn')?.addEventListener('click', () => {
+      window.location.reload();
+    });
+
+    document.getElementById('error-close-btn')?.addEventListener('click', () => {
+      errorUI.remove();
+    });
+
+    // Auto-remove após 30 segundos
+    setTimeout(() => {
+      if (errorUI.parentNode) errorUI.remove();
+    }, 30000);
+  }
+
+  /**
+   * Sanitiza mensagem para exibição segura
+   */
+  private sanitizeMessage(message: string): string {
+    return message
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .substring(0, 200) + (message.length > 200 ? '...' : '');
+  }
+
+  /**
    * Limpa fila de erros
    */
   public clearErrors(): void {
     this.errorQueue = [];
     console.info('✅ ErrorBoundary: Error queue cleared');
+  }
+
+  /**
+   * Retorna contagem de erros capturados
+   */
+  public getErrorCount(): number {
+    return this.errorQueue.length;
   }
 }
 

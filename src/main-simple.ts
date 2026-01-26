@@ -20,9 +20,14 @@ import { MeasurementTool } from './tools/MeasurementTool';
 import { SectionTool } from './tools/SectionTool';
 import { LayerTool } from './tools/LayerTool';
 import { ToolType } from './core/types';
+import { getErrorBoundary } from './core/ErrorBoundary';
 
 // Performance tracking
 performance.mark('app-start');
+
+// Initialize ErrorBoundary FIRST (capture all errors)
+const errorBoundary = getErrorBoundary();
+console.log('🛡️ ErrorBoundary initialized');
 
 console.log('🚀 ArxisVR - Fast Start Mode');
 console.log(`📦 ${Object.keys(ComponentsRegistry).length} componentes disponíveis (lazy load)`);
@@ -615,8 +620,28 @@ console.log('✅ UI Runtime conectado aos sistemas');
 if (typeof window !== 'undefined') {
   (window as any).appController = appController;
   (window as any).uiRuntime = uiRuntime;
+  (window as any).errorBoundary = errorBoundary;
   console.log('   - window.appController');
   console.log('   - window.uiRuntime');
+  console.log('   - window.errorBoundary');
   console.log('   - window.loadIFCFile(file) [já definido acima]');
 }
+
+// Monitor de erros na status bar
+setInterval(() => {
+  const errorCount = errorBoundary.getErrorCount();
+  const statusErrors = document.getElementById('status-errors');
+  const statusErrorsCount = document.getElementById('status-errors-count');
+  
+  if (statusErrors && statusErrorsCount) {
+    if (errorCount > 0) {
+      statusErrors.style.display = 'block';
+      statusErrorsCount.textContent = errorCount.toString();
+    } else {
+      statusErrors.style.display = 'none';
+    }
+  }
+}, 2000); // Verifica a cada 2 segundos
+
+console.log('✅ ErrorBoundary monitoring status bar');
 

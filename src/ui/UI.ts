@@ -68,10 +68,10 @@ export class UIRuntime {
 
   constructor(
     private eventBus: EventBus,
-    private app: AppController,
+    _app: AppController,
     private toolManager: ToolManager,
     private commandHistory: CommandHistory,
-    private networkManager?: NetworkManager
+    _networkManager?: NetworkManager
   ) {
     // Use the module-level singleton accessor (avoids static export/interop edge cases)
     this.notifications = getNotificationSystem();

@@ -801,6 +801,9 @@
       <div class="status-right">
         <span class="status-item" id="status-fps">60 FPS</span>
         <span class="status-item" id="status-memory">0 MB</span>
+        <span class="status-item" id="status-errors" style="display: none; color: #f48771; cursor: pointer;" onclick="window.errorBoundary?.downloadDiagnostics()" title="Clique para baixar diagnóstico">
+          ⚠️ <span id="status-errors-count">0</span> erros
+        </span>
         <button class="status-item status-button" onclick="toggleGrid()">Grid</button>
         <button class="status-item status-button spatial-mode-btn">Modo Espacial</button>
       </div>
