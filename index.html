@@ -864,30 +864,26 @@
         <div class="sidebar-section" data-section="explorer">
           <div class="sidebar-group">
             <div class="sidebar-group-header">PROJETO</div>
-            <button class="sidebar-item" onclick="openFileModal()">
+            <button class="sidebar-item" data-component="LoadFileModal">
               <span class="sidebar-icon">📁</span>
               Abrir Arquivo IFC
             </button>
-            <button class="sidebar-item" onclick="openRecent()">
-              <span class="sidebar-icon">🕐</span>
-              Projetos Recentes
-            </button>
-            <button class="sidebar-item" onclick="exportFile()">
+            <button class="sidebar-item" data-component="ExportModal">
               <span class="sidebar-icon">💾</span>
               Exportar
             </button>
           </div>
           <div class="sidebar-group">
             <div class="sidebar-group-header">VISUALIZAÇÃO</div>
-            <button class="sidebar-item" onclick="openComponent('LayersPanel')">
+            <button class="sidebar-item" data-component="LayersPanel">
               <span class="sidebar-icon">📚</span>
               Camadas
             </button>
-            <button class="sidebar-item" onclick="openComponent('TransparencyControl')">
+            <button class="sidebar-item" data-component="TransparencyControl">
               <span class="sidebar-icon">👁️</span>
               Transparência
             </button>
-            <button class="sidebar-item" onclick="openComponent('SectionBoxTool')">
+            <button class="sidebar-item" data-component="SectionBoxTool">
               <span class="sidebar-icon">✂️</span>
               Cortes
             </button>
