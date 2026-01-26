@@ -771,8 +771,22 @@ function handleFileLoad(file: File): void {
     setTimeout(() => onboarding.remove(), 300);
   }
 
-  // Load file using existing function
-  (window as any).loadIFCFile?.(file);
+  // CRITICAL FIX: Use FileService pipeline
+  // 1. Register file in FileService (creates FileHandle)
+  fileService.registerLocalFile(file).then(handle => {
+    logger.info('FileService', `File registered: ${handle.id}`);
+    
+    // 2. Load file using FileService (triggers IFCLoader)
+    return fileService.load(handle, (progress) => {
+      logger.debug('FileService', `Loading progress: ${progress}%`);
+      // TODO: Update loading bar UI
+    });
+  }).then(() => {
+    logger.info('FileService', `✅ File loaded successfully: ${file.name}`);
+  }).catch((error) => {
+    logger.error('FileService', `Failed to load file: ${error}`, error);
+    alert(`Erro ao carregar arquivo: ${error.message || error}`);
+  });
 }
 
 function loadDemoModel(): void {
