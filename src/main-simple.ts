@@ -47,6 +47,9 @@ loadingManager.setStage('Inicializando...', 'Preparando engine', 10);
 const errorBoundary = getErrorBoundary();
 const logger = getLogger();
 
+// Initialize AppController EARLY (before any usage)
+const appController = AppController.getInstance();
+
 logger.info('Bootstrap', '🛡️ ErrorBoundary initialized');
 logger.info('Bootstrap', '🚀 ArxisVR - Fast Start Mode');
 logger.info('Bootstrap', `📦 ${Object.keys(ComponentsRegistry).length} componentes disponíveis (lazy load)`);
@@ -347,9 +350,11 @@ function animate() {
   }
   
   // Update active tool (for Selection/Measurement)
-  const activeTool = appController.toolManager.getActiveTool();
-  if (activeTool && typeof activeTool.update === 'function') {
-    activeTool.update(0.016);
+  if (appController && appController.toolManager) {
+    const activeTool = appController.toolManager.getActiveTool();
+    if (activeTool && typeof activeTool.update === 'function') {
+      activeTool.update(0.016);
+    }
   }
   
   // Rotate cube
@@ -594,10 +599,7 @@ if (typeof window !== 'undefined') {
 
 logger.info('UIRuntime', '🎨 Inicializando UI Runtime...');
 
-// Instancia AppController (gerenciador central da aplicação)
-const appController = AppController.getInstance();
-
-// Configura referências da engine no AppController
+// Configura referências da engine no AppController (já instanciado no topo)
 // Type cast: main-simple usa THREE.Scene diretamente (bootstrap mode)
 appController.setEngineReferences(
   scene as any, // TODO: Usar ThreeSceneAdapter para type safety

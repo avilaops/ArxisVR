@@ -488,29 +488,6 @@ private canvas!: HTMLCanvasElement;
   }
   
   /**
-   * Configura botão Multiplayer
-   */
-  private setupMultiplayerButton(): void {
-    const button = document.querySelector('.connect-multiplayer-btn') as HTMLButtonElement;
-    if (button) {
-      button.addEventListener('click', async () => {
-        if (this.isMultiplayerEnabled) {
-          this.disableMultiplayer();
-          button.textContent = 'Connect Multiplayer';
-          button.style.backgroundColor = '#10b981';
-        } else {
-          await this.enableMultiplayer();
-          button.textContent = 'Disconnect';
-          button.style.backgroundColor = '#ef4444';
-        }
-      });
-      console.log('✅ Multiplayer button setup complete');
-    } else {
-      console.warn('⚠️ Multiplayer button not found in DOM');
-    }
-  }
-  
-  /**
    * Habilita multiplayer
    */
   private async enableMultiplayer(): Promise<void> {
