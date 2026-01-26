@@ -28,8 +28,19 @@ import { getQualityManager } from './core/QualityManager';
 // Performance tracking
 performance.mark('app-start');
 
-// Initialize Loading Manager FIRST
-const loadingManager = new LoadingManager();
+// Initialize Loading Manager FIRST with enterprise options
+const loadingManager = new LoadingManager({
+  timeoutDurationMs: 15000,
+  debug: true,
+  onTimeout: () => {
+    getLogger().error('Bootstrap', 'Loading timeout triggered - recovery actions shown');
+  },
+  onComplete: (elapsedMs) => {
+    getLogger().info('Bootstrap', `✅ App loaded in ${elapsedMs}ms`);
+    performance.mark('app-loaded');
+    performance.measure('app-load-time', 'app-start', 'app-loaded');
+  }
+});
 loadingManager.setStage('Inicializando...', 'Preparando engine', 10);
 
 // Initialize ErrorBoundary and Logger

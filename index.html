@@ -952,26 +952,26 @@
     </div>
 
     <!-- Loading Screen with Progress -->
-    <div id="loading">
+    <div id="loading" role="status" aria-live="polite">
       <div style="text-align: center; max-width: 400px;">
         <h1 style="margin: 0 0 24px 0; font-size: 32px; font-weight: 600;">ArxisVR</h1>
-        <div class="spinner"></div>
+        <div class="spinner" role="progressbar" aria-label="Carregando"></div>
         <p id="loading-stage" style="margin: 20px 0 8px 0; font-size: 16px; font-weight: 500;">
           Inicializando...
         </p>
-        <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;">
+        <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;" aria-hidden="true">
           <div id="loading-progress" style="height: 100%; width: 0%; background: #007acc; transition: width 0.3s;"></div>
         </div>
         <p id="loading-detail" style="margin: 8px 0 0 0; font-size: 13px; opacity: 0.7;">
           Preparando engine...
         </p>
         <!-- Recovery Actions (hidden initially) -->
-        <div id="loading-recovery" style="display: none; margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+        <div id="loading-recovery" style="display: none; margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 8px;" role="alert">
           <p style="margin: 0 0 12px 0; font-size: 14px; color: #f48771;">
             ⏱️ O carregamento está demorando mais que o esperado
           </p>
-          <div style="display: flex; gap: 8px; justify-content: center;">
-            <button onclick="window.location.reload()" style="
+          <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+            <button id="recovery-reload" style="
               background: #007acc;
               color: white;
               border: none;
@@ -981,7 +981,16 @@
               font-size: 13px;
               font-weight: 500;
             ">🔄 Recarregar</button>
-            <button onclick="window.errorBoundary?.downloadDiagnostics()" style="
+            <button id="recovery-safe-mode" style="
+              background: rgba(255,255,255,0.1);
+              color: white;
+              border: 1px solid rgba(255,255,255,0.2);
+              padding: 8px 16px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 13px;
+            ">🛡️ Modo Seguro</button>
+            <button id="recovery-download-logs" style="
               background: rgba(255,255,255,0.1);
               color: white;
               border: 1px solid rgba(255,255,255,0.2);
@@ -990,6 +999,15 @@
               cursor: pointer;
               font-size: 13px;
             ">📥 Baixar Logs</button>
+            <button id="recovery-clear-cache" style="
+              background: rgba(255,255,255,0.1);
+              color: white;
+              border: 1px solid rgba(255,255,255,0.2);
+              padding: 8px 16px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 13px;
+            ">🗑️ Limpar Cache</button>
           </div>
         </div>
       </div>
@@ -997,6 +1015,66 @@
   </div>
   
   <script>
+    // Recovery Actions Handlers
+    document.addEventListener('DOMContentLoaded', () => {
+      const recoveryReload = document.getElementById('recovery-reload');
+      const recoverySafeMode = document.getElementById('recovery-safe-mode');
+      const recoveryDownloadLogs = document.getElementById('recovery-download-logs');
+      const recoveryClearCache = document.getElementById('recovery-clear-cache');
+
+      if (recoveryReload) {
+        recoveryReload.addEventListener('click', () => {
+          window.location.reload();
+        });
+      }
+
+      if (recoverySafeMode) {
+        recoverySafeMode.addEventListener('click', () => {
+          // Modo seguro: recarrega com quality=low
+          const url = new URL(window.location);
+          url.searchParams.set('quality', 'low');
+          url.searchParams.set('safeMode', 'true');
+          window.location.href = url.toString();
+        });
+      }
+
+      if (recoveryDownloadLogs) {
+        recoveryDownloadLogs.addEventListener('click', () => {
+          if (window.errorBoundary) {
+            window.errorBoundary.downloadDiagnostics();
+          } else if (window.logger) {
+            window.logger.downloadLogs();
+          } else {
+            console.warn('Logger not available');
+          }
+        });
+      }
+
+      if (recoveryClearCache) {
+        recoveryClearCache.addEventListener('click', async () => {
+          try {
+            // Clear localStorage
+            localStorage.clear();
+            
+            // Clear sessionStorage
+            sessionStorage.clear();
+            
+            // Clear caches API if available
+            if ('caches' in window) {
+              const cacheNames = await caches.keys();
+              await Promise.all(cacheNames.map(name => caches.delete(name)));
+            }
+            
+            alert('✅ Cache limpo! A página será recarregada.');
+            window.location.reload();
+          } catch (err) {
+            console.error('Erro ao limpar cache:', err);
+            alert('❌ Erro ao limpar cache. Tente recarregar manualmente.');
+          }
+        });
+      }
+    });
+
     // VSCode-style Layout Functions
     let sidebarCollapsed = false;
 
