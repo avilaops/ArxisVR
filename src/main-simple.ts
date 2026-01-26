@@ -675,8 +675,13 @@ logger.info('ErrorBoundary', '✅ ErrorBoundary monitoring status bar');
 
 // Complete loading
 loadingManager.setStage('Pronto!', 'Aplicativo carregado', 100);
-setTimeout(() => {
+setTimeout(async () => {
   loadingManager.complete();
+  
+  // Preload critical components in idle time
+  const { preloadCriticalComponents } = await import('./components-registry');
+  preloadCriticalComponents();
+  
   // Show onboarding after loading
   showOnboarding();
 }, 500); // Pequeno delay para mostrar 100%

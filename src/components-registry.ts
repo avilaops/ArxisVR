@@ -3,13 +3,44 @@
  * Reduz tempo de inicialização de ~2s para ~200ms
  */
 
-// Tipo padrão para instâncias de componentes (interface minima)
+// Tipo padrão para instâncias de componentes (interface minima com lifecycle)
 export type ComponentInstance = {
   element?: HTMLElement;
   open?: () => void;
   close?: () => void;
   destroy?: () => void;
+  mount?(container?: HTMLElement): void;
+  setAppController?(controller: any): void;
+  onOpen?(): void;
+  onClose?(): void;
   [key: string]: any; // Permite propriedades adicionais/privadas
+};
+
+// Metadados de componentes (política de descarte)
+export type ComponentMetadata = {
+  persistent?: boolean; // true = hide/show, false = destroy ao fechar
+  preload?: boolean;    // true = carrega após first frame
+  category?: 'modal' | 'panel' | 'widget' | 'overlay';
+};
+
+const componentMetadata: Record<string, ComponentMetadata> = {
+  // Modais: destroy ao fechar
+  LoadFileModal: { persistent: false, preload: true, category: 'modal' },
+  ExportModal: { persistent: false, preload: true, category: 'modal' },
+  ShareModal: { persistent: false, preload: true, category: 'modal' },
+  
+  // Painéis: persistent (preserva estado)
+  TimelinePanel: { persistent: true, category: 'panel' },
+  LayersPanel: { persistent: true, category: 'panel' },
+  IFCPropertyPanel: { persistent: true, category: 'panel' },
+  AdvancedSearchPanel: { persistent: true, category: 'panel' },
+  
+  // Widgets: persistent
+  UserPresenceWidget: { persistent: true, category: 'widget' },
+  ActivityFeed: { persistent: true, category: 'widget' },
+  
+  // Overlays: destroy ao fechar
+  TutorialOverlay: { persistent: false, category: 'overlay' }
 };
 
 // Lazy imports usando dynamic import()
@@ -88,7 +119,13 @@ const componentLoaders: Record<string, () => Promise<ComponentInstance>> = {
 export const ComponentsRegistry: Record<string, () => Promise<ComponentInstance>> = componentLoaders;
 
 /**
- * Cria componente com lazy loading + cache
+ * Cache de Promises para dedupe de carregamento concorrente
+ * Garante que cada componente seja importado apenas uma vez, mesmo com múltiplos cliques
+ */
+const loadPromises = new Map<string, Promise<ComponentInstance>>();
+
+/**
+ * Cria componente com lazy loading + dedupe de carregamento
  * SEMPRE retorna Promise para contrato consistente
  */
 export async function createComponent(name: string): Promise<ComponentInstance | null> {
@@ -99,22 +136,39 @@ export async function createComponent(name: string): Promise<ComponentInstance |
   }
   
   try {
-    console.log(`⏳ Carregando componente: ${name}...`);
-    const instance = await loader();
+    // Dedupe: se já está carregando, retorna a mesma Promise
+    let p = loadPromises.get(name);
+    if (!p) {
+      console.log(`⏳ Carregando componente: ${name}...`);
+      p = loader();
+      loadPromises.set(name, p);
+    }
+
+    const instance = await p;
     console.log(`✅ Componente carregado: ${name}`);
     return instance;
   } catch (error) {
+    loadPromises.delete(name); // Permite retry em caso de erro
     console.error(`❌ Erro ao carregar componente ${name}:`, error);
     return null;
   }
 }
 
 /**
+ * Obtém metadados do componente
+ */
+export function getComponentMetadata(name: string): ComponentMetadata {
+  return componentMetadata[name] || { persistent: true, category: 'panel' };
+}
+
+/**
  * ComponentManager - Gerencia ciclo de vida de componentes UI
- * Evita duplicação e controla estado centralizado
+ * Evita duplicação e controla estado centralizado com dedupe por key
  */
 export class ComponentManager {
   private instances = new Map<string, ComponentInstance>();
+  private pending = new Map<string, Promise<ComponentInstance | null>>(); // Dedupe de open() concorrente
+  private hiddenInstances = new Set<string>(); // Instâncias hidden (persistent)
 
   get(key: string): ComponentInstance | undefined {
     return this.instances.get(key);
@@ -124,63 +178,137 @@ export class ComponentManager {
     return this.instances.has(key);
   }
 
+  /**
+   * Abre componente com dedupe de chamadas concorrentes
+   * @param key - ID único da instância (ex: 'modal:load-file', 'panel:timeline')
+   * @param componentName - Nome do tipo de componente (ex: 'LoadFileModal', 'TimelinePanel')
+   */
   async open(key: string, componentName: string): Promise<ComponentInstance | null> {
-    // Se já existe, só re-ativa
+    // Se já existe e está hidden, apenas mostra
     const existing = this.instances.get(key);
     if (existing) {
+      if (this.hiddenInstances.has(key)) {
+        this.hiddenInstances.delete(key);
+        if (existing.element) existing.element.style.display = '';
+      }
       existing.open?.();
+      existing.onOpen?.();
       return existing;
     }
 
-    const instance = await createComponent(componentName);
-    if (!instance) return null;
+    // Dedupe: se já está abrindo, retorna a mesma Promise
+    const inflight = this.pending.get(key);
+    if (inflight) return inflight;
 
-    // Adiciona ao DOM se necessário
-    if (instance.element && !instance.element.parentElement) {
-      document.body.appendChild(instance.element);
-    }
+    const task = (async () => {
+      const instance = await createComponent(componentName);
+      if (!instance) return null;
 
-    // Abre/ativa
-    instance.open?.();
+      // Adiciona ao DOM se necessário
+      if (instance.element && !instance.element.parentElement) {
+        document.body.appendChild(instance.element);
+      }
 
-    this.instances.set(key, instance);
-    return instance;
+      // Mount lifecycle
+      instance.mount?.();
+
+      // Abre/ativa
+      instance.open?.();
+      instance.onOpen?.();
+
+      this.instances.set(key, instance);
+      return instance;
+    })().finally(() => {
+      this.pending.delete(key);
+    });
+
+    this.pending.set(key, task);
+    return task;
   }
 
+  /**
+   * Fecha componente (hide se persistent, destroy se não)
+   */
   close(key: string): void {
     const instance = this.instances.get(key);
     if (!instance) return;
 
     instance.close?.();
-    instance.destroy?.();
+    instance.onClose?.();
 
-    // Remove do DOM se ainda estiver lá
-    if (instance.element?.parentElement) {
-      instance.element.parentElement.removeChild(instance.element);
+    // Obtém metadados para decidir política de descarte
+    const componentName = this.getComponentNameFromKey(key);
+    const meta = componentName ? getComponentMetadata(componentName) : { persistent: true };
+
+    if (meta.persistent) {
+      // Persistent: apenas hide (preserva estado)
+      if (instance.element) {
+        instance.element.style.display = 'none';
+      }
+      this.hiddenInstances.add(key);
+    } else {
+      // Não-persistent: destroy e remove
+      instance.destroy?.();
+
+      if (instance.element?.parentElement) {
+        instance.element.parentElement.removeChild(instance.element);
+      }
+
+      this.instances.delete(key);
+      this.hiddenInstances.delete(key);
     }
-
-    this.instances.delete(key);
   }
 
   async toggle(key: string, componentName: string): Promise<ComponentInstance | null> {
-    if (this.instances.has(key)) {
+    if (this.instances.has(key) && !this.hiddenInstances.has(key)) {
       this.close(key);
       return null;
     }
     return this.open(key, componentName);
   }
 
-  closeAll(): void {
+  /**
+   * Fecha todos os componentes (force destroy se lowMemory)
+   */
+  closeAll(options?: { forceDestroy?: boolean }): void {
     for (const key of Array.from(this.instances.keys())) {
-      this.close(key);
+      if (options?.forceDestroy) {
+        // Low memory mode: destroy tudo
+        const instance = this.instances.get(key);
+        instance?.close?.();
+        instance?.destroy?.();
+        if (instance?.element?.parentElement) {
+          instance.element.parentElement.removeChild(instance.element);
+        }
+        this.instances.delete(key);
+      } else {
+        this.close(key);
+      }
     }
+    this.hiddenInstances.clear();
   }
 
   getStats() {
     return {
       count: this.instances.size,
-      keys: Array.from(this.instances.keys())
+      keys: Array.from(this.instances.keys()),
+      hidden: Array.from(this.hiddenInstances),
+      pending: this.pending.size
     };
+  }
+
+  /**
+   * Extrai componentName do key (heurística)
+   * Ex: 'modal:LoadFileModal' -> 'LoadFileModal', 'panel:timeline' -> null
+   */
+  private getComponentNameFromKey(key: string): string | null {
+    const parts = key.split(':');
+    if (parts.length === 2) {
+      // Verifica se é PascalCase (componentName)
+      const candidate = parts[1];
+      if (/^[A-Z]/.test(candidate)) return candidate;
+    }
+    return null;
   }
 }
 
@@ -190,10 +318,112 @@ export class ComponentManager {
 export const componentManager = new ComponentManager();
 
 /**
- * InputGate - Detecta se usuário está digitando em UI
- * Previne conflito entre input de UI e controles de câmera
+ * Preload de componentes críticos após first frame
+ * Carrega modais mais usados (LoadFileModal, ExportModal, ShareModal) em idle time
  */
-export function isTypingInUI(): boolean {
+export function preloadCriticalComponents(): void {
+  const preloadList = Object.entries(componentMetadata)
+    .filter(([_, meta]) => meta.preload)
+    .map(([name]) => name);
+
+  const doPreload = () => {
+    console.log(`🚀 Preloading ${preloadList.length} critical components...`);
+    preloadList.forEach(name => {
+      createComponent(name).catch(err => {
+        console.warn(`⚠️ Failed to preload ${name}:`, err);
+      });
+    });
+  };
+
+  // Usa requestIdleCallback se disponível, senão setTimeout
+  if ('requestIdleCallback' in window) {
+    (window as any).requestIdleCallback(doPreload, { timeout: 2000 });
+  } else {
+    setTimeout(doPreload, 50);
+  }
+}
+
+/**
+ * UI Command Router - Padrão de comandos para atalhos de teclado e Command Palette
+ * Ex: 'open:timeline', 'toggle:chat', 'close:all'
+ */
+export async function executeUICommand(command: string): Promise<boolean> {
+  const [action, target] = command.split(':', 2);
+
+  switch (action) {
+    case 'open': {
+      if (target === 'all') return false; // Não faz sentido
+      const key = `cmd:${target}`;
+      const componentName = componentNameFromAlias(target);
+      if (!componentName) {
+        console.warn(`❌ Unknown component alias: ${target}`);
+        return false;
+      }
+      await componentManager.open(key, componentName);
+      return true;
+    }
+
+    case 'toggle': {
+      const key = `cmd:${target}`;
+      const componentName = componentNameFromAlias(target);
+      if (!componentName) {
+        console.warn(`❌ Unknown component alias: ${target}`);
+        return false;
+      }
+      await componentManager.toggle(key, componentName);
+      return true;
+    }
+
+    case 'close': {
+      if (target === 'all') {
+        componentManager.closeAll();
+        return true;
+      }
+      const key = `cmd:${target}`;
+      componentManager.close(key);
+      return true;
+    }
+
+    default:
+      console.warn(`❌ Unknown UI command: ${command}`);
+      return false;
+  }
+}
+
+/**
+ * Mapeia alias para componentName (ex: 'timeline' -> 'TimelinePanel')
+ */
+function componentNameFromAlias(alias: string): string | null {
+  const aliasMap: Record<string, string> = {
+    // Panels
+    'timeline': 'TimelinePanel',
+    'schedule': 'SchedulePanel',
+    'layers': 'LayersPanel',
+    'properties': 'IFCPropertyPanel',
+    'search': 'AdvancedSearchPanel',
+    'chat': 'ChatPanel',
+    'settings': 'SettingsPanel',
+    'help': 'HelpPanel',
+    
+    // Modals
+    'load': 'LoadFileModal',
+    'export': 'ExportModal',
+    'share': 'ShareModal',
+    
+    // Tools
+    'measure': 'MeasurementPanel',
+    'section': 'SectionBoxTool',
+    'clipping': 'ClippingPlanesEditor'
+  };
+
+  return aliasMap[alias.toLowerCase()] || null;
+}
+
+/**
+ * InputGate - Detecta se usuário está digitando em UI
+ * Bloqueia controles de câmera (WASD) quando necessário
+ */
+export function shouldBlockCameraControls(): boolean {
   const el = document.activeElement as HTMLElement | null;
   if (!el) return false;
 
@@ -218,6 +448,14 @@ export function isTypingInUI(): boolean {
   }
 
   return false;
+}
+
+/**
+ * Alias para compatibilidade (deprecated, usar shouldBlockCameraControls)
+ * @deprecated Use shouldBlockCameraControls() instead
+ */
+export function isTypingInUI(): boolean {
+  return shouldBlockCameraControls();
 }
 
 /**
