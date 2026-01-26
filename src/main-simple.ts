@@ -17,6 +17,8 @@ import { fileService } from './systems/file';
 import { ModelSession } from './systems/model/ModelSession';
 import { SelectionTool } from './tools/SelectionTool';
 import { MeasurementTool } from './tools/MeasurementTool';
+import { SectionTool } from './tools/SectionTool';
+import { LayerTool } from './tools/LayerTool';
 import { ToolType } from './core/types';
 
 // Performance tracking
@@ -576,21 +578,26 @@ appController.setEngineReferences(
   renderer as any
 );
 
-// Register basic tools in ToolManager (prevents "not registered" errors)
+// Register all tools in ToolManager
 const toolManager = appController.toolManager;
 if (toolManager) {
-  // Registrar apenas ferramentas específicas (navegação é global)
+  // Ferramentas principais (navegação é global via WASD)
   const selectionTool = new SelectionTool(scene, camera);
   const measurementTool = new MeasurementTool(scene, camera);
+  const sectionTool = new SectionTool(scene, camera);
+  const layerTool = new LayerTool();
   
   toolManager.registerTool(ToolType.SELECTION, selectionTool);
   toolManager.registerTool(ToolType.MEASUREMENT, measurementTool);
+  toolManager.registerTool(ToolType.CUT, sectionTool);
+  toolManager.registerTool(ToolType.LAYER, layerTool);
   
   // Selection como ferramenta padrão
   toolManager.setActiveTool(ToolType.SELECTION);
   
-  console.log('✅ 2 tools registered (Selection, Measurement)');
+  console.log('✅ 4 tools registered (Selection, Measurement, Section, Layer)');
   console.log('💡 Navigation is always active via WASD keys');
+  console.log('📋 Atalhos: Q=Select, M=Measure, C=Section, L=Layers, T/E/V/A/K=Panels');
 }
 
 // Inicializa UIRuntime com dependências reais
