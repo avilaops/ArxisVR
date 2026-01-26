@@ -26,7 +26,8 @@ export class LoadFileModal {
 
     this.buildUI();
     this.applyStyles();
-    this.loadFiles();
+    // ✅ Não carrega arquivos de exemplo (privacidade)
+    // this.loadFiles();
   }
 
   /**
@@ -62,7 +63,8 @@ export class LoadFileModal {
     const uploadTab = this.createUploadTab();
     const recentTab = this.createRecentTab();
 
-    browserTab.classList.add('load-file-tab--active');
+    // ✅ Começa na tab Upload (privacidade)
+    uploadTab.classList.add('load-file-tab--active');
 
     container.appendChild(browserTab);
     container.appendChild(uploadTab);
@@ -83,9 +85,9 @@ export class LoadFileModal {
     tabs.className = 'load-file-tabs';
 
     const tabItems = [
-      { id: 'browser', label: '📁 Navegar', icon: '📁' },
       { id: 'upload', label: '📤 Upload', icon: '📤' },
-      { id: 'recent', label: '🕒 Recentes', icon: '🕒' }
+      { id: 'recent', label: '🕒 Recentes', icon: '🕒' },
+      { id: 'browser', label: '📁 Navegar', icon: '📁' }
     ];
 
     tabItems.forEach((tab, index) => {
@@ -142,16 +144,33 @@ export class LoadFileModal {
     tab.className = 'load-file-tab';
     tab.setAttribute('data-tab-content', 'browser');
 
-    // Search
+    // 🔒 Mensagem de privacidade profissional
+    const privacyInfo = document.createElement('div');
+    privacyInfo.className = 'load-file-privacy-info';
+    privacyInfo.innerHTML = `
+      <div style="padding: 2rem; text-align: center; background: rgba(var(--arxis-primary-rgb), 0.1); border-radius: 8px; margin: 2rem 0;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
+        <h3 style="margin: 0 0 1rem 0; color: var(--arxis-text);">Política de Privacidade</h3>
+        <p style="color: var(--arxis-text-secondary); line-height: 1.6; max-width: 500px; margin: 0 auto;">
+          Por questões de <strong>privacidade e segurança</strong>, não fornecemos arquivos de exemplo.<br><br>
+          Arquivos BIM/CAD contêm dados confidenciais de projetos e clientes.<br><br>
+          <strong>Use a aba "Upload"</strong> para carregar seus próprios arquivos (.ifc, .dwg, .rvt, .nwd).
+        </p>
+      </div>
+    `;
+    tab.appendChild(privacyInfo);
+
+    // Search (mantido para futura integração com cloud storage)
     const search = new Input({
       placeholder: 'Buscar arquivos...',
       icon: '🔍',
       fullWidth: true,
       onChange: (value) => this.searchFiles(value)
     });
+    search.getElement().style.display = 'none'; // 🔒 Oculto (sem arquivos)
     tab.appendChild(search.getElement());
 
-    // File list
+    // File list (vazia)
     const fileList = document.createElement('div');
     fileList.className = 'load-file-list';
     tab.appendChild(fileList);

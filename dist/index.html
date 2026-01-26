@@ -695,8 +695,124 @@
     .status-button.active {
       background: rgba(255, 255, 255, 0.15);
     }
+
+    /* Onboarding Screen */
+    #onboarding {
+      position: fixed;
+      top: 0;
+      left: 48px; /* After activity bar */
+      right: 0;
+      bottom: 0;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.3s;
+    }
+
+    #onboarding.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .onboarding-content {
+      text-align: center;
+      max-width: 600px;
+      padding: 40px;
+    }
+
+    .onboarding-title {
+      font-size: 32px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+    }
+
+    .onboarding-subtitle {
+      font-size: 16px;
+      color: #858585;
+      margin: 0 0 40px 0;
+    }
+
+    .dropzone {
+      border: 2px dashed #007acc;
+      border-radius: 12px;
+      padding: 60px 40px;
+      margin: 0 0 24px 0;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(0, 122, 204, 0.05);
+    }
+
+    .dropzone:hover {
+      border-color: #0098ff;
+      background: rgba(0, 122, 204, 0.1);
+      transform: scale(1.02);
+    }
+
+    .dropzone.dragover {
+      border-color: #0098ff;
+      background: rgba(0, 122, 204, 0.2);
+      transform: scale(1.05);
+    }
+
+    .dropzone-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+
+    .dropzone-text {
+      font-size: 18px;
+      font-weight: 500;
+      margin: 0 0 8px 0;
+    }
+
+    .dropzone-hint {
+      font-size: 14px;
+      color: #858585;
+      margin: 0;
+    }
+
+    .onboarding-or {
+      font-size: 14px;
+      color: #858585;
+      margin: 24px 0;
+    }
+
+    .demo-button {
+      background: #007acc;
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .demo-button:hover {
+      background: #0098ff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 122, 204, 0.4);
+    }
+
+    .onboarding-info {
+      margin-top: 32px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      font-size: 13px;
+      color: #858585;
+      line-height: 1.6;
+    }
+
+    .onboarding-info strong {
+      color: #cccccc;
+    }
   </style>
-  <script type="module" crossorigin src="/assets/index-BVa4CFf7.js"></script>
+  <script type="module" crossorigin src="/assets/index-CbM4LVOM.js"></script>
 </head>
 <body>
   <div id="app">
@@ -749,30 +865,26 @@
         <div class="sidebar-section" data-section="explorer">
           <div class="sidebar-group">
             <div class="sidebar-group-header">PROJETO</div>
-            <button class="sidebar-item" onclick="openFileModal()">
+            <button class="sidebar-item" data-component="LoadFileModal">
               <span class="sidebar-icon">📁</span>
               Abrir Arquivo IFC
             </button>
-            <button class="sidebar-item" onclick="openRecent()">
-              <span class="sidebar-icon">🕐</span>
-              Projetos Recentes
-            </button>
-            <button class="sidebar-item" onclick="exportFile()">
+            <button class="sidebar-item" data-component="ExportModal">
               <span class="sidebar-icon">💾</span>
               Exportar
             </button>
           </div>
           <div class="sidebar-group">
             <div class="sidebar-group-header">VISUALIZAÇÃO</div>
-            <button class="sidebar-item" onclick="openComponent('LayersPanel')">
+            <button class="sidebar-item" data-component="LayersPanel">
               <span class="sidebar-icon">📚</span>
               Camadas
             </button>
-            <button class="sidebar-item" onclick="openComponent('TransparencyControl')">
+            <button class="sidebar-item" data-component="TransparencyControl">
               <span class="sidebar-icon">👁️</span>
               Transparência
             </button>
-            <button class="sidebar-item" onclick="openComponent('SectionBoxTool')">
+            <button class="sidebar-item" data-component="SectionBoxTool">
               <span class="sidebar-icon">✂️</span>
               Cortes
             </button>
@@ -802,20 +914,164 @@
       <div class="status-right">
         <span class="status-item" id="status-fps">60 FPS</span>
         <span class="status-item" id="status-memory">0 MB</span>
+        <span class="status-item" id="status-errors" style="display: none; color: #f48771; cursor: pointer;" onclick="window.errorBoundary?.downloadDiagnostics()" title="Clique para baixar diagnóstico">
+          ⚠️ <span id="status-errors-count">0</span> erros
+        </span>
         <button class="status-item status-button" onclick="toggleGrid()">Grid</button>
         <button class="status-item status-button spatial-mode-btn">Modo Espacial</button>
       </div>
     </div>
 
-    <!-- Loading Spinner -->
-    <div id="loading">
-      <h1>ArxisVR</h1>
-      <div class="spinner"></div>
-      <p>Carregando visualizador BIM...</p>
+    <!-- Onboarding Screen -->
+    <div id="onboarding" class="hidden">
+      <div class="onboarding-content">
+        <h1 class="onboarding-title">Bem-vindo ao ArxisVR</h1>
+        <p class="onboarding-subtitle">Visualizador BIM profissional para arquivos IFC</p>
+        
+        <div id="dropzone" class="dropzone">
+          <div class="dropzone-icon">📁</div>
+          <p class="dropzone-text">Arraste seu arquivo IFC aqui</p>
+          <p class="dropzone-hint">ou clique para selecionar</p>
+        </div>
+        
+        <p class="onboarding-or">— ou —</p>
+        
+        <button id="load-demo-btn" class="demo-button">
+          🚀 Carregar Modelo de Exemplo
+        </button>
+        
+        <div class="onboarding-info">
+          <strong>📋 Formatos suportados:</strong> IFC (.ifc, .ifczip)<br>
+          <strong>💾 Tamanho recomendado:</strong> Até 300MB para melhor performance<br>
+          <strong>🔒 Privacidade:</strong> Arquivos processados localmente no navegador
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Screen with Progress -->
+    <div id="loading" role="status" aria-live="polite">
+      <div style="text-align: center; max-width: 400px;">
+        <h1 style="margin: 0 0 24px 0; font-size: 32px; font-weight: 600;">ArxisVR</h1>
+        <div class="spinner" role="progressbar" aria-label="Carregando"></div>
+        <p id="loading-stage" style="margin: 20px 0 8px 0; font-size: 16px; font-weight: 500;">
+          Inicializando...
+        </p>
+        <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;" aria-hidden="true">
+          <div id="loading-progress" style="height: 100%; width: 0%; background: #007acc; transition: width 0.3s;"></div>
+        </div>
+        <p id="loading-detail" style="margin: 8px 0 0 0; font-size: 13px; opacity: 0.7;">
+          Preparando engine...
+        </p>
+        <!-- Recovery Actions (hidden initially) -->
+        <div id="loading-recovery" style="display: none; margin-top: 24px; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 8px;" role="alert">
+          <p style="margin: 0 0 12px 0; font-size: 14px; color: #f48771;">
+            ⏱️ O carregamento está demorando mais que o esperado
+          </p>
+          <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+            <button id="recovery-reload" style="
+              background: #007acc;
+              color: white;
+              border: none;
+              padding: 8px 16px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 13px;
+              font-weight: 500;
+            ">🔄 Recarregar</button>
+            <button id="recovery-safe-mode" style="
+              background: rgba(255,255,255,0.1);
+              color: white;
+              border: 1px solid rgba(255,255,255,0.2);
+              padding: 8px 16px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 13px;
+            ">🛡️ Modo Seguro</button>
+            <button id="recovery-download-logs" style="
+              background: rgba(255,255,255,0.1);
+              color: white;
+              border: 1px solid rgba(255,255,255,0.2);
+              padding: 8px 16px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 13px;
+            ">📥 Baixar Logs</button>
+            <button id="recovery-clear-cache" style="
+              background: rgba(255,255,255,0.1);
+              color: white;
+              border: 1px solid rgba(255,255,255,0.2);
+              padding: 8px 16px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 13px;
+            ">🗑️ Limpar Cache</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   
   <script>
+    // Recovery Actions Handlers
+    document.addEventListener('DOMContentLoaded', () => {
+      const recoveryReload = document.getElementById('recovery-reload');
+      const recoverySafeMode = document.getElementById('recovery-safe-mode');
+      const recoveryDownloadLogs = document.getElementById('recovery-download-logs');
+      const recoveryClearCache = document.getElementById('recovery-clear-cache');
+
+      if (recoveryReload) {
+        recoveryReload.addEventListener('click', () => {
+          window.location.reload();
+        });
+      }
+
+      if (recoverySafeMode) {
+        recoverySafeMode.addEventListener('click', () => {
+          // Modo seguro: recarrega com quality=low
+          const url = new URL(window.location);
+          url.searchParams.set('quality', 'low');
+          url.searchParams.set('safeMode', 'true');
+          window.location.href = url.toString();
+        });
+      }
+
+      if (recoveryDownloadLogs) {
+        recoveryDownloadLogs.addEventListener('click', () => {
+          if (window.errorBoundary) {
+            window.errorBoundary.downloadDiagnostics();
+          } else if (window.logger) {
+            window.logger.downloadLogs();
+          } else {
+            console.warn('Logger not available');
+          }
+        });
+      }
+
+      if (recoveryClearCache) {
+        recoveryClearCache.addEventListener('click', async () => {
+          try {
+            // Clear localStorage
+            localStorage.clear();
+            
+            // Clear sessionStorage
+            sessionStorage.clear();
+            
+            // Clear caches API if available
+            if ('caches' in window) {
+              const cacheNames = await caches.keys();
+              await Promise.all(cacheNames.map(name => caches.delete(name)));
+            }
+            
+            alert('✅ Cache limpo! A página será recarregada.');
+            window.location.reload();
+          } catch (err) {
+            console.error('Erro ao limpar cache:', err);
+            alert('❌ Erro ao limpar cache. Tente recarregar manualmente.');
+          }
+        });
+      }
+    });
+
     // VSCode-style Layout Functions
     let sidebarCollapsed = false;
 
