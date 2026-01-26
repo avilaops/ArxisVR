@@ -37,7 +37,16 @@ export interface LoadedModel {
   
   // Three.js references
   group: THREE.Group;                // Root group na scene
-  meshes: THREE.Mesh[];              // Todas as meshes
+  meshes: THREE.Mesh[];              // Todas as meshes (⚠️ caro para modelos grandes)
+  
+  // Bounds cacheados (performance crítica)
+  boundsLocal: THREE.Box3;           // Bounds em local space (calculado 1x)
+  boundsWorld: THREE.Box3;           // Bounds em world space (atualizado se transform mudar)
+  boundsNeedsUpdate: boolean;        // Flag para recalcular boundsWorld
+  
+  // LOD Proxies
+  bboxHelper?: THREE.LineSegments;   // Bbox visual para LOD 3
+  proxyMesh?: THREE.Mesh;            // Merged proxy para LOD 2 (opcional)
   
   // Transform
   position: THREE.Vector3;
@@ -94,10 +103,9 @@ export interface CameraState {
 
 /**
  * Model Session - gerencia estado de múltiplos modelos
+ * ⚠️ NÃO é singleton - instancie por viewer/canvas
  */
 export class ModelSession {
-  private static instance: ModelSession | null = null;
-  
   public readonly id: string;
   public projectId?: string;
   
@@ -127,6 +135,12 @@ export class ModelSession {
   private currentFPS = 60;
   private adaptiveQualityEnabled = true;
   
+  // LOD throttle (performance crítica)
+  private lastLODUpdate = 0;
+  private lodUpdateInterval = 250; // ms - só recalcula LOD a cada 250ms
+  private lastCameraPosition = new THREE.Vector3();
+  private cameraMovementThreshold = 5; // metros - só recalcula se câmera mover > 5m
+  
   // Stats
   private stats = {
     totalModels: 0,
@@ -137,7 +151,11 @@ export class ModelSession {
   };
   
   constructor(scene: THREE.Scene, camera: THREE.Camera, budget?: Partial<PerformanceBudget>) {
-    this.id = `session-${Date.now()}`;
+    // ID estável com crypto.randomUUID() (RFC 4122 v4)
+    this.id = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? `session-${crypto.randomUUID()}`
+      : `session-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+    
     this.scene = scene;
     this.camera = camera;
     
@@ -150,28 +168,38 @@ export class ModelSession {
       adaptiveQuality: true,
       ...budget
     };
-  }
-
-  public static getInstance(scene?: THREE.Scene, camera?: THREE.Camera): ModelSession {
-    if (!ModelSession.instance && scene && camera) {
-      ModelSession.instance = new ModelSession(scene, camera);
-    }
-    if (!ModelSession.instance) {
-      throw new Error('ModelSession not initialized. Call getInstance(scene, camera) first.');
-    }
-    return ModelSession.instance;
+    
+    console.log(`✅ ModelSession created: ${this.id}`);
   }
 
   /**
    * Adiciona modelo à sessão
    */
   public addModel(handle: FileHandle, loadResult: FileLoadResult, group: THREE.Group): LoadedModel {
+    // ID estável com crypto.randomUUID()
+    const modelId = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? `model-${crypto.randomUUID()}`
+      : `model-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+    
+    // Cacheia bounds UMA VEZ (performance crítica)
+    const boundsLocal = new THREE.Box3().setFromObject(group);
+    const boundsWorld = boundsLocal.clone();
+    
+    // Cria bbox helper para LOD 3 (visualização leve)
+    const bboxHelper = new THREE.Box3Helper(boundsLocal, 0x00ff88);
+    bboxHelper.visible = false; // Começa oculto
+    this.scene.add(bboxHelper);
+    
     const model: LoadedModel = {
-      id: `model-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: modelId,
       handle,
       loadResult,
       group,
       meshes: this.collectMeshes(group),
+      boundsLocal,
+      boundsWorld,
+      boundsNeedsUpdate: false,
+      bboxHelper,
       position: group.position.clone(),
       rotation: group.rotation.clone(),
       scale: group.scale.clone(),
@@ -399,24 +427,39 @@ export class ModelSession {
           // TODO: Simplificar mais
           break;
           
-        case 3: // Bounding box only
+        case 3: // Bounding box only - mostra só bbox helper
           mesh.visible = false;
-          // TODO: Mostrar só bbox
           break;
       }
     });
+    
+    // Controla visibilidade do bbox helper
+    if (model.bboxHelper) {
+      model.bboxHelper.visible = (level === 3);
+    }
   }
 
   /**
    * Update loop - chama a cada frame
    */
   public update(_deltaTime: number): void {
-    // Atualiza LOD de todos os modelos
-    this.models.forEach(model => {
-      if (model.visible) {
-        this.applyLOD(model);
-      }
-    });
+    // LOD throttled - só roda se tempo passou E câmera se moveu
+    const now = performance.now();
+    const cameraDist = this.camera.position.distanceTo(this.lastCameraPosition);
+    const timeElapsed = now - this.lastLODUpdate;
+    
+    if (timeElapsed > this.lodUpdateInterval || cameraDist > this.cameraMovementThreshold) {
+      // Atualiza LOD de todos os modelos
+      this.models.forEach(model => {
+        if (model.visible) {
+          this.applyLOD(model);
+        }
+      });
+      
+      // Atualiza cache
+      this.lastLODUpdate = now;
+      this.lastCameraPosition.copy(this.camera.position);
+    }
     
     // Adaptive quality
     if (this.adaptiveQualityEnabled && this.currentFPS < this.budget.targetFPS) {
@@ -461,9 +504,14 @@ export class ModelSession {
       this.models.forEach(model => {
         if (!model.visible) return;
         
-        // Testa bounding box do modelo
-        const box = new THREE.Box3().setFromObject(model.group);
-        const inFrustum = frustum.intersectsBox(box);
+        // Atualiza bounds world se necessário
+        if (model.boundsNeedsUpdate) {
+          model.boundsWorld.copy(model.boundsLocal).applyMatrix4(model.group.matrixWorld);
+          model.boundsNeedsUpdate = false;
+        }
+        
+        // Testa com bounds cached
+        const inFrustum = frustum.intersectsBox(model.boundsWorld);
         
         // Esconde/mostra
         model.group.visible = inFrustum;
