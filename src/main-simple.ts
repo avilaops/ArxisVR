@@ -23,6 +23,7 @@ import { ToolType } from './core/types';
 import { getErrorBoundary } from './core/ErrorBoundary';
 import { getLogger } from './core/Logger';
 import { LoadingManager } from './core/LoadingManager';
+import { getQualityManager } from './core/QualityManager';
 
 // Performance tracking
 performance.mark('app-start');
@@ -151,6 +152,11 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limitar a 2x pa
 renderer.shadowMap.enabled = false; // Desabilitar sombras por padrão
 container.appendChild(renderer.domElement);
 logger.info('Renderer', '✅ Renderer otimizado criado');
+
+// Initialize QualityManager
+const qualityManager = getQualityManager();
+qualityManager.initialize(renderer, scene);
+logger.info('Quality', '✅ QualityManager initialized (auto-adjust enabled)');
 
 loadingManager.setStage('Adicionando controles...', 'Mouse e teclado', 60);
 
