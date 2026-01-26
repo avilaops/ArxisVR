@@ -96,8 +96,8 @@ export class ExamplesProvider implements IFileProvider {
   public readonly type = FileProviderType.EXAMPLES;
   public readonly name = 'Examples';
   public readonly capabilities = {
-    list: true,
-    read: true,
+    list: false,  // Política de privacidade: sem arquivos públicos
+    read: false,  // Sem exemplos disponíveis
     write: false,
     delete: false,
     watch: false
@@ -283,8 +283,46 @@ export class LocalProvider implements IFileProvider {
   }
 
   private async calculateHash(file: File): Promise<string> {
-    // Simplificado: usa tamanho + modified time
-    // TODO: Usar Web Crypto API para SHA-256 real
-    return `${file.size}-${file.lastModified}`;
+    // SHA-256 amostrado (primeiros/últimos 256KB + metadata)
+    // Evita colisões sem carregar arquivo inteiro na memória
+    const SAMPLE_SIZE = 256 * 1024; // 256KB
+    
+    try {
+      let dataToHash: ArrayBuffer;
+      
+      if (file.size <= SAMPLE_SIZE * 2) {
+        // Arquivo pequeno: hash completo
+        dataToHash = await file.arrayBuffer();
+      } else {
+        // Arquivo grande: amostra início + fim
+        const start = file.slice(0, SAMPLE_SIZE);
+        const end = file.slice(-SAMPLE_SIZE);
+        
+        const startBuffer = await start.arrayBuffer();
+        const endBuffer = await end.arrayBuffer();
+        
+        // Concatena amostras + metadata
+        const metadata = new TextEncoder().encode(
+          `${file.size}|${file.lastModified}|${file.name}`
+        );
+        
+        dataToHash = new Uint8Array([
+          ...new Uint8Array(startBuffer),
+          ...new Uint8Array(endBuffer),
+          ...metadata
+        ]).buffer;
+      }
+      
+      // SHA-256 via Web Crypto API
+      const hashBuffer = await crypto.subtle.digest('SHA-256', dataToHash);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      
+      return hashHex;
+    } catch (err) {
+      console.error('Hash calculation failed, using fallback:', err);
+      // Fallback seguro (ainda melhor que size+mtime puro)
+      return `fallback-${file.size}-${file.lastModified}-${file.name.replace(/[^a-z0-9]/gi, '')}`;
+    }
   }
 }

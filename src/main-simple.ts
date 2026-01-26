@@ -285,7 +285,7 @@ function initializeIFCLoader() {
 }
 
 // Global function to load IFC files (lazy init)
-(window as any).loadIFCFile = async (file: File) => {
+const loadIFCFileImpl = async (file: File) => {
   try {
     console.log(`📦 Loading IFC: ${file.name}`);
     const loader = initializeIFCLoader();
@@ -296,6 +296,10 @@ function initializeIFCLoader() {
     alert(`Erro ao carregar IFC: ${error}`);
   }
 };
+
+// Expõe no window (legacy) + injeta no fileService (correto)
+(window as any).loadIFCFile = loadIFCFileImpl;
+fileService.setIfcLoader(loadIFCFileImpl);
 
 // Add a simple test cube
 const geometry = new THREE.BoxGeometry(1, 1, 1);

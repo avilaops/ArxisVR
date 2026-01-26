@@ -4,11 +4,13 @@ import {
   IFCElementType,
   LayerStats,
   LayerChangeEvent,
-  LayerConfiguration,
+  LayerConfigurationDTO,
   LayerGroup,
   LayerConfig,
   BlendMode,
-  LayerFilter
+  LayerFilter,
+  toLayerDTO,
+  fromLayerDTO
 } from './LayerTypes';
 
 /**
@@ -239,12 +241,14 @@ export class LayerManager {
                 mat instanceof THREE.MeshBasicMaterial) {
               mat.transparent = layer.opacity < 1.0;
               mat.opacity = layer.opacity;
+              mat.needsUpdate = true;
             }
           });
         }
 
-        // Layers do Three.js (para renderização seletiva)
-        child.layers.set(parseInt(layer.id.substring(0, 8), 16) % 32);
+        // ⚠️ THREE.Layers limitado a 32 canais - não usar para layers infinitos
+        // Use userData.layerId para controle de layer do ArxisVR
+        // child.layers só para casos específicos (gizmo/selection pass)
       }
     });
   }
@@ -468,10 +472,17 @@ export class LayerManager {
   }
 
   /**
-   * Gera ID único para layer
+   * Gera ID único para layer com crypto.randomUUID()
+   * Garante IDs estáveis para export/import, colaboração, undo/redo
    */
   private generateLayerId(): string {
-    return `layer_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    // Usa crypto.randomUUID() (RFC 4122 v4) quando disponível
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return `layer-${crypto.randomUUID()}`;
+    }
+    
+    // Fallback para ambientes sem crypto.randomUUID()
+    return `layer-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
   }
 
   /**
@@ -511,45 +522,58 @@ export class LayerManager {
   }
 
   /**
-   * Salva configuração atual
+   * Salva configuração atual (serializada com DTO)
    */
-  public saveConfiguration(): LayerConfiguration {
+  public saveConfiguration(): LayerConfigurationDTO {
     return {
       version: '1.0.0',
-      timestamp: new Date(),
-      layers: Array.from(this.layers.values()),
-      groups: Array.from(this.groups.values()),
+      timestampEpoch: Date.now(),
+      layers: Array.from(this.layers.values()).map(toLayerDTO),
+      groups: Array.from(this.groups.values()).map(toLayerDTO),
       activeLayerId: this.activeLayerId || undefined
     };
   }
 
   /**
-   * Carrega configuração
+   * Carrega configuração (rehidrata de DTO)
    */
-  public loadConfiguration(config: LayerConfiguration): void {
+  public loadConfiguration(config: LayerConfigurationDTO): void {
     // Limpa layers existentes (exceto objetos)
     this.layers.clear();
     this.groups.clear();
 
-    // Recria layers
-    config.layers.forEach(layerData => {
+    // Recria layers de DTO
+    config.layers.forEach(layerDTO => {
+      const layerPartial = fromLayerDTO(layerDTO);
       const layer: ILayer = {
-        ...layerData,
-        objects: [], // Objetos serão reatribuídos
-        objectIds: new Set(layerData.objectIds),
-        created: new Date(layerData.created),
-        modified: new Date(layerData.modified)
+        ...layerPartial,
+        objects: [], // Objetos serão reatribuídos via addObjectToLayer
+        objectIds: layerPartial.objectIds
       };
+      
       this.layers.set(layer.id, layer);
+    });
 
-      if ('isGroup' in layer) {
-        this.groups.set(layer.id, layer as LayerGroup);
-      }
+    // Recria grupos
+    config.groups.forEach(groupDTO => {
+      const groupPartial = fromLayerDTO(groupDTO);
+      const group: LayerGroup = {
+        ...groupPartial,
+        objects: [],
+        objectIds: groupPartial.objectIds,
+        isGroup: true,
+        children: groupPartial.children || []
+      };
+      
+      this.groups.set(group.id, group);
     });
 
     this.activeLayerId = config.activeLayerId || null;
 
-    console.log('✅ Configuração de layers carregada');
+    console.log('✅ LayerConfiguration carregada:', {
+      layers: this.layers.size,
+      groups: this.groups.size
+    });
   }
 
   /**
@@ -564,7 +588,7 @@ export class LayerManager {
    * Importa de JSON
    */
   public importFromJSON(json: string): void {
-    const config = JSON.parse(json) as LayerConfiguration;
+    const config = JSON.parse(json) as LayerConfigurationDTO;
     this.loadConfiguration(config);
   }
 

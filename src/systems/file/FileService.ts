@@ -29,6 +29,9 @@ export class FileService {
   private favorites: Set<string> = new Set();
   private modelSession: any | null = null; // ModelSession instance
   
+  // ✅ Injeção de dependência: IFCLoader
+  private ifcLoader: ((file: File) => Promise<void>) | null = null;
+  
   private constructor() {
     this.cache = new FileCache();
     this.registerDefaultProviders();
@@ -56,6 +59,15 @@ export class FileService {
   public registerProvider(provider: IFileProvider): void {
     this.providers.set(provider.type, provider);
     console.log(`✅ Registered file provider: ${provider.name}`);
+  }
+  
+  /**
+   * Define IFCLoader (injeção de dependência)
+   * Chamado pelo main-simple.ts após inicializar IFCLoader
+   */
+  public setIfcLoader(loader: (file: File) => Promise<void>): void {
+    this.ifcLoader = loader;
+    console.log('✅ IFCLoader injected into FileService');
   }
 
   /**
@@ -103,9 +115,12 @@ export class FileService {
 
   /**
    * Abre arquivo (núcleo da API)
-   * Retorna Blob pronto para passar ao loader
+   * Retorna { blob, cacheHit } para telemetria correta
    */
-  public async open(handle: FileHandle, onProgress?: (progress: LoaderProgress) => void): Promise<Blob> {
+  public async open(
+    handle: FileHandle,
+    onProgress?: (progress: LoaderProgress) => void
+  ): Promise<{ blob: Blob; cacheHit: boolean }> {
     onProgress?.({
       stage: LoaderStage.FETCH,
       progress: 0,
@@ -123,7 +138,7 @@ export class FileService {
       });
       
       this.addToRecents(handle);
-      return cached;
+      return { blob: cached, cacheHit: true };
     }
 
     // Busca do provider
@@ -140,11 +155,13 @@ export class FileService {
       message: 'Download complete'
     });
 
-    // Cacheia
-    await this.cache.set(handle.hash, blob);
+    // Cacheia (async, não bloqueia)
+    this.cache.set(handle.hash, blob).catch(err => {
+      console.warn('Cache.set failed (non-blocking):', err);
+    });
 
     this.addToRecents(handle);
-    return blob;
+    return { blob, cacheHit: false };
   }
 
   /**
@@ -158,12 +175,14 @@ export class FileService {
     const startTime = performance.now();
     let downloadTime = 0;
     let parseTime = 0;
+    let cacheHit = false;
 
     try {
       // FETCH stage
       const fetchStart = performance.now();
-      const blob = await this.open(handle, onProgress);
+      const { blob, cacheHit: wasCached } = await this.open(handle, onProgress);
       downloadTime = performance.now() - fetchStart;
+      cacheHit = wasCached;
 
       // VALIDATE stage
       onProgress?.({
@@ -172,7 +191,6 @@ export class FileService {
         message: 'Validating file...'
       });
 
-      // TODO: Validação real (magic bytes, estrutura IFC, etc)
       await this.validateFile(blob, handle);
 
       onProgress?.({
@@ -192,13 +210,14 @@ export class FileService {
       // Converte Blob para File (IFCLoader espera File)
       const file = new File([blob], handle.displayName, { type: blob.type });
 
-      // Chama IFCLoader real
-      const loadIFCFile = (window as any).loadIFCFile;
-      if (typeof loadIFCFile !== 'function') {
-        throw new Error('IFCLoader not available (window.loadIFCFile)');
+      // Chama IFCLoader injetado
+      if (!this.ifcLoader) {
+        throw new Error(
+          'IFCLoader not injected. Call fileService.setIfcLoader() in main-simple.ts'
+        );
       }
 
-      await loadIFCFile(file);
+      await this.ifcLoader(file);
 
       parseTime = performance.now() - parseStart;
 
@@ -213,7 +232,7 @@ export class FileService {
           parseTimeMs: Math.round(parseTime),
           totalTimeMs: Math.round(totalTime),
           bytesDownloaded: blob.size,
-          cacheHit: downloadTime < 100, // Heurística
+          cacheHit, // ✅ Valor real capturado no open(), não heurística
           // TODO: Pegar stats reais do IFCLoader/scene
           triangles: undefined,
           vertices: undefined,
@@ -243,7 +262,7 @@ export class FileService {
           parseTimeMs: Math.round(parseTime),
           totalTimeMs: Math.round(totalTime),
           bytesDownloaded: 0,
-          cacheHit: false
+          cacheHit // ✅ Usa valor capturado antes do erro
         }
       };
     }
@@ -351,12 +370,19 @@ export class FileService {
    */
   private persistState(): void {
     try {
-      localStorage.setItem('arxis:file-service:recents', JSON.stringify(
-        this.recents.map(h => h.id)
-      ));
-      localStorage.setItem('arxis:file-service:favorites', JSON.stringify(
-        Array.from(this.favorites)
-      ));
+      // Persiste recents como handles completos (limitado a 20 últimos)
+      const recentsToSave = this.recents.slice(0, 20);
+      localStorage.setItem('arxis:file-service:recents', JSON.stringify(recentsToSave));
+      
+      // Persiste favorites como IDs + handles (para fallback offline)
+      const favoritesHandles = Array.from(this.favorites)
+        .map(id => this.recents.find(h => h.id === id))
+        .filter(Boolean);
+      
+      localStorage.setItem('arxis:file-service:favorites', JSON.stringify({
+        ids: Array.from(this.favorites),
+        handles: favoritesHandles
+      }));
     } catch (error) {
       console.warn('Failed to persist file service state:', error);
     }
@@ -367,13 +393,44 @@ export class FileService {
    */
   private loadPersistedState(): void {
     try {
-      // const recentsJson = localStorage.getItem('arxis:file-service:recents');
+      // Carrega recents (handles completos)
+      const recentsJson = localStorage.getItem('arxis:file-service:recents');
+      if (recentsJson) {
+        const parsed = JSON.parse(recentsJson);
+        // Reconstrói Dates de strings ISO
+        this.recents = parsed.map((h: any) => ({
+          ...h,
+          createdAt: new Date(h.createdAt),
+          modifiedAt: new Date(h.modifiedAt),
+          accessedAt: h.accessedAt ? new Date(h.accessedAt) : undefined
+        }));
+      }
+      
+      // Carrega favorites
       const favoritesJson = localStorage.getItem('arxis:file-service:favorites');
-
-      // TODO: Reconstituir FileHandles dos IDs
-      // Por enquanto só carrega favoritos
       if (favoritesJson) {
-        this.favorites = new Set(JSON.parse(favoritesJson));
+        const parsed = JSON.parse(favoritesJson);
+        
+        // Formato novo: { ids, handles }
+        if (parsed.ids) {
+          this.favorites = new Set(parsed.ids);
+          
+          // Merge handles de favorites com recents (para caso offline)
+          if (parsed.handles && Array.isArray(parsed.handles)) {
+            for (const h of parsed.handles) {
+              if (!this.recents.find(r => r.id === h.id)) {
+                this.recents.push({
+                  ...h,
+                  createdAt: new Date(h.createdAt),
+                  modifiedAt: new Date(h.modifiedAt)
+                });
+              }
+            }
+          }
+        } else {
+          // Formato antigo: array de IDs (fallback)
+          this.favorites = new Set(parsed);
+        }
       }
     } catch (error) {
       console.warn('Failed to load persisted file service state:', error);

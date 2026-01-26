@@ -69,7 +69,7 @@ export class FileCache {
   }
 
   /**
-   * Armazena arquivo no cache
+   * Armazena arquivo no cache com retry em QuotaExceededError
    */
   public async set(hash: string, blob: Blob): Promise<void> {
     await this.initPromise;
@@ -81,19 +81,37 @@ export class FileCache {
       return;
     }
 
-    // Verifica espaço disponível
-    const estimate = await navigator.storage?.estimate();
-    if (estimate) {
-      const usage = estimate.usage || 0;
-      const quota = estimate.quota || 0;
-      const available = quota - usage;
-      
-      if (blob.size > available) {
-        console.warn('Not enough storage space, evicting old entries...');
-        await this.evictOldest(blob.size);
+    // Tenta armazenar com retry em caso de QuotaExceededError
+    const MAX_RETRIES = 5;
+    let attempt = 0;
+    
+    while (attempt < MAX_RETRIES) {
+      try {
+        await this.putBlob(hash, blob);
+        return; // Sucesso
+      } catch (err: any) {
+        if (err.name === 'QuotaExceededError' && attempt < MAX_RETRIES - 1) {
+          console.warn(`QuotaExceededError (attempt ${attempt + 1}/${MAX_RETRIES}), evicting...`);
+          
+          // Libera espaço (1.5x o tamanho necessário para ter margem)
+          await this.evictOldest(blob.size * 1.5);
+          
+          attempt++;
+        } else {
+          // Erro final ou outro tipo de erro
+          console.error('FileCache.set failed:', err);
+          throw err;
+        }
       }
     }
-
+  }
+  
+  /**
+   * Put blob no IndexedDB (operação primitiva)
+   */
+  private async putBlob(hash: string, blob: Blob): Promise<void> {
+    if (!this.db) throw new Error('DB not initialized');
+    
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([this.storeName], 'readwrite');
       const store = transaction.objectStore(this.storeName);
@@ -197,7 +215,7 @@ export class FileCache {
   }
 
   /**
-   * Obtém tamanho total do cache
+   * Obtém tamanho total do cache (cursor-based, memory-safe)
    */
   public async getSize(): Promise<number> {
     await this.initPromise;
@@ -206,12 +224,20 @@ export class FileCache {
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([this.storeName], 'readonly');
       const store = transaction.objectStore(this.storeName);
-      const request = store.getAll();
+      const index = store.index('size');
+      const request = index.openCursor();
+      
+      let totalSize = 0;
 
-      request.onsuccess = () => {
-        const records = request.result;
-        const totalSize = records.reduce((sum, record) => sum + (record.size || 0), 0);
-        resolve(totalSize);
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest).result as IDBCursorWithValue;
+        
+        if (cursor) {
+          totalSize += cursor.value.size || 0;
+          cursor.continue();
+        } else {
+          resolve(totalSize);
+        }
       };
 
       request.onerror = () => reject(request.error);
@@ -219,7 +245,7 @@ export class FileCache {
   }
 
   /**
-   * Obtém estatísticas do cache
+   * Obtém estatísticas do cache (cursor-based, memory-safe)
    */
   public async getStats(): Promise<{
     count: number;
@@ -235,25 +261,31 @@ export class FileCache {
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([this.storeName], 'readonly');
       const store = transaction.objectStore(this.storeName);
-      const request = store.getAll();
+      const index = store.index('timestamp');
+      const request = index.openCursor();
+      
+      let count = 0;
+      let totalSize = 0;
+      let oldestTimestamp = Infinity;
+      let newestTimestamp = 0;
 
-      request.onsuccess = () => {
-        const records = request.result;
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest).result as IDBCursorWithValue;
         
-        if (records.length === 0) {
-          resolve({ count: 0, totalSize: 0, oldestTimestamp: 0, newestTimestamp: 0 });
-          return;
+        if (cursor) {
+          count++;
+          totalSize += cursor.value.size || 0;
+          oldestTimestamp = Math.min(oldestTimestamp, cursor.value.timestamp);
+          newestTimestamp = Math.max(newestTimestamp, cursor.value.timestamp);
+          cursor.continue();
+        } else {
+          resolve({
+            count,
+            totalSize,
+            oldestTimestamp: oldestTimestamp === Infinity ? 0 : oldestTimestamp,
+            newestTimestamp
+          });
         }
-
-        const totalSize = records.reduce((sum, r) => sum + (r.size || 0), 0);
-        const timestamps = records.map(r => r.timestamp).sort((a, b) => a - b);
-
-        resolve({
-          count: records.length,
-          totalSize,
-          oldestTimestamp: timestamps[0],
-          newestTimestamp: timestamps[timestamps.length - 1]
-        });
       };
 
       request.onerror = () => reject(request.error);
