@@ -271,19 +271,43 @@ export class FileService {
   /**
    * Valida arquivo
    */
-  private async validateFile(blob: Blob, _handle: FileHandle): Promise<void> {
-    // TODO: Validação real
-    // - Magic bytes
-    // - Estrutura IFC (STEP format)
-    // - Versão suportada
-    // - Corrupção
-    
+  private async validateFile(blob: Blob, handle: FileHandle): Promise<void> {
+    // Validação básica de arquivos IFC
     if (blob.size === 0) {
       throw new Error('File is empty');
     }
-
-    if (blob.size > 500 * 1024 * 1024) { // 500MB
-      console.warn(`⚠️ Large file: ${(blob.size / (1024 * 1024)).toFixed(1)} MB`);
+    
+    // Verifica tamanho máximo (500MB)
+    const maxSize = 500 * 1024 * 1024;
+    if (blob.size > maxSize) {
+      throw new Error(`File too large: ${(blob.size / 1024 / 1024).toFixed(2)}MB (max: 500MB)`);
+    }
+    
+    // Para arquivos IFC, valida magic bytes e estrutura STEP
+    if (handle.metadata.extension === 'ifc') {
+      const header = await blob.slice(0, 1024).text();
+      
+      // Magic bytes: ISO-10303-21 (STEP format)
+      if (!header.startsWith('ISO-10303-21')) {
+        throw new Error('Invalid IFC file: missing ISO-10303-21 header');
+      }
+      
+      // Valida seções básicas
+      if (!header.includes('HEADER;') || !header.includes('ENDSEC;')) {
+        throw new Error('Invalid IFC file: malformed STEP structure');
+      }
+      
+      // Valida versão IFC (IFC2X3, IFC4, IFC4X3)
+      const versionMatch = header.match(/FILE_SCHEMA\s*\(\s*\('(IFC[^']+)'\)/i);
+      if (!versionMatch) {
+        throw new Error('Invalid IFC file: missing FILE_SCHEMA');
+      }
+      
+      const version = versionMatch[1];
+      const supportedVersions = ['IFC2X3', 'IFC4', 'IFC4X3', 'IFC4X3_ADD2'];
+      if (!supportedVersions.some(v => version.toUpperCase().startsWith(v))) {
+        console.warn(`Unsupported IFC version: ${version} (trying anyway)`);
+      }
     }
   }
 

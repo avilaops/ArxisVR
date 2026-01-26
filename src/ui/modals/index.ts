@@ -12,7 +12,7 @@
  */
 export const modalRegistry: Record<string, () => Promise<any>> = {
   'AboutModal': () => import('./AboutModal').then(m => new m.AboutModal()),
-  'LoadFileModal': () => import('./LoadFileModal').then(m => new m.LoadFileModal()),
+  'LoadFileModal': () => import('./LoadFileModal-v2').then(m => new m.LoadFileModal()),
   'SettingsModal': () => import('./SettingsModal').then(m => new m.SettingsModal()),
   'ShortcutsModal': () => import('./ShortcutsModal').then(m => new m.ShortcutsModal()),
   'ShareModal': () => import('./ShareModal').then(m => new m.ShareModal()),

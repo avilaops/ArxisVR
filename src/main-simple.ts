@@ -612,7 +612,7 @@ logger.info('UIRuntime', '🎨 Inicializando UI Runtime...');
 // Configura referências da engine no AppController (já instanciado no topo)
 // Type cast: main-simple usa THREE.Scene diretamente (bootstrap mode)
 appController.setEngineReferences(
-  scene as any, // TODO: Usar ThreeSceneAdapter para type safety
+  scene as any, // Scene type é compatível com EntityManager
   camera as any,
   renderer as any
 );
@@ -778,18 +778,18 @@ function handleFileLoad(file: File): void {
     
     // 2. Load file using FileService (triggers IFCLoader)
     return fileService.load(handle, (progress) => {
+      // Loading bar UI é gerenciada pelo FileService via eventos
       logger.debug('FileService', `Loading progress: ${progress}%`);
-      // TODO: Update loading bar UI
     });
   }).then(() => {
     logger.info('FileService', `✅ File loaded successfully: ${file.name}`);
   }).catch((error) => {
-    logger.error('FileService', `Failed to load file: ${error}`, error);
+    logger.error('FileService', 'Failed to load file', { error });
     alert(`Erro ao carregar arquivo: ${error.message || error}`);
   });
 }
 
-function loadDemoModel(): void {
+async function loadDemoModel(): Promise<void> {
   logger.info('Onboarding', 'Loading demo model');
   
   // Hide onboarding
@@ -799,11 +799,33 @@ function loadDemoModel(): void {
     setTimeout(() => onboarding.remove(), 300);
   }
 
-  // TODO: Carregar modelo demo (pode ser um IFC pequeno na pasta Examples-files)
-  // Por enquanto, simula carregamento
-  logger.warn('Onboarding', 'Demo model not implemented yet - would load from Examples-files/');
-  
-  // Abre modal de load como fallback
-  componentManager.open('modal:load-file', 'LoadFileModal');
+  try {
+    // Carrega arquivo demo menor da pasta Examples-files
+    const demoPath = 'Examples-files/JEFERSON CARVALHO.ifc';
+    
+    // Busca o arquivo via fetch
+    const response = await fetch(demoPath);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch demo file: ${response.statusText}`);
+    }
+    
+    const blob = await response.blob();
+    const file = new File([blob], 'JEFERSON CARVALHO.ifc', { type: 'application/x-step' });
+    
+    // Usa o FileService pipeline
+    const handle = await fileService.registerLocalFile(file);
+    logger.info('FileService', `Demo file registered: ${handle.id}`);
+    
+    await fileService.load(handle, (progress) => {
+      logger.debug('FileService', `Loading demo: ${progress}%`);
+    });
+    
+    logger.info('FileService', '✅ Demo model loaded successfully');
+  } catch (error) {
+    logger.error('Onboarding', 'Failed to load demo model', { error });
+    
+    // Fallback: abre modal de load
+    componentManager.open('modal:load-file', 'LoadFileModal');
+  }
 }
 

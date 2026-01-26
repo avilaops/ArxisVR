@@ -343,13 +343,21 @@ export class ModelSession {
     let totalTriangles = 0;
     let totalMemory = 0;
     let visibleTriangles = 0;
+    let visibleDrawCalls = 0;
     
     this.models.forEach(model => {
       totalTriangles += model.triangleCount;
       totalMemory += model.estimatedMemoryMB;
       
-      if (model.visible) {
+      if (model.visible && model.group) {
         visibleTriangles += model.triangleCount;
+        
+        // Conta draw calls (meshes visíveis)
+        model.group.traverse((obj: any) => {
+          if (obj.isMesh && obj.visible) {
+            visibleDrawCalls++;
+          }
+        });
       }
     });
     
@@ -358,7 +366,7 @@ export class ModelSession {
       totalTriangles,
       totalMemoryMB: totalMemory,
       visibleTriangles,
-      visibleDrawCalls: 0 // TODO: Contar real
+      visibleDrawCalls // ✅ Valor real baseado em meshes visíveis
     };
     
     this.currentTriangles = visibleTriangles;
@@ -545,12 +553,15 @@ export class ModelSession {
    * Salva estado da câmera
    */
   public saveCameraState(): CameraState {
-    const target = new THREE.Vector3();
+    // Calcula target usando direction vector (camera lookAt)
+    const direction = new THREE.Vector3();
+    this.camera.getWorldDirection(direction);
+    const target = this.camera.position.clone().add(direction.multiplyScalar(10));
     
     if (this.camera instanceof THREE.PerspectiveCamera) {
       return {
         position: this.camera.position.clone(),
-        target, // TODO: Obter target real do controls
+        target, // ✅ Target calculado via direction vector
         up: this.camera.up.clone(),
         fov: this.camera.fov,
         near: this.camera.near,
