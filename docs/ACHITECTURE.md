@@ -5,7 +5,7 @@
 ### Core Técnico
 
 - [ ]  Engine 3D própria (Three.js / WebGPU / WebGL2)
-- [ ]  Loader IFC ultra-performático (streaming + lazy loading)
+- [ ]  Loader IFC  (streaming + lazy loading)
 - [ ]  ECS (Entity Component System)
 - [ ]  Scene Graph desacoplado
 - [ ]  Multithread (Web Workers)
