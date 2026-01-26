@@ -8,3 +8,5 @@ export * from './EventBus';
 export * from './AppState';
 export * from './theme';
 export * from './utils';
+export * from './Logger';
+export * from './ErrorBoundary';

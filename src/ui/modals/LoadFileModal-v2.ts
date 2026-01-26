@@ -1,6 +1,6 @@
 /**
- * LoadFileModal - UI para FileService
- * Agora é apenas UI - toda lógica de arquivo está em FileService
+ * LoadFileModal V2 - Enterprise File Subsystem
+ * UI pura consumindo FileService
  */
 
 import { Modal } from '../design-system/components/Modal';
@@ -15,7 +15,6 @@ export class LoadFileModal {
   private currentProvider: FileProviderType = 'examples' as FileProviderType;
   private files: FileHandle[] = [];
   private selectedFiles: Set<string> = new Set();
-  private currentPath: string[] = ['Examples']; // Initialize breadcrumb path
 
   constructor() {
     this.modal = new Modal({
@@ -25,9 +24,9 @@ export class LoadFileModal {
       onClose: () => this.cleanup()
     });
 
-    this.loadFiles();
     this.buildUI();
     this.applyStyles();
+    this.loadFiles();
   }
 
   /**
@@ -35,11 +34,15 @@ export class LoadFileModal {
    */
   private async loadFiles(): Promise<void> {
     try {
+      showLoading('Carregando lista de arquivos...');
       const result = await fileService.list(this.currentProvider);
       this.files = result.items;
       this.refreshFileList();
     } catch (error) {
       console.error('Failed to load files:', error);
+      alert(`Erro ao carregar arquivos: ${error}`);
+    } finally {
+      hideLoading();
     }
   }
 
@@ -124,6 +127,11 @@ export class LoadFileModal {
       const contentTabId = tab.getAttribute('data-tab-content');
       tab.classList.toggle('load-file-tab--active', contentTabId === tabId);
     });
+
+    // Load data for tab
+    if (tabId === 'recent') {
+      this.loadRecents();
+    }
   }
 
   /**
@@ -133,12 +141,6 @@ export class LoadFileModal {
     const tab = document.createElement('div');
     tab.className = 'load-file-tab';
     tab.setAttribute('data-tab-content', 'browser');
-
-    // Breadcrumb
-    const breadcrumb = document.createElement('div');
-    breadcrumb.className = 'load-file-breadcrumb';
-    this.updateBreadcrumb(breadcrumb);
-    tab.appendChild(breadcrumb);
 
     // Search
     const search = new Input({
@@ -152,47 +154,19 @@ export class LoadFileModal {
     // File list
     const fileList = document.createElement('div');
     fileList.className = 'load-file-list';
-    this.renderFileList(fileList);
     tab.appendChild(fileList);
 
     return tab;
   }
 
   /**
-   * Atualiza breadcrumb
+   * Atualiza lista de arquivos
    */
-  private updateBreadcrumb(container: HTMLElement): void {
-    if (!container) return;
-    
-    container.innerHTML = '';
-    
-    // Guard: ensure currentPath exists and is an array
-    if (!this.currentPath || !Array.isArray(this.currentPath)) {
-      this.currentPath = ['Examples'];
+  private refreshFileList(): void {
+    const fileList = this.modal.getElement().querySelector('.load-file-list') as HTMLElement;
+    if (fileList) {
+      this.renderFileList(fileList);
     }
-    
-    this.currentPath.forEach((folder, index) => {
-      if (index > 0) {
-        const separator = document.createElement('span');
-        separator.className = 'load-file-breadcrumb-separator';
-        separator.textContent = '/';
-        container.appendChild(separator);
-      }
-
-      const crumb = document.createElement('span');
-      crumb.className = 'load-file-breadcrumb-item';
-      crumb.textContent = folder;
-      
-      if (index < this.currentPath.length - 1) {
-        crumb.style.cursor = 'pointer';
-        crumb.addEventListener('click', () => {
-          this.currentPath = this.currentPath.slice(0, index + 1);
-          this.updateBreadcrumb(container);
-        });
-      }
-
-      container.appendChild(crumb);
-    });
   }
 
   /**
@@ -213,16 +187,6 @@ export class LoadFileModal {
       const item = this.createFileItem(file);
       container.appendChild(item);
     });
-  }
-
-  /**
-   * Atualiza lista de arquivos (chamado após load/search)
-   */
-  private refreshFileList(): void {
-    const fileList = this.modal.getElement().querySelector('.load-file-list') as HTMLElement;
-    if (fileList) {
-      this.renderFileList(fileList);
-    }
   }
 
   /**
@@ -312,27 +276,6 @@ export class LoadFileModal {
   }
 
   /**
-   * Navega para pasta (removido temporariamente - FileHandle não suporta navegação de pastas ainda)
-   */
-  // TODO: Implementar navegação de pastas com FileService
-  /*
-  private navigateToFolder(folder: FileHandle): void {
-    this.currentPath.push(folder.displayName);
-    this.loadFiles();
-    
-    const breadcrumb = this.modal.getElement().querySelector('.load-file-breadcrumb') as HTMLElement;
-    if (breadcrumb) {
-      this.updateBreadcrumb(breadcrumb);
-    }
-    
-    const fileList = this.modal.getElement().querySelector('.load-file-list') as HTMLElement;
-    if (fileList) {
-      this.renderFileList(fileList);
-    }
-  }
-  */
-
-  /**
    * Toggle seleção de arquivo
    */
   private toggleFileSelection(fileId: string): void {
@@ -346,9 +289,22 @@ export class LoadFileModal {
   /**
    * Busca arquivos
    */
-  private searchFiles(query: string): void {
-    // Implementar busca
-    console.log('Buscando:', query);
+  private async searchFiles(query: string): Promise<void> {
+    if (!query.trim()) {
+      this.loadFiles();
+      return;
+    }
+
+    try {
+      showLoading('Buscando...');
+      const results = await fileService.search(query, [this.currentProvider]);
+      this.files = results;
+      this.refreshFileList();
+    } catch (error) {
+      console.error('Search failed:', error);
+    } finally {
+      hideLoading();
+    }
   }
 
   /**
@@ -410,16 +366,26 @@ export class LoadFileModal {
   }
 
   /**
-   * Manipula upload de arquivo
+   * Manipula upload de arquivo (drag&drop ou file input)
    */
   private async handleFileUpload(files: File[]): Promise<void> {
     if (files.length === 0) return;
 
-    showLoading('Carregando arquivo...');
-
     try {
+      showLoading(`Carregando ${files.length} arquivo(s)...`);
+
       for (const file of files) {
-        await this.loadFileIntoViewer(file);
+        // Registra no FileService
+        const handle = await fileService.registerLocalFile(file);
+        
+        // Carrega usando FileService (telemetria completa)
+        const result = await fileService.load(handle);
+        
+        if (!result.success) {
+          throw new Error(result.error || 'Load failed');
+        }
+
+        console.log('📊 Telemetria:', result.metrics);
       }
 
       console.log(`✅ ${files.length} arquivo(s) carregado(s)`);
@@ -433,20 +399,6 @@ export class LoadFileModal {
   }
 
   /**
-   * Simula upload (substituir com implementação real)
-   */
-  /**
-   * Simula upload (removido - não é usado)
-   */
-  /*
-  private simulateUpload(file: File): Promise<void> {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(), 1000);
-    });
-  }
-  */
-
-  /**
    * Cria tab de recentes
    */
   private createRecentTab(): HTMLElement {
@@ -457,16 +409,22 @@ export class LoadFileModal {
     const recentFiles = document.createElement('div');
     recentFiles.className = 'load-file-list';
     
-    // Mock recent files
-    const recent = this.files.slice(0, 3);
-    recent.forEach(file => {
-      const item = this.createFileItem(file);
-      recentFiles.appendChild(item);
-    });
-
     tab.appendChild(recentFiles);
 
     return tab;
+  }
+
+  /**
+   * Carrega recentes do FileService
+   */
+  private loadRecents(): void {
+    const recents = fileService.getRecents(10);
+    this.files = recents;
+    
+    const recentList = this.modal.getElement().querySelector('[data-tab-content="recent"] .load-file-list') as HTMLElement;
+    if (recentList) {
+      this.renderFileList(recentList);
+    }
   }
 
   /**
@@ -495,72 +453,33 @@ export class LoadFileModal {
   }
 
   /**
-   * Resolve a URL pública do arquivo no Vite (pasta /public)
-   * Se seus exemplos estão em: public/Examples-files/...
-   */
-  private resolveExampleFileUrl(fileItem: FileHandle): string {
-    // FileHandle já tem o path correto
-    const pathStr = fileItem.path.join('/');
-    if (pathStr) {
-      return `${import.meta.env.BASE_URL}${pathStr.replace(/^\//, '').split('/').map(encodeURIComponent).join('/')}`;
-    }
-
-    // Fallback por displayName
-    return `${import.meta.env.BASE_URL}Examples-files/${encodeURIComponent(fileItem.displayName)}`;
-  }
-
-  /**
-   * Encapsula chamada do loader real
-   */
-  private async loadFileIntoViewer(file: File): Promise<void> {
-    const loadIFCFile = (window as any).loadIFCFile;
-
-    if (typeof loadIFCFile === 'function') {
-      await loadIFCFile(file);
-      return;
-    }
-
-    throw new Error('Nenhum loader disponível (window.loadIFCFile).');
-  }
-
-  /**
-   * Carrega arquivos selecionados (lista/browse)
+   * Carrega arquivos selecionados (via FileService)
    */
   private async loadSelectedFiles(): Promise<void> {
-    // FileHandle não tem type, filtra apenas arquivos (extension começa com .)
-    const selected = this.files.filter(f => 
-      this.selectedFiles.has(f.id) && 
-      f.extension && 
-      f.extension.startsWith('.')
-    );
+    const selectedHandles = this.files.filter(f => this.selectedFiles.has(f.id));
 
-    if (selected.length === 0) {
+    if (selectedHandles.length === 0) {
       alert('Selecione pelo menos um arquivo');
       return;
     }
 
-    showLoading('Carregando arquivos...');
-
     try {
-      for (const fileItem of selected) {
-        const url = this.resolveExampleFileUrl(fileItem);
+      showLoading(`Carregando ${selectedHandles.length} arquivo(s)...`);
 
-        console.log(`📥 Carregando: ${fileItem.displayName} (${url})`);
-
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`Falha ao buscar "${fileItem.displayName}": ${response.status} ${response.statusText}`);
+      for (const handle of selectedHandles) {
+        // FileService.load() já chama IFCLoader + telemetria
+        const result = await fileService.load(handle);
+        
+        if (!result.success) {
+          console.error(`❌ Falha: ${handle.displayName}`, result.error);
+          alert(`Erro ao carregar "${handle.displayName}": ${result.error}`);
+          continue;
         }
 
-        const blob = await response.blob();
-
-        // MIME: use genérico, porque IFC não tem padrão universal no browser
-        const file = new File([blob], fileItem.displayName, { type: 'application/octet-stream' });
-
-        await this.loadFileIntoViewer(file);
+        console.log(`✅ ${handle.displayName} carregado`);
+        console.log('📊 Métricas:', result.metrics);
       }
 
-      console.log(`✅ ${selected.length} arquivo(s) carregado(s)`);
       this.modal.close();
     } catch (error) {
       console.error('❌ Erro ao carregar arquivos:', error);
@@ -575,7 +494,6 @@ export class LoadFileModal {
    */
   private cleanup(): void {
     this.selectedFiles.clear();
-    this.currentPath = ['Meus Projetos'];
   }
 
   /**
@@ -593,7 +511,14 @@ export class LoadFileModal {
   }
 
   /**
-   * Aplica estilos CSS
+   * Destrói o modal
+   */
+  public destroy(): void {
+    this.modal.destroy();
+  }
+
+  /**
+   * Aplica estilos CSS (reutiliza os mesmos do original)
    */
   private applyStyles(): void {
     if (document.getElementById('load-file-modal-styles')) return;
@@ -624,26 +549,6 @@ export class LoadFileModal {
 
       .load-file-tab--active {
         display: flex;
-      }
-
-      .load-file-breadcrumb {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.7);
-      }
-
-      .load-file-breadcrumb-item {
-        transition: color 0.15s ease;
-      }
-
-      .load-file-breadcrumb-item:hover {
-        color: var(--theme-accent, #00ff88);
-      }
-
-      .load-file-breadcrumb-separator {
-        color: rgba(255, 255, 255, 0.3);
       }
 
       .load-file-list {
@@ -765,13 +670,6 @@ export class LoadFileModal {
       }
     `;
     document.head.appendChild(style);
-  }
-
-  /**
-   * Destrói o modal
-   */
-  public destroy(): void {
-    this.modal.destroy();
   }
 }
 

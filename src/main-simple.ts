@@ -3,12 +3,21 @@
  * - Lazy loading: componentes carregados sob demanda
  * - Renderização otimizada com fog
  * - Sistemas pesados removidos do boot
+ * - UI Runtime integrado com AppController/ToolManager/CommandHistory
  */
 import * as THREE from 'three';
-import { ComponentsRegistry, createComponent } from './components-registry';
+import { ComponentsRegistry, componentManager, isTypingInUI, hasOpenUI } from './components-registry';
 import { IFCLoader } from './loaders/IFCLoader';
 import { LODSystem } from './systems/LODSystem';
 import { EntityManager } from './engine/ecs';
+import { eventBus } from './core';
+import { AppController } from './app/AppController';
+import { initializeUI } from './ui/UI';
+import { fileService } from './systems/file';
+import { ModelSession } from './systems/model/ModelSession';
+import { SelectionTool } from './tools/SelectionTool';
+import { MeasurementTool } from './tools/MeasurementTool';
+import { ToolType } from './core/types';
 
 // Performance tracking
 performance.mark('app-start');
@@ -72,21 +81,19 @@ const rotation = {
 // Mouse look
 let isPointerLocked = false;
 
-// Keyboard controls
+// Keyboard controls globais (navegação sempre ativa)
 window.addEventListener('keydown', (e) => {
-  switch(e.key.toLowerCase()) {
+  if (isTypingInUI()) return;
+  
+  const key = e.key.toLowerCase();
+  
+  switch(key) {
     case 'w': movement.forward = true; break;
     case 's': movement.backward = true; break;
     case 'a': movement.left = true; break;
     case 'd': movement.right = true; break;
-    case ' ': 
-      movement.up = true; 
-      e.preventDefault(); 
-      break;
-    case 'shift': 
-      movement.down = true; 
-      e.preventDefault(); 
-      break;
+    case ' ': movement.up = true; e.preventDefault(); break;
+    case 'shift': movement.down = true; e.preventDefault(); break;
     case 'arrowup': rotation.up = true; e.preventDefault(); break;
     case 'arrowdown': rotation.down = true; e.preventDefault(); break;
     case 'arrowleft': rotation.left = true; e.preventDefault(); break;
@@ -95,7 +102,11 @@ window.addEventListener('keydown', (e) => {
 });
 
 window.addEventListener('keyup', (e) => {
-  switch(e.key.toLowerCase()) {
+  if (isTypingInUI()) return;
+  
+  const key = e.key.toLowerCase();
+  
+  switch(key) {
     case 'w': movement.forward = false; break;
     case 's': movement.backward = false; break;
     case 'a': movement.left = false; break;
@@ -109,7 +120,7 @@ window.addEventListener('keyup', (e) => {
   }
 });
 
-console.log('✅ WASD + Arrow keys + Space/Shift controls added');
+console.log('✅ Global WASD navigation active');
 
 // Get canvas container
 const container = document.getElementById('canvas-container');
@@ -132,20 +143,25 @@ container.appendChild(renderer.domElement);
 console.log('✅ Renderer otimizado criado');
 
 // Pointer Lock (Mouse look - FPS style) - Only when double-clicking canvas
-renderer.domElement.addEventListener('dblclick', (e) => {
-  // Don't lock if there are open modals/panels
-  const hasOpenModals = document.querySelector('.arxis-modal-overlay') !== null;
-  const hasOpenPanels = document.querySelector('.layers-panel') !== null;
-  
-  if (!hasOpenModals && !hasOpenPanels) {
+renderer.domElement.addEventListener('dblclick', () => {
+  // Não trava mouse se qualquer UI estiver aberta
+  if (!hasOpenUI()) {
     renderer.domElement.requestPointerLock();
   }
 });
 
-// Exit pointer lock with ESC
+// Exit pointer lock with ESC (com InputGate)
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && isPointerLocked) {
-    document.exitPointerLock();
+  if (e.key === 'Escape') {
+    // Se tem UI aberta, fecha a UI (prioridade)
+    if (hasOpenUI()) {
+      // UI Runtime/ComponentManager já gerencia o ESC
+      return;
+    }
+    // Se não tem UI mas pointer lock ativo, sai do pointer lock
+    if (isPointerLocked) {
+      document.exitPointerLock();
+    }
   }
 });
 
@@ -178,20 +194,43 @@ directionalLight.position.set(10, 10, 10);
 scene.add(directionalLight);
 console.log('✅ Lights added');
 
-// Add grid (reduced for performance)
-const gridHelper = new THREE.GridHelper(20, 10, 0x00d4ff, 0x222222); // Menos linhas
-scene.add(gridHelper);
-
 // Add axes
 const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper);
 
-console.log('✅ Scene setup completo');
+// Add grid (togglable via G key)
+const gridHelper = new THREE.GridHelper(100, 100, 0x444444, 0x222222);
+gridHelper.position.y = 0;
+gridHelper.visible = true; // Visível por padrão
+scene.add(gridHelper);
+
+// Grid toggle function
+(window as any).toggleGrid = () => {
+  gridHelper.visible = !gridHelper.visible;
+  console.log(`Grid ${gridHelper.visible ? 'ativado' : 'desativado'}`);
+  return gridHelper.visible;
+};
+
+(window as any).getGridState = () => gridHelper.visible;
+
+console.log('✅ Scene setup completo (Grid + Axes)');
+console.log('💡 Use tecla G para toggle do grid');
 
 // Lazy initialization - só cria quando necessário
 let entityManager: EntityManager | null = null;
 let lodSystem: LODSystem | null = null;
 let ifcLoader: IFCLoader | null = null;
+let modelSession: ModelSession | null = null;
+
+function initializeModelSession() {
+  if (!modelSession) {
+    console.log('⏳ Inicializando ModelSession...');
+    modelSession = ModelSession.getInstance(scene, camera);
+    fileService.setModelSession(modelSession);
+    console.log('✅ ModelSession inicializada');
+  }
+  return modelSession;
+}
 
 function initializeIFCLoader() {
   if (!ifcLoader) {
@@ -199,6 +238,10 @@ function initializeIFCLoader() {
     entityManager = new EntityManager();
     lodSystem = new LODSystem(camera);
     ifcLoader = new IFCLoader(scene, lodSystem, entityManager);
+    
+    // Inicializa ModelSession se ainda não foi
+    initializeModelSession();
+    
     console.log('✅ IFC Loader inicializado');
   }
   return ifcLoader;
@@ -238,57 +281,34 @@ function animate() {
   // Apply rotation (Arrow keys)
   euler.setFromQuaternion(camera.quaternion);
   
-  if (rotation.up) {
-    euler.x += rotation.speed;
-  }
-  if (rotation.down) {
-    euler.x -= rotation.speed;
-  }
-  if (rotation.left) {
-    euler.y += rotation.speed;
-  }
-  if (rotation.right) {
-    euler.y -= rotation.speed;
-  }
+  if (rotation.up) euler.x += rotation.speed;
+  if (rotation.down) euler.x -= rotation.speed;
+  if (rotation.left) euler.y += rotation.speed;
+  if (rotation.right) euler.y -= rotation.speed;
   
-  // Clamp vertical rotation
   euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
   camera.quaternion.setFromEuler(euler);
   
-  // Calculate movement direction based on camera rotation
+  // Calculate movement direction
   const direction = new THREE.Vector3();
   
-  if (movement.forward) {
-    direction.z -= movement.speed;
-  }
-  if (movement.backward) {
-    direction.z += movement.speed;
-  }
-  if (movement.left) {
-    direction.x -= movement.speed;
-  }
-  if (movement.right) {
-    direction.x += movement.speed;
-  }
+  if (movement.forward) direction.z -= movement.speed;
+  if (movement.backward) direction.z += movement.speed;
+  if (movement.left) direction.x -= movement.speed;
+  if (movement.right) direction.x += movement.speed;
   
-  // Vertical movement (only in spatial mode)
+  // Vertical movement (spatial mode)
   if (spatialMode) {
-    if (movement.up) {
-      direction.y += movement.speed;
-    }
-    if (movement.down) {
-      direction.y -= movement.speed;
-    }
+    if (movement.up) direction.y += movement.speed;
+    if (movement.down) direction.y -= movement.speed;
   }
   
-  // Apply movement relative to camera direction
+  // Apply movement relative to camera
   if (direction.length() > 0) {
     if (spatialMode) {
-      // Full 3D movement in spatial mode
       direction.applyQuaternion(camera.quaternion);
       camera.position.add(direction);
     } else {
-      // Horizontal movement only in normal mode
       const yRotation = new THREE.Euler(0, euler.y, 0, 'YXZ');
       const quaternion = new THREE.Quaternion().setFromEuler(yRotation);
       const horizontalDir = new THREE.Vector3(direction.x, 0, direction.z);
@@ -297,9 +317,20 @@ function animate() {
     }
   }
   
+  // Update active tool (for Selection/Measurement)
+  const activeTool = appController.toolManager.getActiveTool();
+  if (activeTool && typeof activeTool.update === 'function') {
+    activeTool.update(0.016);
+  }
+  
   // Rotate cube
   cube.rotation.x += 0.01;
   cube.rotation.y += 0.01;
+  
+  // Update ModelSession
+  if (modelSession) {
+    modelSession.update(0.016);
+  }
   
   renderer.render(scene, camera);
 }
@@ -342,110 +373,68 @@ if (spatialButton) {
   console.log('✅ Spatial mode button ready');
 }
 
+// Grid toggle button
+const gridButton = document.querySelector('.grid-toggle-btn') as HTMLButtonElement;
+if (gridButton) {
+  // Set initial state
+  if ((window as any).getGridState?.()) {
+    gridButton.classList.add('active');
+  }
+  
+  gridButton.addEventListener('click', () => {
+    const isVisible = (window as any).toggleGrid?.();
+    
+    if (isVisible) {
+      gridButton.classList.add('active');
+    } else {
+      gridButton.classList.remove('active');
+    }
+  });
+  console.log('✅ Grid toggle button ready');
+}
+
 // Toolbar buttons
 const toolbarButtons = document.querySelectorAll('.toolbar-btn');
 console.log(`🔍 Found ${toolbarButtons.length} toolbar buttons`);
-let activeTool = 'select';
 
-// Store panel instances
-let activePanels: Map<string, any> = new Map();
+// Mapeamento tool -> componentName
+const toolComponentMap: Record<string, string> = {
+  'measure': 'MeasurementPanel',
+  'section': 'SectionBoxTool',
+  'layers': 'LayersPanel',
+  'transparency': 'TransparencyControl',
+  'explode': 'ExplodeViewPanel',
+  'camera': 'CameraPresetsPanel',
+  'annotate': 'AnnotationsPanel',
+  'comments': 'ChatPanel',
+  'settings': 'SettingsPanel'
+};
 
 toolbarButtons.forEach((button, index) => {
   console.log(`  Button ${index}: ${button.getAttribute('data-tool')}`);
-  button.addEventListener('click', (e) => {
-    console.log(`🖱️ CLICK on button:`, button.getAttribute('data-tool'));
+  button.addEventListener('click', async () => {
     const tool = button.getAttribute('data-tool');
     if (!tool) return;
+    
+    console.log(`🖱️ CLICK on button: ${tool}`);
     
     // Update active state
     toolbarButtons.forEach(btn => btn.classList.remove('active'));
     button.classList.add('active');
-    activeTool = tool;
     
-    // Close previous panel if exists
-    if (activePanels.has(tool) && activePanels.get(tool)) {
-      const panel = activePanels.get(tool);
-      if (panel && panel.element && panel.element.parentElement) {
-        panel.destroy();
-        activePanels.delete(tool);
-        console.log(`❌ Closed ${tool} panel`);
-        return;
-      }
-    }
-    
-    // Tool actions - Create actual panels using registry
+    // Handle special tools
     switch(tool) {
       case 'select':
         console.log('👆 Ferramenta: Selecionar');
+        // Close all panels on select
+        componentManager.closeAll();
         break;
-      case 'measure':
-        console.log('📏 Ferramenta: Medir');
-        const measurePanel = createComponent('MeasurementPanel');
-        if (measurePanel) {
-          document.body.appendChild(measurePanel.element);
-          activePanels.set(tool, measurePanel);
-        }
-        break;
-      case 'section':
-        console.log('✂️ Ferramenta: Corte/Seção');
-        const sectionPanel = createComponent('SectionBoxTool');
-        if (sectionPanel) {
-          document.body.appendChild(sectionPanel.element);
-          activePanels.set(tool, sectionPanel);
-        }
-        break;
-      case 'layers':
-        console.log('📁 Ferramenta: Camadas');
-        const layersPanel = createComponent('LayersPanel');
-        if (layersPanel) {
-          document.body.appendChild(layersPanel.element);
-          activePanels.set(tool, layersPanel);
-        }
-        break;
-      case 'transparency':
-        console.log('👻 Ferramenta: Transparência');
-        const transparencyPanel = createComponent('TransparencyControl');
-        if (transparencyPanel) {
-          document.body.appendChild(transparencyPanel.element);
-          activePanels.set(tool, transparencyPanel);
-        }
-        break;
-      case 'explode':
-        console.log('💥 Ferramenta: Vista Explodida');
-        const explodePanel = createComponent('ExplodeViewPanel');
-        if (explodePanel) {
-          document.body.appendChild(explodePanel.element);
-          activePanels.set(tool, explodePanel);
-        }
-        break;
-      case 'camera':
-        console.log('📷 Ferramenta: Vistas de Câmera');
-        const cameraPanel = createComponent('CameraPresetsPanel');
-        if (cameraPanel) {
-          document.body.appendChild(cameraPanel.element);
-          activePanels.set(tool, cameraPanel);
-        }
-        break;
-      case 'annotate':
-        console.log('📝 Ferramenta: Anotar');
-        const annotatePanel = createComponent('AnnotationsPanel');
-        if (annotatePanel) {
-          document.body.appendChild(annotatePanel.element);
-          activePanels.set(tool, annotatePanel);
-        }
-        break;
-      case 'comments':
-        console.log('💬 Ferramenta: Comentários');
-        const chatPanel = createComponent('ChatPanel');
-        if (chatPanel) {
-          document.body.appendChild(chatPanel.element);
-          activePanels.set(tool, chatPanel);
-        }
-        break;
+      
       case 'vr':
         console.log('🥽 Ferramenta: Modo VR');
         alert('VR: Entrar em modo VR/AR (requer headset WebXR)');
         break;
+      
       case 'menu':
         console.log('☰ Abrindo menu de componentes');
         const menu = document.getElementById('components-menu');
@@ -453,68 +442,64 @@ toolbarButtons.forEach((button, index) => {
           menu.style.display = 'flex';
         }
         break;
-      case 'settings':
-        console.log('⚙️ Ferramenta: Configurações');
-        const settingsPanel = createComponent('SettingsPanel');
-        if (settingsPanel) {
-          document.body.appendChild(settingsPanel.element);
-          activePanels.set(tool, settingsPanel);
+      
+      default:
+        // Handle panel-based tools via componentManager
+        const componentName = toolComponentMap[tool];
+        if (componentName) {
+          console.log(`🔧 Tool: ${tool} → Component: ${componentName}`);
+          await componentManager.toggle(`tool:${tool}`, componentName);
         }
         break;
     }
   });
 });
 
-// Keyboard shortcuts for tools
+// Keyboard shortcuts for tools (com InputGate + ComponentManager)
 window.addEventListener('keydown', async (e) => {
-  if (isPointerLocked) return; // Don't trigger when mouse is locked
+  // InputGate: não dispara hotkeys se usuário está digitando
+  if (isTypingInUI()) return;
+  if (isPointerLocked) return; // Não dispara quando mouse travado
   
   // Ctrl+O to open file
   if (e.ctrlKey && e.key.toLowerCase() === 'o') {
     e.preventDefault();
     console.log('📁 Ctrl+O: Opening LoadFileModal');
-    
-    // Check if modal already exists
-    if (activePanels.has('LoadFileModal')) {
-      const existingModal = activePanels.get('LoadFileModal');
-      if (existingModal && existingModal.open) {
-        existingModal.open();
-      }
-    } else {
-      // Create new modal
-      const modal = await createComponent('LoadFileModal');
-      if (modal) {
-        if (modal.open && typeof modal.open === 'function') {
-          modal.open();
-        }
-        activePanels.set('LoadFileModal', modal);
-        console.log('✅ LoadFileModal created and opened');
-      }
-    }
+    await componentManager.open('modal:load-file', 'LoadFileModal');
     return;
   }
   
-  let toolButton: Element | null = null;
+  // Hotkeys de ferramentas (Q/M/C/L/T/E/V/A/K/,/G)
+  let toolKey: string | null = null;
+  let componentName: string | null = null;
   
   switch(e.key.toLowerCase()) {
-    case 'q': toolButton = document.querySelector('[data-tool="select"]'); break;
-    case 'm': toolButton = document.querySelector('[data-tool="measure"]'); break;
-    case 'c': toolButton = document.querySelector('[data-tool="section"]'); break;
-    case 'l': toolButton = document.querySelector('[data-tool="layers"]'); break;
-    case 't': toolButton = document.querySelector('[data-tool="transparency"]'); break;
-    case 'e': toolButton = document.querySelector('[data-tool="explode"]'); break;
-    case 'v': toolButton = document.querySelector('[data-tool="camera"]'); break;
-    case 'a': toolButton = document.querySelector('[data-tool="annotate"]'); break;
-    case 'k': toolButton = document.querySelector('[data-tool="comments"]'); break;
-    case ',': toolButton = document.querySelector('[data-tool="settings"]'); break;
+    case 'q': toolKey = 'tool:select'; break; // Select (não abre painel)
+    case 'm': toolKey = 'tool:measure'; componentName = 'MeasurementPanel'; break;
+    case 'c': toolKey = 'tool:section'; componentName = 'SectionBoxTool'; break;
+    case 'l': toolKey = 'tool:layers'; componentName = 'LayersPanel'; break;
+    case 't': toolKey = 'tool:transparency'; componentName = 'TransparencyControl'; break;
+    case 'e': toolKey = 'tool:explode'; componentName = 'ExplodeViewPanel'; break;
+    case 'v': toolKey = 'tool:camera'; componentName = 'CameraPresetsPanel'; break;
+    case 'a': toolKey = 'tool:annotate'; componentName = 'AnnotationsPanel'; break;
+    case 'k': toolKey = 'tool:comments'; componentName = 'ChatPanel'; break;
+    case ',': toolKey = 'tool:settings'; componentName = 'SettingsPanel'; break;
+    case 'g': 
+      // Toggle grid
+      (window as any).toggleGrid();
+      return;
   }
   
-  if (toolButton) {
-    (toolButton as HTMLElement).click();
+  if (toolKey && componentName) {
+    await componentManager.toggle(toolKey, componentName);
+  } else if (e.key.toLowerCase() === 'q') {
+    // Select tool (apenas simula click no botão)
+    const selectBtn = document.querySelector('[data-tool="select"]');
+    if (selectBtn) (selectBtn as HTMLElement).click();
   }
 });
 
-console.log('✅ Toolbar initialized with 11 tools + Ctrl+O shortcut');
+console.log('✅ Toolbar initialized with 11 tools + G for grid toggle + Ctrl+O shortcut');
 
 // Components Menu Management
 const componentsMenu = document.getElementById('components-menu');
@@ -530,17 +515,10 @@ if (closeMenuBtn) {
   });
 }
 
-// Close menu on ESC
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && componentsMenu && componentsMenu.style.display === 'flex') {
-    componentsMenu.style.display = 'none';
-  }
-});
-
 // Component buttons in menu
 console.log(`🔍 Found ${componentButtons.length} component buttons in menu`);
 componentButtons.forEach((button) => {
-  button.addEventListener('click', () => {
+  button.addEventListener('click', async () => {
     const componentName = button.getAttribute('data-component');
     if (!componentName) return;
     
@@ -551,33 +529,8 @@ componentButtons.forEach((button) => {
       componentsMenu.style.display = 'none';
     }
     
-    // Check if component already exists
-    if (activePanels.has(componentName)) {
-      const existingPanel = activePanels.get(componentName);
-      if (existingPanel) {
-        console.log(`ℹ️ Component ${componentName} already open`);
-        // If it's a modal, try to open it again
-        if (existingPanel.open && typeof existingPanel.open === 'function') {
-          existingPanel.open();
-        }
-        return;
-      }
-    }
-    
-    // Create component
-    const component = createComponent(componentName);
-    if (component) {
-      // Modals open themselves, panels need to be appended
-      if (component.element) {
-        document.body.appendChild(component.element);
-      }
-      // If component has an open method (like modals), call it
-      if (component.open && typeof component.open === 'function') {
-        component.open();
-      }
-      activePanels.set(componentName, component);
-      console.log(`✅ Component ${componentName} created`);
-    }
+    // Usa componentManager para abrir/toggle
+    await componentManager.open(`menu:${componentName}`, componentName);
   });
 });
 
@@ -585,72 +538,78 @@ componentButtons.forEach((button) => {
 const menuBarButtons = document.querySelectorAll('.menu-bar-dropdown button[data-component]');
 console.log(`🔍 Found ${menuBarButtons.length} menu bar buttons`);
 menuBarButtons.forEach((button) => {
-  button.addEventListener('click', () => {
+  button.addEventListener('click', async () => {
     const componentName = button.getAttribute('data-component');
     if (!componentName) return;
     
     console.log(`🖱️ Creating component from menu bar: ${componentName}`);
     
-    // Check if component already exists
-    if (activePanels.has(componentName)) {
-      const existingPanel = activePanels.get(componentName);
-      if (existingPanel) {
-        console.log(`ℹ️ Component ${componentName} already open`);
-        // If it's a modal, try to open it again
-        if (existingPanel.open && typeof existingPanel.open === 'function') {
-          existingPanel.open();
-        }
-        return;
-      }
-    }
-    
-    // Create component
-    const component = createComponent(componentName);
-    if (component) {
-      // Modals open themselves, panels need to be appended
-      if (component.element) {
-        document.body.appendChild(component.element);
-      }
-      // If component has an open method (like modals), call it
-      if (component.open && typeof component.open === 'function') {
-        component.open();
-      }
-      activePanels.set(componentName, component);
-      console.log(`✅ Component ${componentName} created from menu bar`);
-    }
+    // Usa componentManager para abrir
+    await componentManager.open(`menubar:${componentName}`, componentName);
   });
 });
 
 console.log('✅ Components menu initialized');
 console.log('✅ Menu bar initialized');
 
-// ========================================
-// CORE SYSTEMS DEMO
-// ========================================
-console.log('\n🎯 Running Core Systems Demo...\n');
-
-// Aguarda a cena estar pronta
-setTimeout(() => {
-  coreSystemsDemo.runAllDemos(scene);
-}, 1000);
-
 // Export for debugging
 if (typeof window !== 'undefined') {
   (window as any).scene = scene;
   (window as any).camera = camera;
   (window as any).renderer = renderer;
-  (window as any).georeferencing = georeferencing;
-  (window as any).openBIM = openBIM;
-  (window as any).versioning = versioning;
-  (window as any).metricPrecision = metricPrecision;
-  (window as any).ifc43AlignmentSystem = ifc43AlignmentSystem;
-  (window as any).coreSystemsDemo = coreSystemsDemo;
-  console.log('🎯 Debug: Core systems available in window object');
-  console.log('   - window.georeferencing');
-  console.log('   - window.openBIM');
-  console.log('   - window.versioning');
-  console.log('   - window.metricPrecision');
-  console.log('   - window.ifc43AlignmentSystem');
-  console.log('   - window.coreSystemsDemo');
+}
+
+// =============================================================================
+// UI RUNTIME - Conecta HTML aos sistemas reais
+// =============================================================================
+
+console.log('🎨 Inicializando UI Runtime...');
+
+// Instancia AppController (gerenciador central da aplicação)
+const appController = AppController.getInstance();
+
+// Configura referências da engine no AppController
+// Type cast: main-simple usa THREE.Scene diretamente (bootstrap mode)
+appController.setEngineReferences(
+  scene as any, // TODO: Usar ThreeSceneAdapter para type safety
+  camera as any,
+  renderer as any
+);
+
+// Register basic tools in ToolManager (prevents "not registered" errors)
+const toolManager = appController.toolManager;
+if (toolManager) {
+  // Registrar apenas ferramentas específicas (navegação é global)
+  const selectionTool = new SelectionTool(scene, camera);
+  const measurementTool = new MeasurementTool(scene, camera);
+  
+  toolManager.registerTool(ToolType.SELECTION, selectionTool);
+  toolManager.registerTool(ToolType.MEASUREMENT, measurementTool);
+  
+  // Selection como ferramenta padrão
+  toolManager.setActiveTool(ToolType.SELECTION);
+  
+  console.log('✅ 2 tools registered (Selection, Measurement)');
+  console.log('💡 Navigation is always active via WASD keys');
+}
+
+// Inicializa UIRuntime com dependências reais
+const uiRuntime = initializeUI(
+  eventBus,                        // EventBus real (src/core/EventBus.ts)
+  appController,                    // AppController (src/app/AppController.ts)
+  appController.toolManager,        // ToolManager (src/app/ToolManager.ts)
+  (window as any).commandHistory || { undo: () => {}, redo: () => {} }, // CommandHistory
+  undefined                         // NetworkManager (opcional)
+);
+
+console.log('✅ UI Runtime conectado aos sistemas');
+
+// Exporta para debug
+if (typeof window !== 'undefined') {
+  (window as any).appController = appController;
+  (window as any).uiRuntime = uiRuntime;
+  console.log('   - window.appController');
+  console.log('   - window.uiRuntime');
+  console.log('   - window.loadIFCFile(file) [já definido acima]');
 }
 

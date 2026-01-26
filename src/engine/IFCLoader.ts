@@ -28,14 +28,19 @@ export class IFCLoader {
   }
 
   private setupLoader(): void {
-    // Define o caminho dos arquivos WASM - usando CDN para garantir que funcione
-    this.loader.ifcManager.setWasmPath('https://cdn.jsdelivr.net/npm/web-ifc@0.0.74/');
+    // Define o caminho dos arquivos WASM - usando local
+    this.loader.ifcManager.setWasmPath('/wasm/');
+    
+    // Disable workers para evitar erros 404
+    this.loader.ifcManager.useWebWorkers(false);
     
     // Otimizações de memória
     this.loader.ifcManager.applyWebIfcConfig({
       COORDINATE_TO_ORIGIN: true, // Centraliza modelo na origem
       USE_FAST_BOOLS: true, // Usa operações booleanas rápidas
     });
+    
+    console.log('✅ IFCLoader configured: WASM=/wasm/, Workers=DISABLED');
   }
 
   /**

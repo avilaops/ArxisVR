@@ -93,6 +93,13 @@ export enum EventType {
   UI_MODAL_CLOSE = 'UI_MODAL_CLOSE',
   UI_SHORTCUTS_OPEN = 'UI_SHORTCUTS_OPEN',
   
+  // UI Events (aliases for backward compatibility)
+  ModalOpened = 'UI_MODAL_OPEN',
+  ModalClosed = 'UI_MODAL_CLOSE',
+  PanelOpened = 'UI_PANEL_OPENED',
+  PanelClosed = 'UI_PANEL_CLOSED',
+  ToolChanged = 'TOOL_CHANGED',
+  
   // VR Editor Events
   VR_EDITOR_ENABLED = 'VR_EDITOR_ENABLED',
   OBJECT_CREATED = 'OBJECT_CREATED',

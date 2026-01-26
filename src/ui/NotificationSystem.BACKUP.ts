@@ -10,23 +10,23 @@ import { eventBus, EventType } from '../core';
  * - Info (azul): "Connecting to multiplayer..."
  */
 export class NotificationSystem {
-  private static instance: NotificationSystem | null = null;
+  private static _instance: NotificationSystem | null = null;
   
   public static getInstance(): NotificationSystem {
-    if (!NotificationSystem.instance) {
-      NotificationSystem.instance = new NotificationSystem();
+    if (!NotificationSystem._instance) {
+      NotificationSystem._instance = new NotificationSystem();
     }
-    return NotificationSystem.instance;
+    return NotificationSystem._instance;
   }
   
   private container!: HTMLElement;
   private notifications: Map<string, HTMLElement> = new Map();
 
-  constructor() {
-    this.createContainer();
-    this.applyStyles();
-    this.listenToEvents();
-  }
+constructor() {
+  this.createContainer();
+  this.applyStyles();
+  this.listenToEvents();
+}
 
   private createContainer(): void {
     this.container = document.createElement('div');
@@ -59,19 +59,10 @@ export class NotificationSystem {
         display: flex;
         align-items: center;
         gap: 12px;
+        animation: slideIn 0.3s ease;
         pointer-events: auto;
         cursor: pointer;
-        animation: slideIn 0.3s ease-out;
-        transition: all 0.2s;
-      }
-      
-      .notification:hover {
-        transform: translateX(-4px);
-        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
-      }
-      
-      .notification.closing {
-        animation: slideOut 0.3s ease-in forwards;
+        border-left: 4px solid;
       }
       
       @keyframes slideIn {
@@ -96,20 +87,24 @@ export class NotificationSystem {
         }
       }
       
+      .notification.closing {
+        animation: slideOut 0.3s ease;
+      }
+      
       .notification-success {
-        border-left: 4px solid #00ff88;
+        border-left-color: #00ff88;
       }
       
       .notification-error {
-        border-left: 4px solid #f5576c;
+        border-left-color: #ff4444;
       }
       
       .notification-warning {
-        border-left: 4px solid #ffd700;
+        border-left-color: #ffaa00;
       }
       
       .notification-info {
-        border-left: 4px solid #00d4ff;
+        border-left-color: #4488ff;
       }
       
       .notification-icon {
@@ -162,7 +157,11 @@ export class NotificationSystem {
 
   private listenToEvents(): void {
     // Model Loading
-    eventBus.on(EventType.MODEL_LOAD_COMPLETED, (data: any) => {
+    eventBus.on(EventType.MODEL_LOAD_REQUESTED, () => {
+      this.info('Loading Model', 'Please wait...');
+    });
+
+    eventBus.on(EventType.MODEL_LOADED, (data: any) => {
       this.success('Model Loaded', `${data.fileName || 'Model'} loaded successfully`);
     });
 
@@ -170,25 +169,39 @@ export class NotificationSystem {
       this.error('Load Failed', data.error || 'Failed to load model');
     });
 
-    // Selection
-    eventBus.on(EventType.OBJECT_SELECTED, (data: any) => {
-      if (data.entity) {
-        this.info('Object Selected', `Selected: ${data.entity.name || 'Entity'}`);
-      }
-    });
-
-    // Tools
-    eventBus.on(EventType.TOOL_ACTIVATED, (data: any) => {
-      this.info('Tool Activated', `${data.toolType} tool is now active`);
-    });
-
     // Network
-    eventBus.on(EventType.NETWORK_CONNECTED, () => {
+    eventBus.on(EventType.NET_CONNECTED, () => {
       this.success('Connected', 'Connected to multiplayer server');
     });
 
-    eventBus.on(EventType.NETWORK_DISCONNECTED, () => {
-      this.warning('Disconnected', 'Lost connection to server');
+    eventBus.on(EventType.NET_DISCONNECTED, () => {
+      this.info('Disconnected', 'Disconnected from server');
+    });
+
+    eventBus.on(EventType.NET_CONNECTION_FAILED, (data: any) => {
+      this.error('Connection Failed', data.error || 'Failed to connect to server');
+    });
+
+    // XR
+    eventBus.on(EventType.XR_SESSION_STARTED, (data: any) => {
+      this.success('VR Activated', `Entered ${data.mode || 'VR'} mode`);
+    });
+
+    eventBus.on(EventType.XR_SESSION_ENDED, () => {
+      this.info('VR Deactivated', 'Exited VR mode');
+    });
+
+    eventBus.on(EventType.XR_SESSION_FAILED, (data: any) => {
+      this.error('VR Failed', data.error || 'Failed to enter VR');
+    });
+
+    // Export
+    eventBus.on(EventType.EXPORT_COMPLETED, (data: any) => {
+      this.success('Export Complete', `${data.type} saved: ${data.filename}`);
+    });
+
+    eventBus.on(EventType.EXPORT_FAILED, (data: any) => {
+      this.error('Export Failed', data.error || 'Export failed');
     });
 
     // Project
@@ -217,25 +230,7 @@ export class NotificationSystem {
     return this.show('info', 'ℹ️', title, message, duration);
   }
 
-  /**
-   * Public show method - accepts both old and new signatures
-   */
-  public show(type: string, icon: string, title: string, message: string, duration: number): string;
-  public show(message: string, type: 'success' | 'error' | 'warning' | 'info'): string;
-  public show(...args: any[]): string {
-    // New signature: (type, icon, title, message, duration)
-    if (args.length === 5) {
-      return this._show(args[0], args[1], args[2], args[3], args[4]);
-    }
-    // Old signature: (message, type) - convert to new
-    const message = args[0] as string;
-    const type = args[1] as 'success' | 'error' | 'warning' | 'info';
-    const iconMap = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
-    const durationMap = { success: 3000, error: 5000, warning: 4000, info: 3000 };
-    return this._show(type, iconMap[type], message, '', durationMap[type]);
-  }
-
-  private _show(type: string, icon: string, title: string, message: string, duration: number): string {
+  private show(type: string, icon: string, title: string, message: string, duration: number): string {
     const id = `notification-${Date.now()}-${Math.random()}`;
 
     const notification = document.createElement('div');
@@ -297,7 +292,11 @@ export class NotificationSystem {
 }
 
 // Backward compatibility
+let notificationSystem: NotificationSystem | null = null;
+
 export function getNotificationSystem(): NotificationSystem {
-  // Single source of truth: the class singleton
-  return NotificationSystem.getInstance();
+  if (!notificationSystem) {
+    notificationSystem = new NotificationSystem();
+  }
+  return notificationSystem;
 }

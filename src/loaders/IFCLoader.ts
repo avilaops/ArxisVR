@@ -24,6 +24,7 @@ export class IFCLoader {
   private scaleManager: ScaleManager;
   private coordinateSystem: CoordinateSystem;
   private currentModelID: number = 0;
+  private wasmInitialized: boolean = false;
 
   constructor(scene: THREE.Scene, lodSystem: LODSystem, entityManager: EntityManager, onEntitiesCreated?: () => void, layerManager?: any) {
     this.scene = scene;
@@ -39,17 +40,34 @@ export class IFCLoader {
   }
 
   private setupLoader(): void {
-    // Define o caminho dos arquivos WASM - usando arquivos locais
-    this.loader.ifcManager.setWasmPath('/wasm/');
+    // CRÍTICO: Configuração agressiva para forçar single-thread
+    const wasmPath = `${import.meta.env.BASE_URL || '/'}wasm/`;
     
-    // Aguarda o WASM ser carregado antes de usar
-    this.loader.ifcManager.useWebWorkers(false);
+    // 1. Define path ANTES de tudo
+    this.loader.ifcManager.setWasmPath(wasmPath);
     
-    // Otimizações de memória
+    // 2. Desabilita workers explicitamente MÚLTIPLAS VEZES (bug em versões antigas)
+    try {
+      this.loader.ifcManager.useWebWorkers(false);
+      // @ts-ignore - Força worker=null (fallback)
+      if (this.loader.ifcManager.worker) {
+        this.loader.ifcManager.worker = null;
+      }
+    } catch (e) {
+      console.warn('Failed to disable workers:', e);
+    }
+    
+    // 3. Força configuração single-thread via applyWebIfcConfig
     this.loader.ifcManager.applyWebIfcConfig({
-      COORDINATE_TO_ORIGIN: true, // Centraliza modelo na origem
-      USE_FAST_BOOLS: true, // Usa operações booleanas rápidas
+      COORDINATE_TO_ORIGIN: true,
+      USE_FAST_BOOLS: true,
     });
+    
+    // 4. Log detalhado
+    console.log(`✅ IFCLoader configured:`);
+    console.log(`   - WASM path: ${wasmPath}`);
+    console.log(`   - Workers: FORCE DISABLED`);
+    console.log(`   - Expected WASM: ${wasmPath}web-ifc.wasm (single-thread)`);
   }
 
   /**

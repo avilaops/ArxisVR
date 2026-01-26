@@ -17,6 +17,9 @@ import { IFCStreamingLoader } from './loaders/IFCStreamingLoader';
 import { themeManager, defaultThemes, ThemeSelector } from './core/theme';
 import { getServerUrl } from './config/network.config';
 
+// FASE 5 - Error Handling & Logging (ENTERPRISE)
+import { getErrorBoundary, getLogger } from './core';
+
 // FASE 5 - Engine Core (NEW ARCHITECTURE)
 import { EngineLoop, Time } from './engine';
 import { RenderSystem } from './engine/systems/RenderSystem';
@@ -178,6 +181,11 @@ private canvas!: HTMLCanvasElement;
   private async initializeApp(): Promise<void> {
     console.log('🏗️ ArxisVR Constructor: Starting initialization...');
     
+    // ENTERPRISE: Initialize Error Boundary & Logger FIRST
+    const errorBoundary = getErrorBoundary();
+    const logger = getLogger();
+    logger.info('ArxisVR', 'Starting initialization...');
+    
     console.log('🚀 ArxisVR: Starting initialization...');
     
     // Initialize engine components
@@ -187,13 +195,16 @@ private canvas!: HTMLCanvasElement;
     // AVX Renderer: Create canvas directly instead of Three.js renderer
     this.initializeCanvas();
     
+    logger.info('ArxisVR', 'Canvas initialized');
     console.log('✅ Canvas initialized');
 
     // FASE 5 - Initialize Engine Core FIRST (before components that depend on it)
     try {
       await this.initializeEngine();
+      logger.info('ArxisVR', 'Engine initialized successfully');
       console.log('✅ Engine initialized');
     } catch (error) {
+      logger.error('ArxisVR', 'Engine initialization failed', { error });
       console.error('❌ Engine initialization failed:', error);
       // Continue anyway
     }

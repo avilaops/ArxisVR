@@ -213,6 +213,39 @@
       box-shadow: 0 4px 12px rgba(68, 255, 68, 0.3);
     }
 
+    .grid-toggle-btn {
+      position: fixed;
+      bottom: 120px;
+      right: 20px;
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s;
+      z-index: 1000;
+    }
+
+    .grid-toggle-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .grid-toggle-btn:active {
+      transform: translateY(0);
+    }
+
+    .grid-toggle-btn.active {
+      background: rgba(68, 255, 68, 0.2);
+      border-color: #44ff44;
+      box-shadow: 0 4px 12px rgba(68, 255, 68, 0.3);
+    }
+
     .toolbar {
       position: fixed;
       top: 50%;
@@ -655,6 +688,7 @@
       <p>Carregando visualizador BIM...</p>
     </div>
     <button class="spatial-mode-btn">🚀 Modo Espacial</button>
+    <button class="grid-toggle-btn">#️⃣ Grid</button>
     <button class="connect-multiplayer-btn">Connect Multiplayer</button>
   </div>
   <script type="module" src="/src/main-simple.ts"></script>

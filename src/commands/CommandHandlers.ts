@@ -641,7 +641,9 @@ function registerViewHandlers(): void {
     },
     async () => {
       console.log('#️⃣ Toggle Grid');
-      eventBus.emit(EventType.VIEW_TOGGLE_GRID, {});
+      // Chama função global do main-simple.ts
+      const isVisible = (window as any).toggleGrid?.();
+      console.log(`Grid ${isVisible ? 'ativado' : 'desativado'}`);
     }
   );
 
@@ -818,19 +820,8 @@ function registerToolHandlers(): void {
     }
   );
 
-  // TOOL_NAVIGATE
-  commandRegistry.register(
-    {
-      id: CommandId.TOOL_NAVIGATE,
-      label: 'Navigation Tool',
-      category: 'tool',
-      shortcut: 'W'
-    },
-    async () => {
-      console.log('🚶 Navigation Tool');
-      appController.toolManager?.setActiveTool('navigation');
-    }
-  );
+  // TOOL_NAVIGATE - Removido: navegação é global via WASD
+  // Não precisa mais de comando/ferramenta separada
 
   // TOOL_MEASURE
   commandRegistry.register(
