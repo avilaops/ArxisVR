@@ -368,18 +368,19 @@ export interface EventData {
 /**
  * Interface para listeners com prioridade e filtros opcionais
  */
-interface EventListener<T extends EventType> {
-  callback: (data: EventData[T]) => void;
+interface EventListener<T extends EventType | string> {
+  callback: (data: any) => void;
   priority: number; // 0-100, maior = mais prioritário
-  filter?: (data: EventData[T]) => boolean;
+  filter?: (data: any) => boolean;
 }
 
 /**
  * EventBus - Sistema de pub/sub tipado com prioridades e filtros
+ * Suporta EventType enum e string types (namespaces como NetworkEventType)
  */
 export class EventBus {
   private static instance: EventBus;
-  private listeners: Map<EventType, Array<EventListener<any>>> = new Map();
+  private listeners: Map<EventType | string, Array<EventListener<any>>> = new Map();
   
   private constructor() {
     console.log('✅ EventBus initialized');
@@ -394,7 +395,7 @@ export class EventBus {
   
   /**
    * Registra um listener com prioridade e filtro opcionais
-   * @param event Tipo do evento
+   * @param event Tipo do evento (EventType enum ou string para namespaces)
    * @param callback Função callback
    * @param priority Prioridade (0-100, padrão 50). Maior = executa primeiro
    * @param filter Filtro opcional para executar callback condicionalmente
@@ -402,14 +403,26 @@ export class EventBus {
   public on<T extends EventType>(
     event: T,
     callback: (data: EventData[T]) => void,
-    priority: number = 50,
+    priority?: number,
     filter?: (data: EventData[T]) => boolean
+  ): void;
+  public on(
+    event: string,
+    callback: (data: any) => void,
+    priority?: number,
+    filter?: (data: any) => boolean
+  ): void;
+  public on(
+    event: EventType | string,
+    callback: (data: any) => void,
+    priority: number = 50,
+    filter?: (data: any) => boolean
   ): void {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, []);
     }
     
-    const listener: EventListener<T> = {
+    const listener: EventListener<any> = {
       callback,
       priority: Math.max(0, Math.min(100, priority)), // Clamp entre 0-100
       filter
@@ -428,6 +441,14 @@ export class EventBus {
   public off<T extends EventType>(
     event: T,
     callback: (data: EventData[T]) => void
+  ): void;
+  public off(
+    event: string,
+    callback: (data: any) => void
+  ): void;
+  public off(
+    event: EventType | string,
+    callback: (data: any) => void
   ): void {
     const listeners = this.listeners.get(event);
     if (listeners) {
@@ -442,7 +463,9 @@ export class EventBus {
    * Emite um evento para todos os listeners registrados
    * Respeita prioridades e aplica filtros
    */
-  public emit<T extends EventType>(event: T, data: EventData[T]): void {
+  public emit<T extends EventType>(event: T, data: EventData[T]): void;
+  public emit(event: string, data: any): void;
+  public emit(event: EventType | string, data: any): void {
     const listeners = this.listeners.get(event);
     if (listeners) {
       for (const listener of listeners) {
@@ -463,7 +486,9 @@ export class EventBus {
   /**
    * Emite um evento de forma assíncrona
    */
-  public async emitAsync<T extends EventType>(event: T, data: EventData[T]): Promise<void> {
+  public async emitAsync<T extends EventType>(event: T, data: EventData[T]): Promise<void>;
+  public async emitAsync(event: string, data: any): Promise<void>;
+  public async emitAsync(event: EventType | string, data: any): Promise<void> {
     const listeners = this.listeners.get(event);
     if (listeners) {
       for (const listener of listeners) {
@@ -486,19 +511,29 @@ export class EventBus {
   public once<T extends EventType>(
     event: T,
     callback: (data: EventData[T]) => void,
+    priority?: number
+  ): void;
+  public once(
+    event: string,
+    callback: (data: any) => void,
+    priority?: number
+  ): void;
+  public once(
+    event: EventType | string,
+    callback: (data: any) => void,
     priority: number = 50
   ): void {
-    const onceCallback = (data: EventData[T]) => {
+    const onceCallback = (data: any) => {
       callback(data);
-      this.off(event, onceCallback);
+      this.off(event as any, onceCallback);
     };
-    this.on(event, onceCallback, priority);
+    this.on(event as any, onceCallback, priority);
   }
   
   /**
    * Retorna o número de listeners registrados para um evento
    */
-  public listenerCount(event: EventType): number {
+  public listenerCount(event: EventType | string): number {
     const listeners = this.listeners.get(event);
     return listeners ? listeners.length : 0;
   }
@@ -506,7 +541,7 @@ export class EventBus {
   /**
    * Remove todos os listeners de um evento específico
    */
-  public removeAllListeners(event?: EventType): void {
+  public removeAllListeners(event?: EventType | string): void {
     if (event) {
       this.listeners.delete(event);
     } else {
@@ -524,7 +559,7 @@ export class EventBus {
   /**
    * Retorna lista de todos os eventos com listeners registrados
    */
-  public getRegisteredEvents(): EventType[] {
+  public getRegisteredEvents(): Array<EventType | string> {
     return Array.from(this.listeners.keys());
   }
 }

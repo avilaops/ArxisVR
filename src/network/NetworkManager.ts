@@ -1,5 +1,5 @@
-import { eventBus, EventType } from '../core';
-import { PlayerData, NetworkMessage } from './events/NetworkEvents';
+import { eventBus } from '../core';
+import { NetworkEventType, PlayerData, NetworkMessage } from './events/NetworkEvents';
 
 /**
  * NetworkManager - Gerenciador de rede para multiplayer
@@ -75,14 +75,7 @@ export class NetworkManager {
             timestamp: Date.now()
           });
           
-          // Inicia sync loop
-          this.startSyncLoop();
-          
-          // FASE 5: Emit NET_CONNECTED
-          eventBus.emit(EventType.NET_CONNECTED, {
-            serverUrl: this.serverUrl,
-            playerName: this.playerName
-          });
+          // ❌ NÃO inicia sync aqui - aguarda handshake_response
           
           resolve();
         };
@@ -94,9 +87,8 @@ export class NetworkManager {
         this.ws.onerror = (error) => {
           console.error('❌ WebSocket error:', error);
           
-          // FASE 5: Emit NET_CONNECT_FAILED
-          eventBus.emit(EventType.NET_CONNECT_FAILED, {
-            error: 'WebSocket connection failed'
+          eventBus.emit(NetworkEventType.CONNECTION_ERROR, {
+            error: new Error('WebSocket connection failed')
           });
           
           reject(error);
@@ -108,8 +100,9 @@ export class NetworkManager {
           
           this.stopSyncLoop();
           
-          // FASE 5: Emit NET_DISCONNECTED
-          eventBus.emit(EventType.NET_DISCONNECTED, {});
+          eventBus.emit(NetworkEventType.DISCONNECTED, {
+            reason: 'Connection closed'
+          });
           
           // Auto-reconnect
           if (this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS) {
@@ -170,6 +163,15 @@ export class NetworkManager {
         case 'handshake_response':
           this.playerId = message.data.playerId;
           console.log(`✅ Player ID: ${this.playerId}`);
+          
+          // ✅ Emite CONNECTED após playerId confirmado
+          eventBus.emit(NetworkEventType.CONNECTED, {
+            playerId: this.playerId,
+            timestamp: Date.now()
+          });
+          
+          // ✅ Inicia sync loop APÓS handshake completo
+          this.startSyncLoop();
           break;
         
         case 'player_joined':
@@ -213,8 +215,10 @@ export class NetworkManager {
     
     console.log(`👤 Player joined: ${playerData.name}`);
     
-    eventBus.emit(EventType.TOOL_ACTIVATED, {
-      toolType: `Network:PlayerJoined:${playerData.id}`
+    // ✅ Emit NetworkEventType.PLAYER_JOINED (não TOOL_ACTIVATED)
+    eventBus.emit(NetworkEventType.PLAYER_JOINED, {
+      playerId: playerData.id,
+      playerData: playerData
     });
   }
   
@@ -228,8 +232,8 @@ export class NetworkManager {
       this.players.delete(playerId);
       console.log(`👤 Player left: ${player.name}`);
       
-      eventBus.emit(EventType.TOOL_DEACTIVATED, {
-        toolType: `Network:PlayerLeft:${playerId}`
+      eventBus.emit(NetworkEventType.PLAYER_LEFT, {
+        playerId: playerId
       });
     }
   }
@@ -239,14 +243,23 @@ export class NetworkManager {
    */
   private handlePlayerUpdate(playerData: PlayerData): void {
     this.players.set(playerData.id, playerData);
+    
+    eventBus.emit(NetworkEventType.PLAYER_UPDATED, {
+      playerId: playerData.id,
+      data: playerData
+    });
   }
   
   /**
    * Handle state sync
    */
-  private handleStateSync(_state: any): void {
+  private handleStateSync(state: any): void {
     // Sync global state
     console.log('🔄 State synced');
+    
+    eventBus.emit(NetworkEventType.STATE_SYNC, {
+      state: state
+    });
   }
   
   /**
@@ -255,9 +268,20 @@ export class NetworkManager {
   private handleDirectMessage(message: NetworkMessage): void {
     console.log(`💬 Message from ${message.from}:`, message.data);
     
-    eventBus.emit(EventType.TOOL_ACTIVATED, {
-      toolType: `Network:Message:${message.from}`
-    });
+    // ✅ Roteia VoIP signaling (webrtc_offer/answer/ice_candidate)
+    const data = message.data;
+    if (data && (data.type === 'webrtc_offer' || data.type === 'webrtc_answer' || data.type === 'ice_candidate')) {
+      eventBus.emit(NetworkEventType.MESSAGE_RECEIVED, {
+        from: message.from,
+        message: data
+      });
+    } else {
+      // Mensagem normal
+      eventBus.emit(NetworkEventType.MESSAGE_RECEIVED, {
+        from: message.from,
+        message: data
+      });
+    }
   }
   
   /**
@@ -266,8 +290,9 @@ export class NetworkManager {
   private handleBroadcast(message: NetworkMessage): void {
     console.log(`📢 Broadcast from ${message.from}:`, message.data);
     
-    eventBus.emit(EventType.TOOL_ACTIVATED, {
-      toolType: `Network:Broadcast:${message.from}`
+    eventBus.emit(NetworkEventType.BROADCAST_RECEIVED, {
+      from: message.from,
+      message: message.data
     });
   }
   
@@ -353,21 +378,47 @@ export class NetworkManager {
    * Cria sala
    */
   public async createRoom(roomName: string): Promise<string> {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const roomId = `room_${Date.now()}`;
       
-      this.send({
-        type: 'create_room',
-        from: this.playerId || '',
-        data: { roomId, roomName },
-        timestamp: Date.now()
-      });
+      // Aguarda mensagem room_created do servidor
+      const handler = (event: MessageEvent) => {
+        try {
+          const msg: NetworkMessage = JSON.parse(event.data);
+          if (msg.type === 'room_created' && msg.data.roomId === roomId) {
+            this.currentRoom = roomId;
+            this.ws!.removeEventListener('message', handler);
+            
+            eventBus.emit(NetworkEventType.ROOM_CREATED, {
+              roomId: roomId,
+              roomData: msg.data
+            });
+            
+            resolve(roomId);
+          }
+        } catch (error) {
+          // Ignora erro de parse
+        }
+      };
       
-      // Aguarda confirmação (simplificado)
-      setTimeout(() => {
-        this.currentRoom = roomId;
-        resolve(roomId);
-      }, 100);
+      if (this.ws) {
+        this.ws.addEventListener('message', handler);
+        
+        this.send({
+          type: 'create_room',
+          from: this.playerId || '',
+          data: { roomId, roomName },
+          timestamp: Date.now()
+        });
+        
+        // Timeout de 5s para evitar deadlock
+        setTimeout(() => {
+          this.ws?.removeEventListener('message', handler);
+          reject(new Error('Room creation timeout'));
+        }, 5000);
+      } else {
+        reject(new Error('Not connected'));
+      }
     });
   }
   
@@ -375,18 +426,44 @@ export class NetworkManager {
    * Entra em sala
    */
   public async joinRoom(roomId: string): Promise<void> {
-    return new Promise((resolve) => {
-      this.send({
-        type: 'join_room',
-        from: this.playerId || '',
-        data: { roomId },
-        timestamp: Date.now()
-      });
+    return new Promise((resolve, reject) => {
+      // Aguarda mensagem room_joined do servidor
+      const handler = (event: MessageEvent) => {
+        try {
+          const msg: NetworkMessage = JSON.parse(event.data);
+          if (msg.type === 'room_joined' && msg.data.roomId === roomId) {
+            this.currentRoom = roomId;
+            this.ws!.removeEventListener('message', handler);
+            
+            eventBus.emit(NetworkEventType.ROOM_JOINED, {
+              roomId: roomId
+            });
+            
+            resolve();
+          }
+        } catch (error) {
+          // Ignora erro de parse
+        }
+      };
       
-      setTimeout(() => {
-        this.currentRoom = roomId;
-        resolve();
-      }, 100);
+      if (this.ws) {
+        this.ws.addEventListener('message', handler);
+        
+        this.send({
+          type: 'join_room',
+          from: this.playerId || '',
+          data: { roomId },
+          timestamp: Date.now()
+        });
+        
+        // Timeout de 5s
+        setTimeout(() => {
+          this.ws?.removeEventListener('message', handler);
+          reject(new Error('Room join timeout'));
+        }, 5000);
+      } else {
+        reject(new Error('Not connected'));
+      }
     });
   }
   
@@ -400,6 +477,10 @@ export class NetworkManager {
         from: this.playerId || '',
         data: { roomId: this.currentRoom },
         timestamp: Date.now()
+      });
+      
+      eventBus.emit(NetworkEventType.ROOM_LEFT, {
+        roomId: this.currentRoom
       });
       
       this.currentRoom = null;

@@ -1,4 +1,6 @@
 import { networkManager } from './NetworkManager';
+import { eventBus } from '../core';
+import { NetworkEventType } from './events/NetworkEvents';
 
 /**
  * VoIPSystem - Sistema de voz para multiplayer
@@ -42,7 +44,45 @@ export class VoIPSystem {
   
   constructor() {
     this.setupAudioContext();
+    this.setupNetworkListeners();
     console.log('🎤 VoIP System initialized');
+  }
+  
+  /**
+   * Configura listeners de rede para VoIP signaling
+   */
+  private setupNetworkListeners(): void {
+    // ✅ Escuta mensagens de signaling (webrtc_offer/answer/ice_candidate)
+    eventBus.on(NetworkEventType.MESSAGE_RECEIVED, (data) => {
+      const { from, message } = data;
+      
+      if (!message || typeof message !== 'object') return;
+      
+      switch (message.type) {
+        case 'webrtc_offer':
+          if (message.offer) {
+            this.handleOffer(from, message.offer);
+          }
+          break;
+        
+        case 'webrtc_answer':
+          if (message.answer) {
+            this.handleAnswer(from, message.answer);
+          }
+          break;
+        
+        case 'ice_candidate':
+          if (message.candidate) {
+            this.handleIceCandidate(from, message.candidate);
+          }
+          break;
+      }
+    });
+    
+    // Desconecta quando player sai
+    eventBus.on(NetworkEventType.PLAYER_LEFT, (data) => {
+      this.disconnectPeer(data.playerId);
+    });
   }
   
   /**
