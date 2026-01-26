@@ -22,11 +22,16 @@ import { LayerTool } from './tools/LayerTool';
 import { ToolType } from './core/types';
 import { getErrorBoundary } from './core/ErrorBoundary';
 import { getLogger } from './core/Logger';
+import { LoadingManager } from './core/LoadingManager';
 
 // Performance tracking
 performance.mark('app-start');
 
-// Initialize ErrorBoundary FIRST (capture all errors)
+// Initialize Loading Manager FIRST
+const loadingManager = new LoadingManager();
+loadingManager.setStage('Inicializando...', 'Preparando engine', 10);
+
+// Initialize ErrorBoundary and Logger
 const errorBoundary = getErrorBoundary();
 const logger = getLogger();
 
@@ -34,12 +39,8 @@ logger.info('Bootstrap', '🛡️ ErrorBoundary initialized');
 logger.info('Bootstrap', '🚀 ArxisVR - Fast Start Mode');
 logger.info('Bootstrap', `📦 ${Object.keys(ComponentsRegistry).length} componentes disponíveis (lazy load)`);
 
-// Hide loading IMMEDIATELY (no timeout)
-const loading = document.getElementById('loading');
-if (loading) {
-  loading.classList.add('hidden');
-  setTimeout(() => loading.remove(), 300);
-}
+// Hide default loading (managed by LoadingManager now)
+loadingManager.setStage('Criando cena 3D...', 'Preparando WebGL', 20);
 
 // Create scene
 const scene = new THREE.Scene();
@@ -59,7 +60,7 @@ performance.mark('scene-ready');
 performance.measure('init-time', 'app-start', 'scene-ready');
 const initTime = performance.getEntriesByName('init-time')[0].duration;
 logger.info('Bootstrap', `✅ Scene + Camera prontos em ${initTime.toFixed(0)}ms`, { duration: initTime });
-
+loadingManager.setStage('Configurando renderização...', 'WebGL Renderer', 40);
 // Camera rotation (Euler angles)
 const euler = new THREE.Euler(0, 0, 0, 'YXZ');
 const PI_2 = Math.PI / 2;
@@ -150,6 +151,8 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limitar a 2x pa
 renderer.shadowMap.enabled = false; // Desabilitar sombras por padrão
 container.appendChild(renderer.domElement);
 logger.info('Renderer', '✅ Renderer otimizado criado');
+
+loadingManager.setStage('Adicionando controles...', 'Mouse e teclado', 60);
 
 // Pointer Lock (Mouse look - FPS style) - Only when double-clicking canvas
 renderer.domElement.addEventListener('dblclick', () => {
@@ -607,6 +610,8 @@ if (toolManager) {
   logger.debug('ToolManager', '📋 Atalhos: Q=Select, M=Measure, C=Section, L=Layers, T/E/V/A/K=Panels');
 }
 
+loadingManager.setStage('Carregando UI...', 'Inicializando componentes', 80);
+
 // Inicializa UIRuntime com dependências reais
 const uiRuntime = initializeUI(
   eventBus,                        // EventBus real (src/core/EventBus.ts)
@@ -617,6 +622,8 @@ const uiRuntime = initializeUI(
 );
 
 logger.info('UIRuntime', '✅ UI Runtime conectado aos sistemas');
+
+loadingManager.setStage('Finalizando...', 'Preparando interface', 95);
 
 // Exporta para debug
 if (typeof window !== 'undefined') {
@@ -648,4 +655,8 @@ setInterval(() => {
 }, 2000); // Verifica a cada 2 segundos
 
 logger.info('ErrorBoundary', '✅ ErrorBoundary monitoring status bar');
+
+// Complete loading
+loadingManager.setStage('Pronto!', 'Aplicativo carregado', 100);
+setTimeout(() => loadingManager.complete(), 500); // Pequeno delay para mostrar 100%
 
