@@ -5,7 +5,7 @@
 
 import { uiStore } from '../../app/state/uiStore';
 import type { ModalState } from '../../app/state/uiStore';
-import { LoadFileModal } from '../modals/LoadFileModal-v2';
+import { LoadFileModal } from '../modals/LoadFileModalSimple';
 
 type ModalConstructor = new (container: HTMLElement, props?: any) => IModal;
 

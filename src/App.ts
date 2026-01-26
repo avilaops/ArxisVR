@@ -34,19 +34,26 @@ async function bootstrap() {
   const { scene, camera, renderer } = viewerHost;
 
   // 4. Initialize core services
+  console.log('📦 Initializing services...');
+  
   const entityManager = new (await import('./engine/ecs')).EntityManager();
   const lodSystem = new (await import('./systems/LODSystem')).LODSystem(camera, entityManager);
   const ifcLoader = new IFCLoader(scene, lodSystem, entityManager);
   const modelSession = new ModelSession(scene, camera);
+  
+  console.log('✅ IFCLoader created:', ifcLoader);
   
   // AppController é singleton
   const AppControllerClass = (await import('./app/AppController')).AppController as any;
   const appController = AppControllerClass.getInstance();
 
   // 5. Register services in DI
+  console.log('📝 Registering services in DI...');
   di.register('ifcLoader', ifcLoader);
   di.register('modelSession', modelSession);
   di.register('appController', appController);
+  
+  console.log('✅ Services registered. IFCLoader in DI:', di.has('ifcLoader'));
 
   // 6. Configure FileService - usa callback wrapper
   fileService.setIfcLoader(async (file: File) => {
