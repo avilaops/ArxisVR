@@ -234,6 +234,24 @@ export class Logger {
   }
 
   /**
+   * Baixa logs como arquivo JSON
+   */
+  public downloadLogs(): void {
+    const data = this.exportLogs();
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `arxisvr-logs-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    console.log('📥 Logs baixados:', this.storage.length, 'entradas');
+  }
+
+  /**
    * Obtém estatísticas de logs
    */
   public getStats(): Record<string, number> {

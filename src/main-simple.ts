@@ -21,16 +21,18 @@ import { SectionTool } from './tools/SectionTool';
 import { LayerTool } from './tools/LayerTool';
 import { ToolType } from './core/types';
 import { getErrorBoundary } from './core/ErrorBoundary';
+import { getLogger } from './core/Logger';
 
 // Performance tracking
 performance.mark('app-start');
 
 // Initialize ErrorBoundary FIRST (capture all errors)
 const errorBoundary = getErrorBoundary();
-console.log('🛡️ ErrorBoundary initialized');
+const logger = getLogger();
 
-console.log('🚀 ArxisVR - Fast Start Mode');
-console.log(`📦 ${Object.keys(ComponentsRegistry).length} componentes disponíveis (lazy load)`);
+logger.info('Bootstrap', '🛡️ ErrorBoundary initialized');
+logger.info('Bootstrap', '🚀 ArxisVR - Fast Start Mode');
+logger.info('Bootstrap', `📦 ${Object.keys(ComponentsRegistry).length} componentes disponíveis (lazy load)`);
 
 // Hide loading IMMEDIATELY (no timeout)
 const loading = document.getElementById('loading');
@@ -56,7 +58,7 @@ camera.position.set(5, 1.7, 5);
 performance.mark('scene-ready');
 performance.measure('init-time', 'app-start', 'scene-ready');
 const initTime = performance.getEntriesByName('init-time')[0].duration;
-console.log(`✅ Scene + Camera prontos em ${initTime.toFixed(0)}ms`);
+logger.info('Bootstrap', `✅ Scene + Camera prontos em ${initTime.toFixed(0)}ms`, { duration: initTime });
 
 // Camera rotation (Euler angles)
 const euler = new THREE.Euler(0, 0, 0, 'YXZ');
@@ -147,7 +149,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limitar a 2x para performance
 renderer.shadowMap.enabled = false; // Desabilitar sombras por padrão
 container.appendChild(renderer.domElement);
-console.log('✅ Renderer otimizado criado');
+logger.info('Renderer', '✅ Renderer otimizado criado');
 
 // Pointer Lock (Mouse look - FPS style) - Only when double-clicking canvas
 renderer.domElement.addEventListener('dblclick', () => {
@@ -348,10 +350,10 @@ animate();
 performance.mark('app-ready');
 performance.measure('total-load', 'app-start', 'app-ready');
 const totalTime = performance.getEntriesByName('total-load')[0].duration;
-console.log('✅ Animation loop started');
-console.log(`🎉 ArxisVR carregado em ${totalTime.toFixed(0)}ms`);
-console.log('💡 Dica: Use duplo-clique para controle FPS, ESC para sair');
-console.log('💡 Ctrl+O para abrir arquivos IFC');
+logger.info('Bootstrap', '✅ Animation loop started');
+logger.info('Bootstrap', `🎉 ArxisVR carregado em ${totalTime.toFixed(0)}ms`, { totalLoadTime: totalTime });
+logger.debug('Bootstrap', '💡 Dica: Use duplo-clique para controle FPS, ESC para sair');
+logger.debug('Bootstrap', '💡 Ctrl+O para abrir arquivos IFC');
 
 // Multiplayer button
 const mpButton = document.querySelector('.connect-multiplayer-btn') as HTMLButtonElement;
@@ -570,7 +572,7 @@ if (typeof window !== 'undefined') {
 // UI RUNTIME - Conecta HTML aos sistemas reais
 // =============================================================================
 
-console.log('🎨 Inicializando UI Runtime...');
+logger.info('UIRuntime', '🎨 Inicializando UI Runtime...');
 
 // Instancia AppController (gerenciador central da aplicação)
 const appController = AppController.getInstance();
@@ -600,9 +602,9 @@ if (toolManager) {
   // Selection como ferramenta padrão
   toolManager.setActiveTool(ToolType.SELECTION);
   
-  console.log('✅ 4 tools registered (Selection, Measurement, Section, Layer)');
-  console.log('💡 Navigation is always active via WASD keys');
-  console.log('📋 Atalhos: Q=Select, M=Measure, C=Section, L=Layers, T/E/V/A/K=Panels');
+  logger.info('ToolManager', '✅ 4 tools registered (Selection, Measurement, Section, Layer)');
+  logger.debug('ToolManager', '💡 Navigation is always active via WASD keys');
+  logger.debug('ToolManager', '📋 Atalhos: Q=Select, M=Measure, C=Section, L=Layers, T/E/V/A/K=Panels');
 }
 
 // Inicializa UIRuntime com dependências reais
@@ -614,17 +616,19 @@ const uiRuntime = initializeUI(
   undefined                         // NetworkManager (opcional)
 );
 
-console.log('✅ UI Runtime conectado aos sistemas');
+logger.info('UIRuntime', '✅ UI Runtime conectado aos sistemas');
 
 // Exporta para debug
 if (typeof window !== 'undefined') {
   (window as any).appController = appController;
   (window as any).uiRuntime = uiRuntime;
   (window as any).errorBoundary = errorBoundary;
-  console.log('   - window.appController');
-  console.log('   - window.uiRuntime');
-  console.log('   - window.errorBoundary');
-  console.log('   - window.loadIFCFile(file) [já definido acima]');
+  (window as any).logger = logger;
+  logger.debug('Debug', '   - window.appController');
+  logger.debug('Debug', '   - window.uiRuntime');
+  logger.debug('Debug', '   - window.errorBoundary');
+  logger.debug('Debug', '   - window.logger');
+  logger.debug('Debug', '   - window.loadIFCFile(file) [já definido acima]');
 }
 
 // Monitor de erros na status bar
@@ -643,5 +647,5 @@ setInterval(() => {
   }
 }, 2000); // Verifica a cada 2 segundos
 
-console.log('✅ ErrorBoundary monitoring status bar');
+logger.info('ErrorBoundary', '✅ ErrorBoundary monitoring status bar');
 
