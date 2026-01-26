@@ -57,7 +57,9 @@ export interface MenuItemAction extends MenuItem {
 export interface MenuItemToggle extends MenuItem {
   type: MenuItemType.TOGGLE;
   checked: boolean;
-  onChange: (checked: boolean) => void;
+  onChange?: (checked: boolean) => void | Promise<void>;
+  commandId?: CommandId; // Optional: unified command pattern
+  checkedWhen?: (state: any) => boolean; // FASE 5: Dynamic checked state
 }
 
 /**
@@ -181,7 +183,7 @@ export interface ShortcutMap {
  */
 export const DEFAULT_SHORTCUTS: ShortcutMap = {
   // File
-  'Ctrl+O': CommandId.FILE_OPEN,
+  'Ctrl+O': CommandId.FILE_OPEN, // Universal "Open..." chooser
   'Ctrl+S': CommandId.FILE_SAVE,
   'Ctrl+Shift+S': CommandId.FILE_SAVE_AS,
   'Ctrl+W': CommandId.FILE_CLOSE,
@@ -215,5 +217,5 @@ export const DEFAULT_SHORTCUTS: ShortcutMap = {
   
   // Help
   'F1': CommandId.HELP_DOCS,
-  'Ctrl+?': CommandId.HELP_SHORTCUTS
+  'Ctrl+/': CommandId.HELP_SHORTCUTS // Changed from Ctrl+? (more reliable)
 };

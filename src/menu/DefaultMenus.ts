@@ -26,11 +26,11 @@ export const FILE_MENU: TopLevelMenu = {
       label: 'Open...',
       icon: '📁',
       items: [
-        { type: MenuItemType.ACTION, id: 'file.open.ifc', label: 'Open IFC...', icon: '🏗️', shortcut: 'Ctrl+O', commandId: CommandId.FILE_OPEN_IFC },
+        { type: MenuItemType.ACTION, id: 'file.open.ifc', label: 'Open IFC...', icon: '🏗️', shortcut: 'Ctrl+Shift+O', commandId: CommandId.FILE_OPEN_IFC },
         { type: MenuItemType.ACTION, id: 'file.open.gltf', label: 'Open GLTF/GLB...', icon: '📦', commandId: CommandId.FILE_OPEN_GLTF },
         { type: MenuItemType.ACTION, id: 'file.open.obj', label: 'Open OBJ/FBX...', icon: '📐', commandId: CommandId.FILE_OPEN_OBJ },
         { type: MenuItemType.SEPARATOR, id: 'file.open.sep' },
-        { type: MenuItemType.ACTION, id: 'file.open.project', label: 'Open Project...', icon: '📂', commandId: CommandId.FILE_OPEN }
+        { type: MenuItemType.ACTION, id: 'file.open.project', label: 'Open Project...', icon: '📂', shortcut: 'Ctrl+O', commandId: CommandId.FILE_OPEN }
       ]
     },
     { type: MenuItemType.SEPARATOR, id: 'file.sep1' },
@@ -89,9 +89,36 @@ export const VIEW_MENU: TopLevelMenu = {
     { type: MenuItemType.ACTION, id: 'view.focus', label: 'Focus Selection', icon: '🎯', shortcut: 'F', commandId: CommandId.VIEW_FOCUS_SELECTION, enabledWhen: (s) => s.selectedObjects?.length > 0 },
     { type: MenuItemType.ACTION, id: 'view.frameAll', label: 'Frame All', icon: '🖼️', shortcut: 'H', commandId: CommandId.VIEW_FRAME_ALL, enabledWhen: (s) => s.projectContext?.modelLoaded },
     { type: MenuItemType.SEPARATOR, id: 'view.sep1' },
-    { type: MenuItemType.TOGGLE, id: 'view.grid', label: 'Grid', icon: '#️⃣', shortcut: 'G', checked: true, onChange: async () => { const { commandRegistry } = await import('../commands'); await commandRegistry.execute(CommandId.VIEW_TOGGLE_GRID); } },
-    { type: MenuItemType.TOGGLE, id: 'view.axes', label: 'Axes', icon: '📍', shortcut: 'X', checked: true, onChange: async () => { const { commandRegistry } = await import('../commands'); await commandRegistry.execute(CommandId.VIEW_TOGGLE_AXES); } },
-    { type: MenuItemType.TOGGLE, id: 'view.stats', label: 'Stats', icon: '📊', shortcut: 'Shift+S', checked: false, onChange: async () => { const { commandRegistry } = await import('../commands'); await commandRegistry.execute(CommandId.VIEW_TOGGLE_STATS); } },
+    { 
+      type: MenuItemType.TOGGLE, 
+      id: 'view.grid', 
+      label: 'Grid', 
+      icon: '#️⃣', 
+      shortcut: 'G', 
+      checked: true, 
+      commandId: CommandId.VIEW_TOGGLE_GRID,
+      checkedWhen: (s) => s.viewSettings?.gridVisible ?? true 
+    },
+    { 
+      type: MenuItemType.TOGGLE, 
+      id: 'view.axes', 
+      label: 'Axes', 
+      icon: '📍', 
+      shortcut: 'X', 
+      checked: true, 
+      commandId: CommandId.VIEW_TOGGLE_AXES,
+      checkedWhen: (s) => s.viewSettings?.axesVisible ?? true 
+    },
+    { 
+      type: MenuItemType.TOGGLE, 
+      id: 'view.stats', 
+      label: 'Stats', 
+      icon: '📊', 
+      shortcut: 'Shift+S', 
+      checked: false, 
+      commandId: CommandId.VIEW_TOGGLE_STATS,
+      checkedWhen: (s) => s.viewSettings?.statsVisible ?? false 
+    },
     { type: MenuItemType.SEPARATOR, id: 'view.sep2' },
     { type: MenuItemType.ACTION, id: 'view.fullscreen', label: 'Fullscreen', icon: '⛶', shortcut: 'F11', commandId: CommandId.VIEW_FULLSCREEN }
   ]

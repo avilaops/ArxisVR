@@ -75,8 +75,7 @@ export class MenuManager {
   public registerTopLevelMenu(menu: TopLevelMenu): void {
     this.topLevelMenus.set(menu.id, menu);
     console.log(`✅ Top-level menu registered: ${menu.id}`);
-    
-    eventBus.emit(EventType.MENU_OPENED, { menuId: menu.id });
+    // Removed: MENU_OPENED emission (registering ≠ opening)
   }
   
   /**
@@ -235,20 +234,58 @@ export class MenuManager {
    * Executa ação de menu item
    */
   public async executeMenuItem(item: MenuItemDefinition): Promise<void> {
-    if (item.type === MenuItemType.ACTION) {
-      const actionItem = item as MenuItemAction;
-      
-      // Emit evento
-      eventBus.emit(EventType.MENU_ITEM_CLICKED, {
-        menuId: this.state.activeMenuId || 'unknown',
-        itemId: item.id
-      });
-      
-      // Fecha menu
-      this.closeMenu();
-      
-      // Executa comando via CommandRegistry
-      await commandRegistry.execute(actionItem.commandId, actionItem.payload);
+    // Emit evento
+    eventBus.emit(EventType.MENU_ITEM_CLICKED, {
+      menuId: this.state.activeMenuId || 'unknown',
+      itemId: item.id
+    });
+
+    switch (item.type) {
+      case MenuItemType.ACTION: {
+        const actionItem = item as MenuItemAction;
+        this.closeMenu();
+        await commandRegistry.execute(actionItem.commandId, actionItem.payload);
+        break;
+      }
+
+      case MenuItemType.TOGGLE: {
+        const toggleItem = item as any; // MenuItemToggle
+        toggleItem.checked = !toggleItem.checked;
+        
+        // Call onChange if provided
+        if (toggleItem.onChange) {
+          await toggleItem.onChange(toggleItem.checked);
+        }
+        
+        // Or execute commandId if provided (unified pattern)
+        if (toggleItem.commandId) {
+          await commandRegistry.execute(toggleItem.commandId, { checked: toggleItem.checked });
+        }
+        
+        // Don't close menu for toggles (keep open)
+        break;
+      }
+
+      case MenuItemType.RADIO_GROUP: {
+        const radioItem = item as any; // MenuItemRadioGroup
+        // Radio selection handled by UI (individual option click)
+        // This shouldn't be called directly, but handle gracefully
+        if (radioItem.onChange) {
+          await radioItem.onChange(radioItem.selected);
+        }
+        break;
+      }
+
+      case MenuItemType.SUBMENU: {
+        // Update activeSubmenuId (don't close menu, just navigate)
+        this.state.activeSubmenuId = item.id;
+        // Submenu opening handled by UI renderer
+        break;
+      }
+
+      case MenuItemType.SEPARATOR:
+        // No-op
+        break;
     }
   }
   
@@ -321,6 +358,14 @@ export class MenuManager {
         item.icon = item.iconProvider(appState);
       }
       
+      // Atualiza checked (TOGGLE only)
+      if (item.type === MenuItemType.TOGGLE) {
+        const toggleItem = item as any; // MenuItemToggle
+        if (toggleItem.checkedWhen) {
+          toggleItem.checked = toggleItem.checkedWhen(appState);
+        }
+      }
+      
       // Recursivo para submenus
       if (item.type === MenuItemType.SUBMENU) {
         this.updateMenuItemStates((item as any).items, appState);
@@ -374,9 +419,12 @@ export class MenuManager {
   private setupKeyboardShortcuts(): void {
     if (!this.config.shortcuts) return;
     
-    document.addEventListener('keydown', (e) => {
-      // Ignora se está em input/textarea
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+    document.addEventListener('keydown', async (e) => {
+      // Use centralized input guards
+      const { isTypingInUI } = await import('../components-registry');
+      
+      // Block if typing in UI (input/textarea/contentEditable)
+      if (isTypingInUI()) {
         return;
       }
       
@@ -389,6 +437,7 @@ export class MenuManager {
       // Key name
       let keyName = e.key;
       if (keyName === ' ') keyName = 'Space';
+      if (keyName === '?') keyName = '/'; // Normalize ? to / (Ctrl+? -> Ctrl+/)
       if (keyName.length === 1) keyName = keyName.toUpperCase();
       
       parts.push(keyName);
