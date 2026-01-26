@@ -658,5 +658,104 @@ logger.info('ErrorBoundary', '✅ ErrorBoundary monitoring status bar');
 
 // Complete loading
 loadingManager.setStage('Pronto!', 'Aplicativo carregado', 100);
-setTimeout(() => loadingManager.complete(), 500); // Pequeno delay para mostrar 100%
+setTimeout(() => {
+  loadingManager.complete();
+  // Show onboarding after loading
+  showOnboarding();
+}, 500); // Pequeno delay para mostrar 100%
+
+// =============================================================================
+// ONBOARDING - First-time user experience
+// =============================================================================
+
+function showOnboarding(): void {
+  const onboarding = document.getElementById('onboarding');
+  const dropzone = document.getElementById('dropzone');
+  const loadDemoBtn = document.getElementById('load-demo-btn');
+
+  if (!onboarding) return;
+
+  // Show onboarding
+  onboarding.classList.remove('hidden');
+
+  // Dropzone drag & drop
+  if (dropzone) {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }, false);
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, () => {
+        dropzone.classList.add('dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, () => {
+        dropzone.classList.remove('dragover');
+      }, false);
+    });
+
+    dropzone.addEventListener('drop', (e: DragEvent) => {
+      const files = e.dataTransfer?.files;
+      if (files && files.length > 0) {
+        handleFileLoad(files[0]);
+      }
+    }, false);
+
+    // Click to select
+    dropzone.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.ifc';
+      input.onchange = (e: Event) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) handleFileLoad(file);
+      };
+      input.click();
+    });
+  }
+
+  // Demo button
+  if (loadDemoBtn) {
+    loadDemoBtn.addEventListener('click', () => {
+      loadDemoModel();
+    });
+  }
+}
+
+function handleFileLoad(file: File): void {
+  logger.info('Onboarding', `Loading file: ${file.name}`, { size: file.size });
+  
+  // Hide onboarding
+  const onboarding = document.getElementById('onboarding');
+  if (onboarding) {
+    onboarding.classList.add('hidden');
+    setTimeout(() => onboarding.remove(), 300);
+  }
+
+  // Load file using existing function
+  (window as any).loadIFCFile?.(file);
+}
+
+function loadDemoModel(): void {
+  logger.info('Onboarding', 'Loading demo model');
+  
+  // Hide onboarding
+  const onboarding = document.getElementById('onboarding');
+  if (onboarding) {
+    onboarding.classList.add('hidden');
+    setTimeout(() => onboarding.remove(), 300);
+  }
+
+  // TODO: Carregar modelo demo (pode ser um IFC pequeno na pasta Examples-files)
+  // Por enquanto, simula carregamento
+  logger.warn('Onboarding', 'Demo model not implemented yet - would load from Examples-files/');
+  
+  // Abre modal de load como fallback
+  componentManager.open('modal:load-file', 'LoadFileModal');
+}
 
