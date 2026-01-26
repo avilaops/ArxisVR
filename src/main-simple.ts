@@ -262,7 +262,8 @@ let modelSession: ModelSession | null = null;
 function initializeModelSession() {
   if (!modelSession) {
     console.log('⏳ Inicializando ModelSession...');
-    modelSession = ModelSession.getInstance(scene, camera);
+    // FIX: ModelSession não é mais singleton - criar instância direta
+    modelSession = new ModelSession(scene, camera);
     fileService.setModelSession(modelSession);
     console.log('✅ ModelSession inicializada');
   }
