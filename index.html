@@ -1122,30 +1122,30 @@
         explorer: `
           <div class="sidebar-group">
             <div class="sidebar-group-header">PROJETO</div>
-            <button class="sidebar-item" onclick="componentManager.open('modal:load-file', 'LoadFileModal')">
+            <button class="sidebar-item" data-action="open" data-key="modal:load-file" data-component="LoadFileModal">
               <span class="sidebar-icon">📁</span>
               Abrir Arquivo IFC
             </button>
-            <button class="sidebar-item">
+            <button class="sidebar-item" data-action="open" data-key="recent" data-component="RecentProjects">
               <span class="sidebar-icon">🕐</span>
               Projetos Recentes
             </button>
-            <button class="sidebar-item">
+            <button class="sidebar-item" data-action="open" data-key="export" data-component="ExportModal">
               <span class="sidebar-icon">💾</span>
               Exportar
             </button>
           </div>
           <div class="sidebar-group">
             <div class="sidebar-group-header">VISUALIZAÇÃO</div>
-            <button class="sidebar-item" onclick="componentManager.toggle('tool:layers', 'LayersPanel')">
+            <button class="sidebar-item" data-action="toggle" data-key="tool:layers" data-component="LayersPanel">
               <span class="sidebar-icon">📚</span>
               Camadas
             </button>
-            <button class="sidebar-item" onclick="componentManager.toggle('tool:transparency', 'TransparencyControl')">
+            <button class="sidebar-item" data-action="toggle" data-key="tool:transparency" data-component="TransparencyControl">
               <span class="sidebar-icon">👁️</span>
               Transparência
             </button>
-            <button class="sidebar-item" onclick="componentManager.toggle('tool:section', 'SectionBoxTool')">
+            <button class="sidebar-item" data-action="toggle" data-key="tool:section" data-component="SectionBoxTool">
               <span class="sidebar-icon">✂️</span>
               Cortes
             </button>
@@ -1154,11 +1154,11 @@
         search: `
           <div class="sidebar-group">
             <div class="sidebar-group-header">BUSCA AVANÇADA</div>
-            <button class="sidebar-item" onclick="componentManager.open('search:advanced', 'AdvancedSearchPanel')">
+            <button class="sidebar-item" data-action="open" data-key="search:advanced" data-component="AdvancedSearchPanel">
               <span class="sidebar-icon">🔍</span>
               Buscar Elementos
             </button>
-            <button class="sidebar-item" onclick="componentManager.open('search:filters', 'FilterBuilder')">
+            <button class="sidebar-item" data-action="open" data-key="search:filters" data-component="FilterBuilder">
               <span class="sidebar-icon">🎯</span>
               Criar Filtros
             </button>
@@ -1209,15 +1209,15 @@
         settings: `
           <div class="sidebar-group">
             <div class="sidebar-group-header">CONFIGURAÇÕES</div>
-            <button class="sidebar-item" onclick="componentManager.open('settings', 'SettingsPanel')">
+            <button class="sidebar-item" data-action="open" data-key="settings" data-component="SettingsPanel">
               <span class="sidebar-icon">⚙️</span>
               Preferências
             </button>
-            <button class="sidebar-item">
+            <button class="sidebar-item" data-action="open" data-key="shortcuts" data-component="ShortcutsModal">
               <span class="sidebar-icon">⌨️</span>
               Atalhos
             </button>
-            <button class="sidebar-item">
+            <button class="sidebar-item" data-action="open" data-key="theme" data-component="ThemeSelectorModal">
               <span class="sidebar-icon">🎨</span>
               Tema
             </button>
@@ -1227,6 +1227,45 @@
 
       content.innerHTML = views[view] || views.explorer;
     }
+
+    // Event delegation for sidebar items (evita inline onclick)
+    document.addEventListener('DOMContentLoaded', () => {
+      const sidebarContent = document.getElementById('sidebar-content');
+      if (sidebarContent) {
+        sidebarContent.addEventListener('click', async (e) => {
+          const btn = e.target.closest('.sidebar-item');
+          if (!btn) return;
+
+          const action = btn.getAttribute('data-action');
+          const key = btn.getAttribute('data-key');
+          const component = btn.getAttribute('data-component');
+
+          if (!action || !key || !component) return;
+
+          // Aguardar componentManager estar disponível
+          const maxWait = 5000; // 5s
+          const startTime = Date.now();
+          while (!window.componentManager) {
+            if (Date.now() - startTime > maxWait) {
+              console.error('componentManager not loaded after 5s');
+              return;
+            }
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+
+          const componentManager = window.componentManager;
+          try {
+            if (action === 'open') {
+              await componentManager.open(key, component);
+            } else if (action === 'toggle') {
+              await componentManager.toggle(key, component);
+            }
+          } catch (err) {
+            console.error(`Error executing ${action} on ${component}:`, err);
+          }
+        });
+      }
+    });
   </script>
   
   <script type="module" src="/src/main-simple.ts"></script>

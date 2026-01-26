@@ -25,6 +25,11 @@ import { getLogger } from './core/Logger';
 import { LoadingManager } from './core/LoadingManager';
 import { getQualityManager } from './core/QualityManager';
 
+// 🔧 Expor componentManager no window para compatibilidade com inline handlers
+if (typeof window !== 'undefined') {
+  (window as any).componentManager = componentManager;
+}
+
 // Performance tracking
 performance.mark('app-start');
 
