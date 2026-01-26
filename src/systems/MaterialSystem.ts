@@ -139,25 +139,47 @@ export class MaterialSystem {
     if (params.map) {
       material.map = this.textureLoader.load(params.map);
       material.map.colorSpace = THREE.SRGBColorSpace;
+      this.applyArchitecturalDefaults(material.map);
     }
 
     if (params.normalMap) {
       material.normalMap = this.textureLoader.load(params.normalMap);
+      this.applyArchitecturalDefaults(material.normalMap);
     }
 
     if (params.roughnessMap) {
       material.roughnessMap = this.textureLoader.load(params.roughnessMap);
+      this.applyArchitecturalDefaults(material.roughnessMap);
     }
 
     if (params.metalnessMap) {
       material.metalnessMap = this.textureLoader.load(params.metalnessMap);
+      this.applyArchitecturalDefaults(material.metalnessMap);
     }
 
     if (params.aoMap) {
       material.aoMap = this.textureLoader.load(params.aoMap);
+      this.applyArchitecturalDefaults(material.aoMap);
     }
 
     return material;
+  }
+
+  /**
+   * Aplica defaults arquitetônicos a texturas (FIX ENTERPRISE)
+   * Essencial para qualidade PBR em BIM
+   */
+  private applyArchitecturalDefaults(texture: THREE.Texture): void {
+    // Repeat wrapping (comum em arquitetura)
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+
+    // Anisotropic filtering (melhora qualidade em ângulos rasos)
+    texture.anisotropy = 16;
+
+    // Minification filter
+    texture.minFilter = THREE.LinearMipmapLinearFilter;
+    texture.magFilter = THREE.LinearFilter;
   }
 
   /**
@@ -209,15 +231,9 @@ export class MaterialSystem {
 
     object.traverse((child) => {
       if (child instanceof THREE.Mesh) {
-        const oldMaterial = child.material;
+        // CRITICAL FIX: NÃO dispor material antigo (pode ser compartilhado)
+        // Dispose só deve acontecer no teardown global (viewer.dispose)
         child.material = material.clone();
-        
-        // Descarta material antigo
-        if (Array.isArray(oldMaterial)) {
-          oldMaterial.forEach(mat => mat.dispose());
-        } else {
-          oldMaterial.dispose();
-        }
       }
     });
   }

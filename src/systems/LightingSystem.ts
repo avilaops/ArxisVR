@@ -55,8 +55,9 @@ export class LightingSystem {
     this.sunLight.shadow.camera.top = shadowSize;
     this.sunLight.shadow.camera.bottom = -shadowSize;
     
-    // Bias para evitar shadow acne
+    // normalBias é mais estável que bias em cenas grandes
     this.sunLight.shadow.bias = -0.0001;
+    this.sunLight.shadow.normalBias = 0.02;
 
     this.scene.add(this.sunLight);
     this.lights.set('sun', this.sunLight);
@@ -128,6 +129,7 @@ export class LightingSystem {
     this.sunLight.color.setHex(sunColor);
     this.ambientLight.intensity = ambientIntensity;
     this.hemisphere.color.setHex(skyColor);
+    this.hemisphere.groundColor.setHex(this.timeOfDay >= 6 && this.timeOfDay <= 18 ? 0x444444 : 0x001122);
 
     // Atualiza cor de fundo da cena
     if (this.scene.background instanceof THREE.Color) {
@@ -218,10 +220,18 @@ export class LightingSystem {
     const light = this.lights.get(name);
     if (light) {
       this.scene.remove(light);
+      
+      // SpotLight tem target que precisa ser removido
       if (light instanceof THREE.SpotLight) {
         this.scene.remove(light.target);
       }
-      light.dispose();
+      
+      // Dispose de shadow map se existir
+      if (light.shadow && light.shadow.map) {
+        light.shadow.map.dispose();
+        light.shadow.map = null;
+      }
+      
       this.lights.delete(name);
     }
   }
@@ -273,6 +283,60 @@ export class LightingSystem {
   }
 
   /**
+   * Ajusta shadow camera para cobrir bounding box do modelo (FIX ENTERPRISE)
+   * Evita sombras cortadas e melhora precisão em BIM real
+   */
+  public fitToBounds(bounds: THREE.Box3, margin: number = 1.2): void {
+    if (!this.sunLight) {
+      console.warn('sunLight não inicializado');
+      return;
+    }
+
+    const center = new THREE.Vector3();
+    const size = new THREE.Vector3();
+    bounds.getCenter(center);
+    bounds.getSize(size);
+
+    // Centraliza target do sol no centro do modelo
+    if (this.sunLight.target) {
+      this.sunLight.target.position.copy(center);
+    }
+
+    // Ajusta shadow camera para cobrir o bounds (com margem)
+    const maxDimension = Math.max(size.x, size.y, size.z) * margin;
+    this.sunLight.shadow.camera.left = -maxDimension;
+    this.sunLight.shadow.camera.right = maxDimension;
+    this.sunLight.shadow.camera.top = maxDimension;
+    this.sunLight.shadow.camera.bottom = -maxDimension;
+    this.sunLight.shadow.camera.near = 0.5;
+    this.sunLight.shadow.camera.far = maxDimension * 4;
+
+    // Força atualização da shadow camera
+    this.sunLight.shadow.camera.updateProjectionMatrix();
+
+    console.log(`☀️ Shadow camera ajustada: ${maxDimension.toFixed(1)}m (bounds: ${size.x.toFixed(1)}x${size.y.toFixed(1)}x${size.z.toFixed(1)})`);
+  }
+
+  /**
+   * Configura renderer para iluminação realista (FIX ENTERPRISE)
+   * Essencial para PBR consistente
+   */
+  public setupRenderer(renderer: THREE.WebGLRenderer): void {
+    // Shadow mapping
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    // Color management (essencial para PBR)
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    // Tone mapping (arquitetura precisa de controle de exposure)
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+
+    console.log('🎨 Renderer configurado para iluminação realista');
+  }
+
+  /**
    * Lista todas as luzes
    */
   public listLights(): string[] {
@@ -289,10 +353,17 @@ export class LightingSystem {
   public dispose(): void {
     this.lights.forEach((light) => {
       this.scene.remove(light);
+      
+      // SpotLight tem target
       if (light instanceof THREE.SpotLight) {
         this.scene.remove(light.target);
       }
-      light.dispose();
+      
+      // Dispose shadow map se existir (light.dispose() NÃO EXISTE)
+      if (light.shadow && light.shadow.map) {
+        light.shadow.map.dispose();
+        light.shadow.map = null;
+      }
     });
     this.lights.clear();
   }

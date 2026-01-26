@@ -12,6 +12,9 @@ export class LODSystem {
   private frustum: THREE.Frustum = new THREE.Frustum();
   private frustumMatrix: THREE.Matrix4 = new THREE.Matrix4();
 
+  // Cache de material variants (FIX ENTERPRISE - não mutar materiais compartilhados)
+  private materialVariants: Map<THREE.Material, MaterialVariants> = new Map();
+
   // Estatísticas do sistema
   private stats: LODStats = {
     totalObjects: 0,
@@ -22,13 +25,16 @@ export class LODSystem {
     lowLOD: 0
   };
 
-  // Distâncias LOD (em metros - escala 1:1)
+  // Distâncias LOD (em metros - escala 1:1) com HYSTERESIS
   private readonly LOD_DISTANCES = {
     HIGH: 20,      // Detalhes completos até 20m
     MEDIUM: 50,    // Detalhes médios até 50m
     LOW: 100,      // Detalhes baixos até 100m
     CULLED: 150    // Além disso, não renderiza
   };
+
+  // Hysteresis margin (previne flicker)
+  private readonly HYSTERESIS_MARGIN = 0.15; // 15% margem
 
   // Relevância IFC - elementos críticos mantêm alta qualidade
   private readonly IFC_RELEVANCE = {
@@ -119,22 +125,34 @@ export class LODSystem {
    * Aplica LOD a mesh via ECS
    */
   private applyECSLOD(mesh: THREE.Mesh, level: number): void {
-    // Simplificação: ajustar material opacity baseado no LOD
-    // Em implementação real, trocaria geometria/materiais
+    // Simplificação: ajustar visibilidade e qualidade baseado no LOD
+    const material = mesh.material;
+    
     switch (level) {
       case 3: // HIGH
         mesh.visible = true;
-        mesh.material.transparent = false;
+        // Usa material original (high variant)
+        if (Array.isArray(material)) {
+          mesh.material = material.map(mat => this.getMaterialVariant(mat, 'high'));
+        } else {
+          mesh.material = this.getMaterialVariant(material, 'high');
+        }
         break;
       case 2: // MEDIUM
         mesh.visible = true;
-        mesh.material.transparent = true;
-        (mesh.material as THREE.Material).opacity = 0.8;
+        if (Array.isArray(material)) {
+          mesh.material = material.map(mat => this.getMaterialVariant(mat, 'medium'));
+        } else {
+          mesh.material = this.getMaterialVariant(material, 'medium');
+        }
         break;
       case 1: // LOW
         mesh.visible = true;
-        mesh.material.transparent = true;
-        (mesh.material as THREE.Material).opacity = 0.5;
+        if (Array.isArray(material)) {
+          mesh.material = material.map(mat => this.getMaterialVariant(mat, 'low'));
+        } else {
+          mesh.material = this.getMaterialVariant(material, 'low');
+        }
         break;
       case 0: // CULLED
         mesh.visible = false;
@@ -183,8 +201,9 @@ export class LODSystem {
       return;
     }
 
-    // Calcula distância da câmera ao centro do modelo
-    const distance = this.camera.position.distanceTo(lodModel.boundingSphere.center);
+    // Calcula distância EFETIVA (FIX ENTERPRISE - considera raio do modelo)
+    const distanceToCenter = this.camera.position.distanceTo(lodModel.boundingSphere.center);
+    const effectiveDistance = Math.max(0, distanceToCenter - lodModel.boundingSphere.radius);
 
     // Determina relevância IFC do modelo
     const relevance = this.calculateIFCRelevance(lodModel);
@@ -192,16 +211,31 @@ export class LODSystem {
     // Ajusta distâncias LOD baseado na relevância
     const adjustedDistances = this.adjustLODDistances(relevance);
 
-    // Determina nível LOD baseado na distância ajustada
-    let targetLOD: LODLevel;
-    if (distance > adjustedDistances.CULLED) {
-      targetLOD = 'CULLED';
-    } else if (distance > adjustedDistances.LOW) {
-      targetLOD = 'LOW';
-    } else if (distance > adjustedDistances.MEDIUM) {
-      targetLOD = 'MEDIUM';
-    } else {
-      targetLOD = 'HIGH';
+    // Determina nível LOD com HYSTERESIS (previne flicker)
+    let targetLOD: LODLevel = lodModel.currentLOD;
+    const currentLOD = lodModel.currentLOD;
+
+    // Lógica de hysteresis: margem para mudanças de nível
+    if (currentLOD === 'HIGH') {
+      if (effectiveDistance > adjustedDistances.HIGH * (1 + this.HYSTERESIS_MARGIN)) {
+        targetLOD = 'MEDIUM';
+      }
+    } else if (currentLOD === 'MEDIUM') {
+      if (effectiveDistance < adjustedDistances.HIGH * (1 - this.HYSTERESIS_MARGIN)) {
+        targetLOD = 'HIGH';
+      } else if (effectiveDistance > adjustedDistances.MEDIUM * (1 + this.HYSTERESIS_MARGIN)) {
+        targetLOD = 'LOW';
+      }
+    } else if (currentLOD === 'LOW') {
+      if (effectiveDistance < adjustedDistances.MEDIUM * (1 - this.HYSTERESIS_MARGIN)) {
+        targetLOD = 'MEDIUM';
+      } else if (effectiveDistance > adjustedDistances.LOW * (1 + this.HYSTERESIS_MARGIN)) {
+        targetLOD = 'CULLED';
+      }
+    } else { // CULLED
+      if (effectiveDistance < adjustedDistances.LOW * (1 - this.HYSTERESIS_MARGIN)) {
+        targetLOD = 'LOW';
+      }
     }
 
     // Aplica LOD se mudou
@@ -305,9 +339,10 @@ export class LODSystem {
     const material = mesh.material;
 
     if (Array.isArray(material)) {
-      material.forEach(mat => this.setMaterialQuality(mat, quality));
+      // Handle material arrays (common in IFC)
+      mesh.material = material.map(mat => this.getMaterialVariant(mat, quality));
     } else {
-      this.setMaterialQuality(material, quality);
+      mesh.material = this.getMaterialVariant(material, quality);
     }
 
     // Configura sombras baseado na qualidade
@@ -328,28 +363,48 @@ export class LODSystem {
   }
 
   /**
-   * Configura qualidade do material
+   * Obtém material variant do cache (FIX ENTERPRISE - não mutar materiais compartilhados)
    */
-  private setMaterialQuality(material: THREE.Material, quality: 'high' | 'medium' | 'low'): void {
-    if (material instanceof THREE.MeshStandardMaterial) {
-      switch (quality) {
-        case 'high':
-          material.roughness = 0.7;
-          material.metalness = 0.1;
-          material.envMapIntensity = 1.0;
-          break;
-        case 'medium':
-          material.roughness = 0.8;
-          material.metalness = 0.05;
-          material.envMapIntensity = 0.5;
-          break;
-        case 'low':
-          material.roughness = 1.0;
-          material.metalness = 0.0;
-          material.envMapIntensity = 0.0;
-          break;
-      }
+  private getMaterialVariant(material: THREE.Material, quality: 'high' | 'medium' | 'low'): THREE.Material {
+    // Verifica se já temos variants desse material
+    if (!this.materialVariants.has(material)) {
+      this.createMaterialVariants(material);
     }
+
+    const variants = this.materialVariants.get(material)!;
+    switch (quality) {
+      case 'high': return variants.high;
+      case 'medium': return variants.medium;
+      case 'low': return variants.low;
+      default: return variants.high;
+    }
+  }
+
+  /**
+   * Cria variants de um material (FIX ENTERPRISE)
+   */
+  private createMaterialVariants(material: THREE.Material): void {
+    const variants: MaterialVariants = {
+      high: material, // Original é HIGH
+      medium: material.clone(),
+      low: material.clone()
+    };
+
+    // Ajusta MEDIUM variant
+    if (variants.medium instanceof THREE.MeshStandardMaterial) {
+      variants.medium.roughness = Math.min(1.0, (variants.medium.roughness || 0.5) + 0.1);
+      variants.medium.metalness = Math.max(0.0, (variants.medium.metalness || 0.0) - 0.05);
+      variants.medium.envMapIntensity = (variants.medium.envMapIntensity || 1.0) * 0.5;
+    }
+
+    // Ajusta LOW variant
+    if (variants.low instanceof THREE.MeshStandardMaterial) {
+      variants.low.roughness = 1.0;
+      variants.low.metalness = 0.0;
+      variants.low.envMapIntensity = 0.0;
+    }
+
+    this.materialVariants.set(material, variants);
   }
 
   /**
@@ -383,6 +438,14 @@ export class LODSystem {
   }
 
   public dispose(): void {
+    // Dispose material variants
+    this.materialVariants.forEach((variants) => {
+      // Não dispor 'high' (original)
+      variants.medium.dispose();
+      variants.low.dispose();
+    });
+    this.materialVariants.clear();
+
     this.registeredModels.clear();
     this.stats = {
       totalObjects: 0,
@@ -397,6 +460,12 @@ export class LODSystem {
 
 // Types
 type LODLevel = 'HIGH' | 'MEDIUM' | 'LOW' | 'CULLED';
+
+interface MaterialVariants {
+  high: THREE.Material;
+  medium: THREE.Material;
+  low: THREE.Material;
+}
 
 interface LODModel {
   object: THREE.Object3D;
