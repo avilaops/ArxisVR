@@ -12,6 +12,8 @@ import { uiStore } from './app/state/uiStore';
 import { eventBus } from './app/state/eventBus';
 import { ModelSession } from './systems/model/ModelSession';
 import { IFCLoader } from './loaders/IFCLoader';
+import { IFCOptimizedLoader } from './loaders/IFCOptimizedLoader';
+import { LoadingOverlay } from './ui/LoadingOverlay';
 import { fileService } from './systems/file';
 
 /**
@@ -38,10 +40,17 @@ async function bootstrap() {
   
   const entityManager = new (await import('./engine/ecs')).EntityManager();
   const lodSystem = new (await import('./systems/LODSystem')).LODSystem(camera, entityManager);
+  
+  // NOVO: IFC Loader ULTRA otimizado com todas as técnicas de performance
+  const ifcOptimizedLoader = new IFCOptimizedLoader(scene, camera, lodSystem, entityManager);
+  const loadingOverlay = new LoadingOverlay();
+  
+  // Fallback: IFC Loader tradicional (manter por compatibilidade)
   const ifcLoader = new IFCLoader(scene, lodSystem, entityManager);
+  
   const modelSession = new ModelSession(scene, camera);
   
-  console.log('✅ IFCLoader created:', ifcLoader);
+  console.log('✅ IFCOptimizedLoader created:', ifcOptimizedLoader);
   
   // AppController é singleton
   const AppControllerClass = (await import('./app/AppController')).AppController as any;
@@ -49,15 +58,30 @@ async function bootstrap() {
 
   // 5. Register services in DI
   console.log('📝 Registering services in DI...');
-  di.register('ifcLoader', ifcLoader);
+  di.register('ifcLoader', ifcLoader); // Tradicional (fallback)
+  di.register('ifcOptimizedLoader', ifcOptimizedLoader); // NOVO: Ultra otimizado
+  di.register('loadingOverlay', loadingOverlay);
   di.register('modelSession', modelSession);
   di.register('appController', appController);
   
-  console.log('✅ Services registered. IFCLoader in DI:', di.has('ifcLoader'));
+  console.log('✅ Services registered. IFCOptimizedLoader in DI:', di.has('ifcOptimizedLoader'));
 
-  // 6. Configure FileService - usa callback wrapper
+  // 6. Configure FileService - usa o loader OTIMIZADO por padrão
   fileService.setIfcLoader(async (file: File) => {
-    await ifcLoader.loadIFC(file);
+    console.log('🚀 Usando IFC Loader OTIMIZADO para máxima performance!');
+    
+    try {
+      // Usar loader otimizado com todas as técnicas de performance
+      await ifcOptimizedLoader.loadOptimized(file);
+      
+      console.log('✅ Arquivo carregado com sucesso usando loader otimizado!');
+      console.log('📊 Estatísticas:', ifcOptimizedLoader.getStats());
+    } catch (error) {
+      console.error('❌ Erro no loader otimizado, tentando fallback...', error);
+      
+      // Fallback para loader tradicional em caso de erro
+      await ifcLoader.loadIFC(file);
+    }
   });
 
   // 7. Listen to file load events

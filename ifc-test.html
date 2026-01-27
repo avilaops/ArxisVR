@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IFC Test - Minimal</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: monospace;
+      background: #1e1e1e;
+      color: #e0e0e0;
+      padding: 20px;
+    }
+    h1 { margin-bottom: 20px; color: #2196f3; }
+    #canvas { 
+      width: 100vw; 
+      height: 60vh; 
+      display: block; 
+      background: #000;
+      margin: 20px 0;
+    }
+    button {
+      padding: 12px 24px;
+      background: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    button:hover { background: #1976d2; }
+    #log {
+      background: #2d2d2d;
+      padding: 16px;
+      border-radius: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 20px;
+    }
+    .log-error { color: #f44336; }
+    .log-success { color: #4caf50; }
+    .log-info { color: #2196f3; }
+  </style>
+</head>
+<body>
+  <h1>🔧 IFC Test - Minimal (Zero Dependencies)</h1>
+  
+  <div>
+    <button onclick="testThree()">1. Test Three.js</button>
+    <button onclick="testWASM()">2. Test WASM Path</button>
+    <button onclick="document.getElementById('fileInput').click()">3. Load IFC</button>
+    <input type="file" id="fileInput" accept=".ifc" style="display: none;" onchange="loadIFC(this.files[0])" />
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <div id="log"></div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+    import { IFCLoader } from 'web-ifc-three/IFCLoader';
+
+    // Log helper
+    window.log = (msg, type = 'info') => {
+      const logDiv = document.getElementById('log');
+      const line = document.createElement('div');
+      line.className = `log-${type}`;
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logDiv.appendChild(line);
+      logDiv.scrollTop = logDiv.scrollHeight;
+      console.log(msg);
+    };
+
+    // Setup Three.js
+    const canvas = document.getElementById('canvas');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x1e1e1e);
+
+    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+    camera.position.set(10, 10, 10);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(10, 20, 10);
+    scene.add(directionalLight);
+
+    // Grid
+    const gridHelper = new THREE.GridHelper(100, 100);
+    scene.add(gridHelper);
+
+    // Test cube
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshStandardMaterial({ color: 0x2196f3 });
+    const cube = new THREE.Mesh(geometry, material);
+    cube.position.y = 0.5;
+    scene.add(cube);
+
+    // Animate
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Resize
+    window.addEventListener('resize', () => {
+      camera.aspect = canvas.clientWidth / canvas.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    });
+
+    window.log('✅ Three.js initialized', 'success');
+
+    // IFC Loader setup
+    const ifcLoader = new IFCLoader();
+    
+    // CRITICAL: WASM path
+    const wasmPath = `${import.meta.env.BASE_URL || '/'}wasm/`;
+    ifcLoader.ifcManager.setWasmPath(wasmPath);
+    ifcLoader.ifcManager.useWebWorkers(false); // Single-thread
+    
+    window.log(`📁 WASM path: ${wasmPath}`, 'info');
+
+    // Test functions
+    window.testThree = () => {
+      window.log('🎯 Testing Three.js...', 'info');
+      cube.rotation.x += 0.5;
+      cube.rotation.y += 0.5;
+      window.log('✅ Three.js is working!', 'success');
+    };
+
+    window.testWASM = async () => {
+      window.log('🎯 Testing WASM path...', 'info');
+      try {
+        const response = await fetch(wasmPath + 'web-ifc.wasm');
+        if (response.ok) {
+          const size = (await response.blob()).size;
+          window.log(`✅ WASM found! Size: ${(size / 1024 / 1024).toFixed(2)} MB`, 'success');
+        } else {
+          window.log(`❌ WASM not found! Status: ${response.status}`, 'error');
+          window.log(`💡 Expected at: ${wasmPath}web-ifc.wasm`, 'info');
+        }
+      } catch (error) {
+        window.log(`❌ WASM fetch error: ${error.message}`, 'error');
+      }
+    };
+
+    window.loadIFC = async (file) => {
+      if (!file) {
+        window.log('❌ No file selected', 'error');
+        return;
+      }
+
+      window.log(`📦 Loading: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`, 'info');
+
+      try {
+        const url = URL.createObjectURL(file);
+        
+        window.log('🔄 Parsing IFC...', 'info');
+        const model = await ifcLoader.loadAsync(url, (event) => {
+          const progress = (event.loaded / event.total) * 100;
+          if (progress % 10 === 0) {
+            window.log(`⏳ Progress: ${progress.toFixed(0)}%`, 'info');
+          }
+        });
+
+        window.log('✅ IFC parsed!', 'success');
+
+        // Add to scene
+        scene.add(model);
+        window.log('✅ Model added to scene', 'success');
+
+        // Fit camera
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+        const fov = camera.fov * (Math.PI / 180);
+        const cameraDistance = Math.abs(maxDim / Math.sin(fov / 2)) * 1.5;
+
+        camera.position.copy(center);
+        camera.position.x += cameraDistance;
+        camera.position.y += cameraDistance * 0.5;
+        camera.position.z += cameraDistance;
+        camera.lookAt(center);
+        controls.target.copy(center);
+        controls.update();
+
+        window.log('✅ Camera fitted to model', 'success');
+        window.log(`📊 Model size: ${size.x.toFixed(1)} x ${size.y.toFixed(1)} x ${size.z.toFixed(1)}`, 'info');
+        
+        URL.revokeObjectURL(url);
+
+      } catch (error) {
+        window.log(`❌ Load failed: ${error.message}`, 'error');
+        console.error('Full error:', error);
+      }
+    };
+
+    window.log('🚀 IFC Test ready!', 'success');
+  </script>
+</body>
+</html>

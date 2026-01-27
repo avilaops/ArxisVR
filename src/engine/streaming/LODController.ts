@@ -16,7 +16,7 @@ export class LODController {
   private camera: THREE.Camera;
   
   private lodObjects: Map<string, {
-    lod: THREE.LOD;
+ chega    lod: THREE.LOD;
     levels: Array<{ distance: number; object: THREE.Object3D }>;
   }> = new Map();
   
