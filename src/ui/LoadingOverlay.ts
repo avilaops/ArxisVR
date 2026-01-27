@@ -1,4 +1,4 @@
-import { eventBus, EventType } from '../../core';
+import { eventBus, EventType } from '../core';
 
 /**
  * LoadingOverlay - UI elegante para feedback de carregamento IFC
@@ -142,7 +142,7 @@ export class LoadingOverlay {
     });
 
     // Error
-    eventBus.on(EventType.ERROR, (data: any) => {
+    eventBus.on(EventType.MODEL_LOAD_FAILED, (data: any) => {
       if (data.type === 'load_error') {
         this.showError(data.message);
       }

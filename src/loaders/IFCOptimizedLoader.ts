@@ -145,7 +145,7 @@ export class IFCOptimizedLoader {
 
     } catch (error) {
       console.error('❌ Erro ao carregar IFC:', error);
-      eventBus.emit(EventType.ERROR, {
+      eventBus.emit(EventType.MODEL_LOAD_FAILED, {
         type: 'load_error',
         message: 'Falha ao carregar arquivo IFC',
         error
