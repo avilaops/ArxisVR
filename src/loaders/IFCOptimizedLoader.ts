@@ -187,19 +187,46 @@ export class IFCOptimizedLoader {
           console.log('📦 Bounding Box:');
           console.log('  - Size:', size);
           console.log('  - Center:', center);
+          console.log('  - Min:', box.min);
+          console.log('  - Max:', box.max);
           
-          // Simplificar geometria para preview
+          // Debug de materiais e visibilidade
           let meshCount = 0;
+          let visibleMeshes = 0;
           model.traverse((child) => {
             if (child instanceof THREE.Mesh) {
               meshCount++;
+              if (child.visible) visibleMeshes++;
+              
+              // Forçar materiais visíveis
+              if (child.material) {
+                if (Array.isArray(child.material)) {
+                  child.material.forEach(mat => {
+                    mat.visible = true;
+                    mat.transparent = false;
+                    mat.opacity = 1;
+                    if (!mat.color) {
+                      mat.color = new THREE.Color(0x888888);
+                    }
+                  });
+                } else {
+                  child.material.visible = true;
+                  child.material.transparent = false;
+                  child.material.opacity = 1;
+                  if (!child.material.color) {
+                    child.material.color = new THREE.Color(0x888888);
+                  }
+                }
+              }
+              
               this.simplifyMeshForPreview(child);
             }
           });
-          console.log('🔺 Total de meshes:', meshCount);
+          console.log(`🔺 Total de meshes: ${meshCount} (${visibleMeshes} visíveis)`);
 
           // Adicionar à cena
           this.scene.add(model);
+          model.visible = true; // Forçar visibilidade
           console.log('✅ Modelo adicionado à cena!');
           console.log('🎬 Cena agora tem', this.scene.children.length, 'children');
           
