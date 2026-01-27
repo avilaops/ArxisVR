@@ -419,12 +419,9 @@ export class MenuManager {
   private setupKeyboardShortcuts(): void {
     if (!this.config.shortcuts) return;
     
-    document.addEventListener('keydown', async (e) => {
-      // Use centralized input guards
-      const { isTypingInUI } = await import('../components-registry');
-      
+    document.addEventListener('keydown', (e) => {
       // Block if typing in UI (input/textarea/contentEditable)
-      if (isTypingInUI()) {
+      if (this.isTypingInInput()) {
         return;
       }
       
