@@ -5,6 +5,7 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { FPSControls } from './FPSControls';
 import { di } from '../app/di';
 
 /**
@@ -17,8 +18,11 @@ export class ViewerHost {
   public camera!: THREE.PerspectiveCamera;
   public renderer!: THREE.WebGLRenderer;
   public controls!: OrbitControls;
+  public fpsControls!: FPSControls;
 
   private animationFrameId?: number;
+  private clock = new THREE.Clock();
+  private controlMode: 'orbit' | 'fps' = 'orbit'; // Modo padrão: orbit
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -64,6 +68,17 @@ export class ViewerHost {
     this.controls.dampingFactor = 0.05;
     this.controls.target.set(0, 0, 0);
 
+    // FPS Controls
+    this.fpsControls = new FPSControls(this.camera, this.container);
+    this.fpsControls.setEnabled(false); // Desabilitado por padrão
+
+    // Tecla 'V' para alternar entre modos
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyV') {
+        this.toggleControlMode();
+      }
+    });
+
     // Lights (básicos)
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     this.scene.add(ambientLight);
@@ -95,11 +110,43 @@ export class ViewerHost {
     const animate = () => {
       this.animationFrameId = requestAnimationFrame(animate);
 
-      this.controls.update();
+      const delta = this.clock.getDelta();
+
+      // Atualizar controles baseado no modo
+      if (this.controlMode === 'orbit') {
+        this.controls.update();
+      } else {
+        this.fpsControls.update(delta);
+      }
+
       this.renderer.render(this.scene, this.camera);
     };
 
     animate();
+  }
+
+  /**
+   * Alterna entre modo Orbit e FPS
+   */
+  public toggleControlMode(): void {
+    if (this.controlMode === 'orbit') {
+      this.controlMode = 'fps';
+      this.controls.enabled = false;
+      this.fpsControls.setEnabled(true);
+      console.log('🎮 Modo FPS ativado (WASD + Setas)');
+    } else {
+      this.controlMode = 'orbit';
+      this.controls.enabled = true;
+      this.fpsControls.setEnabled(false);
+      console.log('🖱️ Modo Orbit ativado (Mouse)');
+    }
+  }
+
+  /**
+   * Obtém modo de controle atual
+   */
+  public getControlMode(): 'orbit' | 'fps' {
+    return this.controlMode;
   }
 
   private onResize(): void {
@@ -118,6 +165,7 @@ export class ViewerHost {
     }
 
     this.controls.dispose();
+    this.fpsControls.dispose();
     this.renderer.dispose();
   }
 }
