@@ -60,6 +60,15 @@ export class CommandRegistry {
    * Executa um comando
    */
   public async execute(id: CommandId, payload?: CommandPayload): Promise<CommandResult> {
+    // Valida se é um CommandId válido (não um evento ou objeto)
+    if (!id || typeof id !== 'string') {
+      console.error(`❌ Invalid command ID:`, id);
+      return {
+        success: false,
+        error: `Invalid command ID: ${typeof id}`
+      };
+    }
+
     const command = this.commands.get(id);
     
     if (!command) {

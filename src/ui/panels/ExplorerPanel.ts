@@ -57,7 +57,7 @@ export class ExplorerPanel {
       listEl.innerHTML = recents.map(file => `
         <div class="panel__list-item">
           <span class="panel__list-icon">📄</span>
-          <span class="panel__list-text">${file.metadata.name}</span>
+          <span class="panel__list-text">${file.displayName || 'Untitled'}</span>
         </div>
       `).join('');
     }
