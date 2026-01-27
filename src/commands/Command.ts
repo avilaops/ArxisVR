@@ -56,7 +56,6 @@ FILE_CLOSE = 'file.close',
   // ========== TOOLS ==========
   TOOL_SELECT = 'tool.select',
   TOOL_MEASURE = 'tool.measure',
-  TOOL_NAVIGATE = 'tool.navigate',
   TOOL_LAYER = 'tool.layer',
   
   // ========== XR/VR ==========

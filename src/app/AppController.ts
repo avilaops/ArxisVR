@@ -762,9 +762,6 @@ private constructor() {
       case 'tool.measure':
         this.activateTool(ToolType.MEASUREMENT);
         return { success: true, message: 'Measurement tool activated' };
-      case 'tool.navigate':
-        this.activateTool(ToolType.NAVIGATION);
-        return { success: true, message: 'Navigation tool activated' };
       case 'tool.layer':
         this.activateTool(ToolType.LAYER);
         return { success: true, message: 'Layer tool activated' };
