@@ -127,10 +127,10 @@ export class LoadFileModal {
       }
 
       console.log('✅ IFCLoader found:', ifcLoader);
-      console.log('🔄 Calling ifcLoader.loadIFC()...');
+      console.log('🔄 Calling ifcLoader.load()...');
 
       // Load IFC
-      await ifcLoader.loadIFC(file);
+      await ifcLoader.load(file);
 
       // Success!
       console.log('✅ IFC loaded successfully!');
