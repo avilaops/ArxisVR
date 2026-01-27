@@ -33,10 +33,10 @@
 
 ### 6. **Documentação e Exemplos**
 - 📖 `docs/IFC_OPTIMIZED_LOADER.md` - Documentação completa
-- 📖 `QUICK_START_IFC.md` - Guia rápido
+- 📖 `docs/QUICK_START_IFC.md` - Guia rápido
 - 🔧 `src/loaders/exemplo-uso-loader.ts` - 8 exemplos práticos
-- 🎨 `test-ifc-simple.html` - Demo visual simples
-- 🚀 `ifc-optimized-demo.html` - Demo completa
+- 🎨 `demos/test-ifc-simple.html` - Demo visual simples
+- 🚀 `demos/ifc-optimized-demo.html` - Demo completa
 
 ## 🚀 Como Testar AGORA
 
@@ -47,7 +47,7 @@
 npm run dev
 
 # 2. Abra no navegador
-http://localhost:5173/test-ifc-simple.html
+http://localhost:5173/demos/test-ifc-simple.html
 
 # 3. Arraste um arquivo IFC da pasta Examples-files/
 # 4. 🎉 Veja as estatísticas!
@@ -60,7 +60,7 @@ http://localhost:5173/test-ifc-simple.html
 npm run dev
 
 # 2. Abra a demo completa
-http://localhost:5173/ifc-optimized-demo.html
+http://localhost:5173/demos/ifc-optimized-demo.html
 
 # 3. Selecione qualquer arquivo IFC
 # 4. Veja o carregamento em 3 fases com estatísticas detalhadas
@@ -132,18 +132,28 @@ ArxisVR/
 │   └── App.ts                         ✏️ ATUALIZADO
 ├── docs/
 │   └── IFC_OPTIMIZED_LOADER.md        ⭐ NOVO - Docs completas
-├── test-ifc-simple.html               ⭐ NOVO - Demo simples
-├── ifc-optimized-demo.html            ⭐ NOVO - Demo completa
-├── QUICK_START_IFC.md                 ⭐ NOVO - Guia rápido
-└── RESUMO_IMPLEMENTACAO.md            📄 Este arquivo
+├── demos/
+│   ├── test-ifc-simple.html           ⭐ NOVO - Demo simples
+│   ├── ifc-optimized-demo.html        ⭐ NOVO - Demo completa
+│   ├── ifc-test.html                  ⭐ Demo teste
+│   └── test-ifc-minimal.html          ⭐ Demo minimal
+├── scripts/
+│   ├── bim-test.js                    🔧 Script teste BIM
+│   ├── simple-server.js               🔧 Servidor simples
+│   └── test-console.js                🔧 Console de teste
+└── docs/
+    ├── QUICK_START_IFC.md             ⭐ Guia rápido
+    ├── RESUMO_IMPLEMENTACAO.md        📄 Este arquivo
+    ├── DEPLOY_CHECKLIST.md            ✅ Checklist deploy
+    └── IFC_OPTIMIZED_LOADER.md        📖 Docs completas
 ```
 
 ## 💡 Próximos Passos
 
 ### Para Usar Agora:
-1. ✅ Teste com `test-ifc-simple.html`
-2. ✅ Leia `QUICK_START_IFC.md`
-3. ✅ Veja exemplos em `exemplo-uso-loader.ts`
+1. ✅ Teste com `demos/test-ifc-simple.html`
+2. ✅ Leia `docs/QUICK_START_IFC.md`
+3. ✅ Veja exemplos em `src/loaders/exemplo-uso-loader.ts`
 
 ### Para Melhorar Depois:
 1. Implementar Web Worker completo

@@ -9,7 +9,7 @@
    ```bash
    npm run dev
    ```
-3. Abra: `http://localhost:5173/ifc-optimized-demo.html`
+3. Abra: `http://localhost:5173/demos/ifc-optimized-demo.html`
 4. Arraste um arquivo IFC da pasta `Examples-files/`
 5. 🎉 Pronto! Veja as estatísticas em tempo real
 

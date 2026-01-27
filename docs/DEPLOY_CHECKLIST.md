@@ -88,8 +88,8 @@ TTL: Auto
 
 URLs disponíveis:
 - 🏠 App principal: https://arxisvr.avila.inc/
-- 🎮 Demo simples: https://arxisvr.avila.inc/test-ifc-simple.html  
-- 🚀 Demo completa: https://arxisvr.avila.inc/ifc-optimized-demo.html
+- 🎮 Demo simples: https://arxisvr.avila.inc/demos/test-ifc-simple.html  
+- 🚀 Demo completa: https://arxisvr.avila.inc/demos/ifc-optimized-demo.html
 - 📁 Exemplos: https://arxisvr.avila.inc/Examples-files/
 
 ### 🐛 Se Não Funcionar

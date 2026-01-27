@@ -150,8 +150,8 @@ Você pode ver o status do deploy em tempo real:
 Após o deploy, os seguintes arquivos estarão disponíveis:
 
 - **App Principal**: https://arxisvr.avila.inc/
-- **Demo Simples**: https://arxisvr.avila.inc/test-ifc-simple.html
-- **Demo Completa**: https://arxisvr.avila.inc/ifc-optimized-demo.html
+- **Demo Simples**: https://arxisvr.avila.inc/demos/test-ifc-simple.html
+- **Demo Completa**: https://arxisvr.avila.inc/demos/ifc-optimized-demo.html
 - **Arquivos de Exemplo**: https://arxisvr.avila.inc/Examples-files/
 
 ## 🔐 HTTPS
