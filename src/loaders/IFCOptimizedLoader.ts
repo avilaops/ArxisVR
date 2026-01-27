@@ -161,13 +161,17 @@ export class IFCOptimizedLoader {
    */
   private async loadPreview(file: File): Promise<void> {
     console.log('📦 Fase 1: Carregando preview...');
+    console.log(`📄 Arquivo: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
 
     const url = URL.createObjectURL(file);
+    console.log(`🔗 Blob URL criada: ${url}`);
 
     return new Promise((resolve, reject) => {
       this.loader.load(
         url,
         async (model) => {
+          console.log('✅ Preview carregado com sucesso');
+          
           // Simplificar geometria para preview
           model.traverse((child) => {
             if (child instanceof THREE.Mesh) {
@@ -186,9 +190,11 @@ export class IFCOptimizedLoader {
         },
         (event) => {
           const progress = (event.loaded / event.total) * 30; // Preview = 30%
+          console.log(`📊 Progresso preview: ${progress.toFixed(1)}% (${event.loaded}/${event.total})`);
           this.updateProgress(progress);
         },
         (error) => {
+          console.error('❌ Erro ao carregar preview:', error);
           URL.revokeObjectURL(url);
           reject(error);
         }
