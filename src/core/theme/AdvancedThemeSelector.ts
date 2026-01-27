@@ -212,7 +212,8 @@ export class AdvancedThemeSelector extends ThemeSelector {
     }
     
     themes.forEach(theme => {
-      const button = this.createThemeButton(theme);
+      const isActive = theme.id === this.manager.getCurrentTheme()?.id;
+      const button = this.createThemeButton(theme, isActive);
       container.appendChild(button);
     });
     
@@ -241,9 +242,9 @@ export class AdvancedThemeSelector extends ThemeSelector {
   /**
    * Cria botão de tema com informações expandidas
    */
-  protected createThemeButton(theme: Theme): HTMLElement {
+  protected createThemeButton(theme: Theme, isActive: boolean): HTMLButtonElement {
     const button = document.createElement('button');
-    button.className = 'theme-button-advanced';
+    button.className = `theme-button-advanced${isActive ? ' active' : ''}`;
     button.dataset.themeId = theme.id;
     
     // Nome do tema

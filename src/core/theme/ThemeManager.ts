@@ -1,6 +1,5 @@
 import { Theme, ThemeId, validateThemeSchema } from './Theme';
 import { eventBus, EventType } from '../EventBus';
-import { HotReloadEventType } from '../hotreload/events/HotReloadEvents';
 
 /**
  * ThemeManager - Gerenciador central de temas do ArxisVR
@@ -52,34 +51,7 @@ export class ThemeManager {
       }
     });
     
-    // Eventos de hot-reload específicos para temas
-    eventBus.on(HotReloadEventType.UI_RELOAD_STARTED as any, (data: any) => {
-      if (data.path?.includes('theme')) {
-        console.log('🔥 Theme hot-reload detected:', data.path);
-        this.handleThemeReload(data.path);
-      }
-    });
-    
     console.log('✅ Theme event listeners registered');
-  }
-  
-  /**
-   * Processa hot-reload de tema
-   */
-  private handleThemeReload(themePath: string): void {
-    const themeId = this.extractThemeIdFromPath(themePath);
-    if (themeId && this.themes.has(themeId)) {
-      console.log(`🔄 Reloading theme: ${themeId}`);
-      this.reloadTheme(themeId);
-    }
-  }
-  
-  /**
-   * Extrai ID do tema do caminho do arquivo
-   */
-  private extractThemeIdFromPath(path: string): string | null {
-    const match = path.match(/\/([^\/]+)\.json$/);
-    return match ? match[1] : null;
   }
 
   /**

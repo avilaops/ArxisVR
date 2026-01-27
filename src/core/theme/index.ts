@@ -7,7 +7,6 @@ export * from './Theme';
 export * from './ThemeManager';
 export * from './ThemeSelector';
 export * from './ColorPicker';
-export * from './ThemeUtils';
 export * from './events/ThemeEvents';
 
 // Advanced components

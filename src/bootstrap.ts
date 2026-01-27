@@ -33,7 +33,7 @@ async function bootstrap() {
 
   // 3. Get Three.js references from ViewerHost
   const viewerHost = appShell.getViewerHost();
-  const { scene, camera, renderer } = viewerHost;
+  const { scene, camera, renderer, controls } = viewerHost;
 
   // 4. Initialize core services
   console.log('📦 Initializing services...');
@@ -42,7 +42,7 @@ async function bootstrap() {
   const lodSystem = new (await import('./systems/LODSystem')).LODSystem(camera, entityManager);
   
   // NOVO: IFC Loader ULTRA otimizado com todas as técnicas de performance
-  const ifcOptimizedLoader = new IFCOptimizedLoader(scene, camera, lodSystem, entityManager);
+  const ifcOptimizedLoader = new IFCOptimizedLoader(scene, camera, lodSystem, entityManager, controls);
   const loadingOverlay = new LoadingOverlay();
   
   // Fallback: IFC Loader tradicional (manter por compatibilidade)

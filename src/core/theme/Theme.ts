@@ -141,7 +141,11 @@ export function createDefaultTheme(overrides?: Partial<Theme>): Theme {
       ...defaultTheme,
       ...overrides,
       colors: { ...defaultTheme.colors, ...overrides.colors },
-      metadata: { ...defaultTheme.metadata, ...overrides.metadata }
+      metadata: { 
+        ...defaultTheme.metadata, 
+        ...overrides.metadata,
+        createdAt: overrides.metadata?.createdAt || new Date().toISOString()
+      }
     };
   }
   

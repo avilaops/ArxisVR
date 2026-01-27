@@ -73,13 +73,13 @@ export class AdvancedColorPicker extends ColorPicker {
       return;
     }
     
-    this.colorHistory.forEach((color, index) => {
+    this.colorHistory.forEach((color) => {
       const swatch = document.createElement('div');
       swatch.className = 'color-swatch';
       swatch.style.backgroundColor = color;
       swatch.title = color;
       
-      swatch.onclick = () => this.applyColorFromHistory(color, index);
+      swatch.onclick = () => this.applyColorFromHistory(color);
       
       container.appendChild(swatch);
     });
@@ -88,7 +88,7 @@ export class AdvancedColorPicker extends ColorPicker {
   /**
    * Aplica cor do histórico
    */
-  private applyColorFromHistory(color: string, index: number): void {
+  private applyColorFromHistory(color: string): void {
     console.log(`Applying color from history: ${color}`);
     // Implementar lógica específica
   }
@@ -258,7 +258,7 @@ export class AdvancedColorPicker extends ColorPicker {
     const swatches = document.createElement('div');
     swatches.className = 'gradient-swatches';
     
-    gradient.forEach((color, index) => {
+    gradient.forEach((color) => {
       const swatch = document.createElement('div');
       swatch.className = 'gradient-swatch';
       swatch.style.backgroundColor = color;

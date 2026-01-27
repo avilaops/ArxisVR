@@ -11,7 +11,7 @@ import { Theme } from './Theme';
  * - Auto-atualização quando novos temas são registrados
  */
 export class ThemeSelector {
-  private manager: ThemeManager;
+  protected manager: ThemeManager;
   private container: HTMLElement;
   private themeButtons: Map<string, HTMLButtonElement> = new Map();
 
@@ -129,7 +129,7 @@ export class ThemeSelector {
   /**
    * Cria botão para um tema
    */
-  private createThemeButton(theme: Theme, isActive: boolean): HTMLButtonElement {
+  protected createThemeButton(theme: Theme, isActive: boolean): HTMLButtonElement {
     const button = document.createElement('button');
     button.className = `theme-button ${isActive ? 'active' : ''}`;
     button.style.backgroundColor = theme.colors.primary;

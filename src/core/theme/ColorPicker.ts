@@ -261,7 +261,7 @@ export class ColorPicker {
   /**
    * Atualiza uma cor do tema
    */
-  private updateColor(colorKey: string, newValue: string): void {
+  protected updateColor(colorKey: string, newValue: string): void {
     if (!this.currentTheme) return;
     
     this.manager.updateThemeColor(this.currentTheme.id, colorKey, newValue);

@@ -23,6 +23,7 @@ import { EntityManager } from '../engine/ecs';
 export class IFCOptimizedLoader {
   private scene: THREE.Scene;
   private camera: THREE.Camera;
+  private controls: any; // OrbitControls
   private loader: ThreeIFCLoader;
   private instanceManager: InstanceManager;
   private lodSystem: LODSystem;
@@ -64,12 +65,14 @@ export class IFCOptimizedLoader {
     scene: THREE.Scene,
     camera: THREE.Camera,
     lodSystem: LODSystem,
-    entityManager: EntityManager
+    entityManager: EntityManager,
+    controls?: any
   ) {
     this.scene = scene;
     this.camera = camera;
     this.lodSystem = lodSystem;
     this.entityManager = entityManager;
+    this.controls = controls;
     this.instanceManager = new InstanceManager(scene);
     this.loader = new ThreeIFCLoader();
 
@@ -170,20 +173,41 @@ export class IFCOptimizedLoader {
       this.loader.load(
         url,
         async (model) => {
-          console.log('✅ Preview carregado com sucesso');
+          console.log('✅ Preview carregado com sucesso!');
+          console.log('📦 Modelo recebido:', model);
+          console.log('📊 Children:', model.children.length);
+          console.log('📍 Position:', model.position);
+          console.log('📏 Scale:', model.scale);
+          console.log('🆔 ModelID:', model.userData?.modelID);
+          
+          // Calcular bounding box para debug
+          const box = new THREE.Box3().setFromObject(model);
+          const size = box.getSize(new THREE.Vector3());
+          const center = box.getCenter(new THREE.Vector3());
+          console.log('📦 Bounding Box:');
+          console.log('  - Size:', size);
+          console.log('  - Center:', center);
           
           // Simplificar geometria para preview
+          let meshCount = 0;
           model.traverse((child) => {
             if (child instanceof THREE.Mesh) {
+              meshCount++;
               this.simplifyMeshForPreview(child);
             }
           });
+          console.log('🔺 Total de meshes:', meshCount);
 
           // Adicionar à cena
           this.scene.add(model);
+          console.log('✅ Modelo adicionado à cena!');
+          console.log('🎬 Cena agora tem', this.scene.children.length, 'children');
           
           // Guardar ID do modelo
           this.loadedModelID = model.userData.modelID;
+
+          // Ajustar câmera para ver o modelo
+          this.focusCameraOnModel(model);
 
           URL.revokeObjectURL(url);
           resolve();
@@ -205,8 +229,9 @@ export class IFCOptimizedLoader {
   /**
    * FASE 2: Carregamento progressivo com chunks
    */
-  private async loadProgressive(file: File): Promise<void> {
-    console.log('🔄 Fase 2: Carregamento progressivo...');
+  private async loadProgressive(_file: File): Promise<void> {
+    console.log('🔄 Fase 2: Streaming desabilitado (modelo já carregado no preview)');
+    // TODO: Implementar streaming progressivo quando getGeometry estiver disponível
 
     if (!this.loadedModelID) {
       throw new Error('Model ID não encontrado');
@@ -298,23 +323,21 @@ export class IFCOptimizedLoader {
       this.instanceManager.finalize();
     }
 
-    // Aplicar LOD
-    if (this.config.enableLOD) {
-      await this.applyLOD();
-    }
-
     // Criar índice espacial
     this.createSpatialIndex();
 
     this.updateProgress(100);
+    
+    console.log('✅ Modelo finalizado e visível na cena!');
   }
 
   /**
    * Aplica sistema de LOD aos elementos
    */
   private async applyLOD(): Promise<void> {
-    console.log('🎚️ Aplicando LOD...');
-
+    console.log('🎚️ LOD desabilitado temporariamente (API em desenvolvimento)');
+    // TODO: Implementar quando LODSystem.createLOD estiver pronto
+    /*
     this.scene.traverse((obj) => {
       if (obj instanceof THREE.Mesh || obj instanceof THREE.InstancedMesh) {
         // Criar versões simplificadas
@@ -328,6 +351,7 @@ export class IFCOptimizedLoader {
         this.lodSystem.createLOD(`lod_${obj.id}`, lodLevels);
       }
     });
+    */
   }
 
   /**
@@ -372,6 +396,34 @@ export class IFCOptimizedLoader {
     });
 
     console.log(`✅ Índice espacial: ${this.spatialIndex.size} células`);
+  }
+
+  /**
+   * Ajusta câmera para focar no modelo
+   */
+  private focusCameraOnModel(model: THREE.Object3D): void {
+    const box = new THREE.Box3().setFromObject(model);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fov = (this.camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
+    let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+    cameraZ *= 1.5; // Adiciona margem
+    
+    this.camera.position.set(
+      center.x + cameraZ * 0.5,
+      center.y + cameraZ * 0.5,
+      center.z + cameraZ
+    );
+    
+    // Atualizar controls
+    if (this.controls && this.controls.target) {
+      this.controls.target.copy(center);
+      this.controls.update();
+    }
+    
+    console.log('📷 Câmera ajustada para o modelo');
   }
 
   /**
