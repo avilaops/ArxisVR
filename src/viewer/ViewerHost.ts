@@ -80,18 +80,6 @@ export class ViewerHost {
     });
     
     console.log('💡 Pressione C para alternar Orbit/FPS');
-  }
-  
-  /**
-   * Verifica se está digitando em input
-   */
-  private isTypingInInput(): boolean {
-    const activeElement = document.activeElement;
-    if (!activeElement) return false;
-    
-    const tagName = activeElement.tagName.toLowerCase();
-    return tagName === 'input' || tagName === 'textarea';
-  }
 
     // Lights (básicos)
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -111,6 +99,17 @@ export class ViewerHost {
       this.onResize();
     });
     resizeObserver.observe(this.container);
+  }
+  
+  /**
+   * Verifica se está digitando em input
+   */
+  private isTypingInInput(): boolean {
+    const activeElement = document.activeElement;
+    if (!activeElement) return false;
+    
+    const tagName = activeElement.tagName.toLowerCase();
+    return tagName === 'input' || tagName === 'textarea';
   }
 
   private registerServices(): void {
