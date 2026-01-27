@@ -96,8 +96,8 @@ export class ExamplesProvider implements IFileProvider {
   public readonly type = FileProviderType.EXAMPLES;
   public readonly name = 'Examples';
   public readonly capabilities = {
-    list: false,  // Política de privacidade: sem arquivos públicos
-    read: false,  // Sem exemplos disponíveis
+    list: true,   // Permite listagem de arquivos de exemplo
+    read: true,   // Permite leitura de arquivos de exemplo
     write: false,
     delete: false,
     watch: false
@@ -111,16 +111,7 @@ export class ExamplesProvider implements IFileProvider {
   }
 
   async list(_options?: FileListOptions): Promise<FileListResult> {
-    // ✅ POLÍTICA DE PRIVACIDADE: Não fornecemos arquivos de exemplo
-    // Arquivos IFC/DWG/RVT contêm dados confidenciais de projetos e clientes.
-    // O usuário deve fazer upload dos seus próprios arquivos.
-    
-    console.info(
-      '📋 ExamplesProvider: Nenhum arquivo público disponível.\n' +
-      'ℹ️  Por questões de privacidade e segurança, não fornecemos arquivos de exemplo.\n' +
-      '📤 Use a aba "Upload" para carregar seus próprios arquivos IFC/DWG/RVT.'
-    );
-    
+    // Retorna lista vazia - arquivos de exemplo podem ser adicionados aqui
     return {
       items: [],
       hasMore: false,

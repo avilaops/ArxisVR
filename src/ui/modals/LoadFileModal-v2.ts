@@ -144,30 +144,13 @@ export class LoadFileModal {
     tab.className = 'load-file-tab';
     tab.setAttribute('data-tab-content', 'browser');
 
-    // 🔒 Mensagem de privacidade profissional
-    const privacyInfo = document.createElement('div');
-    privacyInfo.className = 'load-file-privacy-info';
-    privacyInfo.innerHTML = `
-      <div style="padding: 2rem; text-align: center; background: rgba(var(--arxis-primary-rgb), 0.1); border-radius: 8px; margin: 2rem 0;">
-        <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
-        <h3 style="margin: 0 0 1rem 0; color: var(--arxis-text);">Política de Privacidade</h3>
-        <p style="color: var(--arxis-text-secondary); line-height: 1.6; max-width: 500px; margin: 0 auto;">
-          Por questões de <strong>privacidade e segurança</strong>, não fornecemos arquivos de exemplo.<br><br>
-          Arquivos BIM/CAD contêm dados confidenciais de projetos e clientes.<br><br>
-          <strong>Use a aba "Upload"</strong> para carregar seus próprios arquivos (.ifc, .dwg, .rvt, .nwd).
-        </p>
-      </div>
-    `;
-    tab.appendChild(privacyInfo);
-
-    // Search (mantido para futura integração com cloud storage)
+    // Search
     const search = new Input({
-      placeholder: 'Buscar arquivos...',
+      placeholder: 'Buscar arquivos de exemplo...',
       icon: '🔍',
       fullWidth: true,
       onChange: (value) => this.searchFiles(value)
     });
-    search.getElement().style.display = 'none'; // 🔒 Oculto (sem arquivos)
     tab.appendChild(search.getElement());
 
     // File list (vazia)
