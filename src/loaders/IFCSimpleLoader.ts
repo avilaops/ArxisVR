@@ -30,8 +30,15 @@ export class IFCSimpleLoader {
    * Setup básico do loader
    */
   private setupLoader(): void {
-    const wasmPath = `${import.meta.env.BASE_URL || '/'}wasm/`;
+    // Caminho absoluto para WASM files
+    const wasmPath = '/wasm/';
+    
+    console.log('🔧 Configurando IFC Loader...');
+    console.log('📂 WASM Path:', wasmPath);
+    
     this.loader.ifcManager.setWasmPath(wasmPath);
+    
+    // IMPORTANTE: Desabilitar web workers para evitar problemas de CORS
     this.loader.ifcManager.useWebWorkers(false);
     
     this.loader.ifcManager.applyWebIfcConfig({
@@ -40,6 +47,7 @@ export class IFCSimpleLoader {
     });
 
     console.log('✅ IFCSimpleLoader configurado');
+    console.log('📍 Web Workers: DESABILITADO (modo single-thread)');
   }
 
   /**
@@ -47,6 +55,7 @@ export class IFCSimpleLoader {
    */
   public async load(file: File): Promise<void> {
     console.log(`🚀 Carregando ${file.name}...`);
+    console.log(`📦 Tamanho: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
 
     eventBus.emit(EventType.MODEL_LOAD_REQUESTED, {
       kind: 'ifc',
@@ -55,11 +64,20 @@ export class IFCSimpleLoader {
     });
 
     const url = URL.createObjectURL(file);
+    console.log(`🔗 Blob URL: ${url}`);
 
     return new Promise((resolve, reject) => {
+      // Timeout para detectar travamento
+      const timeout = setTimeout(() => {
+        console.error('⏱️ TIMEOUT: Carregamento travou após 60s');
+        URL.revokeObjectURL(url);
+        reject(new Error('Timeout: O carregamento está demorando muito. Verifique se os arquivos WASM estão disponíveis.'));
+      }, 60000);
+
       this.loader.load(
         url,
         (model) => {
+          clearTimeout(timeout);
           console.log('✅ Modelo IFC carregado!');
           console.log('📦 Modelo:', model);
           console.log('📊 Children:', model.children.length);
@@ -119,10 +137,14 @@ export class IFCSimpleLoader {
         },
         (progress) => {
           const percent = (progress.loaded / progress.total) * 100;
-          console.log(`📊 Progresso: ${percent.toFixed(1)}%`);
+          console.log(`📊 Progresso: ${percent.toFixed(1)}% (${progress.loaded}/${progress.total} bytes)`);
         },
         (error) => {
+          clearTimeout(timeout);
           console.error('❌ Erro ao carregar IFC:', error);
+          console.error('💡 Dica: Verifique se os arquivos WASM estão em /wasm/');
+          console.error('💡 Esperado: /wasm/web-ifc.wasm e /wasm/web-ifc-mt.wasm');
+          
           URL.revokeObjectURL(url);
           
           eventBus.emit(EventType.MODEL_LOAD_FAILED, {
