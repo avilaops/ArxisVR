@@ -96,8 +96,8 @@ export class ExamplesProvider implements IFileProvider {
   public readonly type = FileProviderType.EXAMPLES;
   public readonly name = 'Examples';
   public readonly capabilities = {
-    list: true,   // Permite listagem de arquivos de exemplo
-    read: true,   // Permite leitura de arquivos de exemplo
+    list: true,   // Lista vazia (sem arquivos)
+    read: false,  // Desabilitado - sem arquivos para ler
     write: false,
     delete: false,
     watch: false

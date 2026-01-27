@@ -180,7 +180,13 @@ export class LoadFileModal {
     if (this.files.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'load-file-empty';
-      empty.textContent = 'Nenhum arquivo encontrado';
+      empty.innerHTML = `
+        <div style="text-align: center; padding: 3rem; color: var(--arxis-text-secondary);">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">📁</div>
+          <p style="margin: 0;">Nenhum arquivo de exemplo disponível</p>
+          <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">Use a aba <strong>Upload</strong> para carregar seus arquivos IFC</p>
+        </div>
+      `;
       container.appendChild(empty);
       return;
     }
