@@ -72,12 +72,26 @@ export class ViewerHost {
     this.fpsControls = new FPSControls(this.camera, this.container);
     this.fpsControls.setEnabled(false); // Desabilitado por padrão
 
-    // Tecla 'V' para alternar entre modos
+    // Tecla 'C' para alternar entre modos (evita conflito com V de VR)
     document.addEventListener('keydown', (e) => {
-      if (e.code === 'KeyV') {
+      if (e.code === 'KeyC' && !this.isTypingInInput()) {
         this.toggleControlMode();
       }
     });
+    
+    console.log('💡 Pressione C para alternar Orbit/FPS');
+  }
+  
+  /**
+   * Verifica se está digitando em input
+   */
+  private isTypingInInput(): boolean {
+    const activeElement = document.activeElement;
+    if (!activeElement) return false;
+    
+    const tagName = activeElement.tagName.toLowerCase();
+    return tagName === 'input' || tagName === 'textarea';
+  }
 
     // Lights (básicos)
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -133,7 +147,10 @@ export class ViewerHost {
       this.controlMode = 'fps';
       this.controls.enabled = false;
       this.fpsControls.setEnabled(true);
-      console.log('🎮 Modo FPS ativado (WASD + Setas)');
+      console.log('🎮 Modo FPS ativado');
+      console.log('  - WASD: Mover');
+      console.log('  - Setas: Rotacionar câmera');
+      console.log('  - Pressione C novamente para voltar ao modo Orbit');
     } else {
       this.controlMode = 'orbit';
       this.controls.enabled = true;

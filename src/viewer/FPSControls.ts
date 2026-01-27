@@ -47,12 +47,22 @@ export class FPSControls {
   }
 
   private setupEventListeners(): void {
-    document.addEventListener('keydown', this.onKeyDown.bind(this));
-    document.addEventListener('keyup', this.onKeyUp.bind(this));
+    const onKeyDown = this.onKeyDown.bind(this);
+    const onKeyUp = this.onKeyUp.bind(this);
+    
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
+    
+    // Guardar referências para cleanup
+    (this as any)._keyDownHandler = onKeyDown;
+    (this as any)._keyUpHandler = onKeyUp;
   }
 
   private onKeyDown(event: KeyboardEvent): void {
     if (!this.enabled) return;
+
+    // Debug
+    console.log('🎮 Key pressed:', event.code);
 
     switch (event.code) {
       // WASD Movement
@@ -221,7 +231,16 @@ export class FPSControls {
    * Dispose
    */
   public dispose(): void {
-    document.removeEventListener('keydown', this.onKeyDown.bind(this));
-    document.removeEventListener('keyup', this.onKeyUp.bind(this));
+    const keyDownHandler = (this as any)._keyDownHandler;
+    const keyUpHandler = (this as any)._keyUpHandler;
+    
+    if (keyDownHandler) {
+      document.removeEventListener('keydown', keyDownHandler);
+    }
+    if (keyUpHandler) {
+      document.removeEventListener('keyup', keyUpHandler);
+    }
+    
+    console.log('🎮 FPS Controls disposed');
   }
 }
