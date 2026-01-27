@@ -1,5 +1,5 @@
 /**
- * App.ts - Composition root (entry point)
+ * bootstrap.ts - Composition root (entry point)
  * Inicializa AppShell e serviços
  */
 

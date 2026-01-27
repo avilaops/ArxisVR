@@ -16,6 +16,6 @@ export * from './CommandHistory';
 export { commandHistory } from './CommandHistory';
 export * from './SectionManager';
 export * from './IFCPropertyService';
-export * from './commands';
+// export * from './commands'; // ❌ REMOVIDO: Causava duplicação de exports (CommandHistory já exportado acima)
 
 

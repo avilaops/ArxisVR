@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { ReversibleCommand, StateSnapshot, commandHistory } from './CommandHistory';
+import { ReversibleCommand, StateSnapshot, commandHistory } from '../CommandHistory';
 
 /**
  * Exemplos de comandos reversíveis concretos
