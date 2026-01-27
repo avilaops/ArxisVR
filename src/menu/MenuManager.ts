@@ -470,6 +470,22 @@ export class MenuManager {
   }
   
   /**
+   * Verifica se usuário está digitando em input/textarea
+   */
+  private isTypingInInput(): boolean {
+    const activeElement = document.activeElement;
+    if (!activeElement) return false;
+    
+    const tagName = activeElement.tagName.toLowerCase();
+    const isContentEditable = (activeElement as HTMLElement).isContentEditable;
+    
+    return tagName === 'input' || 
+           tagName === 'textarea' || 
+           tagName === 'select' ||
+           isContentEditable;
+  }
+  
+  /**
    * Retorna todos os shortcuts
    */
   public getShortcuts(): ShortcutMap {
