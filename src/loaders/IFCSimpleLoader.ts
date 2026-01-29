@@ -30,16 +30,16 @@ export class IFCSimpleLoader {
    * Setup básico do loader
    */
   private setupLoader(): void {
+    console.log('🔧 Configurando IFC Loader...');
+    
+    // IMPORTANTE: Desabilitar web workers PRIMEIRO (antes de setWasmPath)
+    this.loader.ifcManager.useWebWorkers(false);
+    console.log('📍 Web Workers: DESABILITADO (modo single-thread)');
+    
     // Caminho absoluto para WASM files
     const wasmPath = '/wasm/';
-    
-    console.log('🔧 Configurando IFC Loader...');
     console.log('📂 WASM Path:', wasmPath);
-    
     this.loader.ifcManager.setWasmPath(wasmPath);
-    
-    // IMPORTANTE: Desabilitar web workers para evitar problemas de CORS
-    this.loader.ifcManager.useWebWorkers(false);
     
     this.loader.ifcManager.applyWebIfcConfig({
       COORDINATE_TO_ORIGIN: true,
@@ -47,7 +47,6 @@ export class IFCSimpleLoader {
     });
 
     console.log('✅ IFCSimpleLoader configurado');
-    console.log('📍 Web Workers: DESABILITADO (modo single-thread)');
   }
 
   /**
