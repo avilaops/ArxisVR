@@ -23,3 +23,9 @@ logs/
 
 # Large files
 Examples-files/
+demos/
+*.ifc
+*.DWG
+*.dwg
+*.pdf
+*.rvt
