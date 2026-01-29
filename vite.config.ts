@@ -31,12 +31,8 @@ export default defineConfig({
       // Strict mode off para permitir caracteres especiais
       strict: false
     },
-    // Headers para CORS e WASM
-    cors: true,
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'require-corp'
-    }
+    // Headers para CORS
+    cors: true
   },
 
   // Configurações de preview (para testar build)

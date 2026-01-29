@@ -55,6 +55,11 @@ export class IFCSimpleLoader {
   public async load(file: File): Promise<void> {
     console.log(`🚀 Carregando ${file.name}...`);
     console.log(`📦 Tamanho: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+    console.log(`🔧 Loader configurado:`, {
+      hasIfcManager: !!this.loader.ifcManager,
+      webWorkersEnabled: false,
+      wasmPath: '/wasm/'
+    });
 
     eventBus.emit(EventType.MODEL_LOAD_REQUESTED, {
       kind: 'ifc',
@@ -64,15 +69,22 @@ export class IFCSimpleLoader {
 
     const url = URL.createObjectURL(file);
     console.log(`🔗 Blob URL: ${url}`);
+    console.log(`⏳ Iniciando carregamento via loader.load()...`);
 
     return new Promise((resolve, reject) => {
       // Timeout para detectar travamento
       const timeout = setTimeout(() => {
         console.error('⏱️ TIMEOUT: Carregamento travou após 60s');
+        console.error('💡 Possíveis causas:');
+        console.error('   - Arquivos WASM não carregados');
+        console.error('   - Arquivo IFC muito grande ou corrompido');
+        console.error('   - Problema de CORS ou headers HTTP');
         URL.revokeObjectURL(url);
         reject(new Error('Timeout: O carregamento está demorando muito. Verifique se os arquivos WASM estão disponíveis.'));
       }, 60000);
 
+      console.log(`📡 Chamando this.loader.load()...`);
+      
       this.loader.load(
         url,
         (model) => {
