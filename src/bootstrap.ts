@@ -10,6 +10,7 @@ import { AppShell } from './app/AppShell';
 import { di } from './app/di';
 import { uiStore } from './app/state/uiStore';
 import { eventBus } from './app/state/eventBus';
+import { EventType } from './core/EventBus';
 import { ModelSession } from './systems/model/ModelSession';
 import { IFCSimpleLoader } from './loaders/IFCSimpleLoader';
 import { fileService } from './systems/file';
@@ -64,6 +65,31 @@ async function bootstrap() {
       console.log('✅ Arquivo carregado com sucesso!');
     } catch (error) {
       console.error('❌ Erro ao carregar arquivo:', error);
+      throw error;
+    }
+  });
+
+  // 6.5. Registra handler para FILE_SELECTED
+  eventBus.on(EventType.FILE_SELECTED, async ({ file, kind }: any) => {
+    console.log('🔔 FILE_SELECTED event received:', { fileName: file?.name, kind });
+    
+    if (!file) {
+      console.warn('⚠️ FILE_SELECTED recebido sem referência de arquivo.');
+      return;
+    }
+
+    const normalizedKind = (kind ?? 'ifc').toLowerCase();
+    if (normalizedKind !== 'ifc') {
+      console.warn(`⚠️ Tipo de arquivo não suportado: ${normalizedKind}`);
+      return;
+    }
+
+    try {
+      console.log(`🏗️ Iniciando carregamento IFC: ${file.name}`);
+      await ifcLoader.load(file);
+      console.log('✅ Arquivo IFC carregado com sucesso!');
+    } catch (error) {
+      console.error('❌ Falha ao carregar IFC:', error);
       throw error;
     }
   });
